@@ -100,10 +100,10 @@ export function BreadcrumbNav({ items }: BreadcrumbNavProps) {
 
   return (
     <>
-      {/* JSON-LD structured data */}
+      {/* JSON-LD structured data — template avoids React script warning */}
       {jsonLd && (
-        <script
-          type="application/ld+json"
+        <template
+          id="breadcrumb-jsonld"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}
