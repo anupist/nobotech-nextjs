@@ -511,14 +511,12 @@ export function HomePage() {
               .filter((p) => p.discountPrice)
               .slice(0, 5)
               .map((product) => (
-                <motion.div
+                <div
                   key={product.id}
                   className="bg-white rounded-xl overflow-hidden shadow-xl ring-1 ring-white/50"
-                  whileHover={{ y: -3, scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
                 >
                   <ProductCard product={product} />
-                </motion.div>
+                </div>
               ))}
             {featuredProducts.filter((p) => p.discountPrice).length === 0 && (
               <div className="col-span-full text-center py-12 text-white/80">

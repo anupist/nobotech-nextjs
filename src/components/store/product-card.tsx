@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState, useRef } from 'react'
+import { useCallback, useState } from 'react'
 import { useNavStore } from '@/stores/nav-store'
 import { useCartStore } from '@/stores/cart-store'
 import { useWishlistStore } from '@/stores/wishlist-store'
@@ -32,36 +32,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const [heartAnimating, setHeartAnimating] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
   const [quickViewProduct, setQuickViewProduct] = useState<string | null>(null)
-  const [isHovered, setIsHovered] = useState(false)
   const inCompare = isInCompare(product.id)
-
-  // Parallax effect state
-  const cardRef = useRef<HTMLDivElement>(null)
-  const [tiltStyle, setTiltStyle] = useState({ rotateX: 0, rotateY: 0 })
-  const [imageOffset, setImageOffset] = useState({ x: 0, y: 0 })
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return
-    const rect = cardRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const centerX = rect.width / 2
-    const centerY = rect.height / 2
-    const rotateX = ((y - centerY) / centerY) * -5
-    const rotateY = ((x - centerX) / centerX) * 5
-    setTiltStyle({ rotateX, rotateY })
-    // Subtle parallax on the image (moves opposite to mouse direction)
-    setImageOffset({
-      x: ((x - centerX) / centerX) * -4,
-      y: ((y - centerY) / centerY) * -4,
-    })
-  }, [])
-
-  const handleMouseLeave = useCallback(() => {
-    setTiltStyle({ rotateX: 0, rotateY: 0 })
-    setImageOffset({ x: 0, y: 0 })
-    setIsHovered(false)
-  }, [])
 
   const discount = product.discountPrice
     ? getDiscountPercentage(product.sellingPrice, product.discountPrice)
@@ -144,56 +115,29 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <>
-      <motion.div
-        ref={cardRef}
-        whileHover={{ y: -4 }}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={handleMouseLeave}
-        style={{
-          perspective: 1000,
-        }}
-        className="will-change-transform"
-      >
+      <div className="transition-transform duration-300 hover:-translate-y-1">
         <div className="gradient-border rounded-xl">
           <Card
             className="group cursor-pointer border-0 shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden relative bg-card"
             onClick={handleView}
+            style={{ touchAction: 'manipulation' }}
           >
-            <motion.div
-              style={{
-                rotateX: tiltStyle.rotateX,
-                rotateY: tiltStyle.rotateY,
-                transition: 'transform 0.15s ease-out',
-              }}
-            >
-              <CardContent className="p-0">
+            <CardContent className="p-0">
                 {/* Image container */}
                 <div className="relative aspect-square overflow-hidden bg-muted/30">
                   {!imageLoaded && (
                     <div className="absolute inset-0 bg-muted animate-pulse" />
                   )}
-                  <motion.img
+                  <img
                     src={product.thumbnail || `https://picsum.photos/seed/${product.slug}/400/400`}
                     alt={product.name}
-                    className={`w-full h-full object-cover transition-transform duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    className={`w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-105 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                     onLoad={() => setImageLoaded(true)}
-                    animate={{
-                      x: isHovered ? imageOffset.x : 0,
-                      y: isHovered ? imageOffset.y : 0,
-                      scale: isHovered ? 1.05 : 1,
-                    }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
                   />
 
                   {/* Gradient overlay that rises from bottom on hover */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                    <motion.div
-                      className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-emerald-900/40 via-emerald-800/20 to-transparent"
-                      initial={{ y: '100%' }}
-                      animate={{ y: isHovered ? '0%' : '100%' }}
-                      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    />
+                    <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-emerald-900/40 via-emerald-800/20 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
                   </div>
 
                   {/* Static bottom gradient for text readability */}
@@ -262,13 +206,8 @@ export function ProductCard({ product }: ProductCardProps) {
                     </Button>
                   </div>
 
-                  {/* Quick add to cart - enhanced slide-up animation */}
-                  <motion.div
-                    className="absolute bottom-0 left-0 right-0 p-2"
-                    initial={{ y: '100%', opacity: 0 }}
-                    animate={isHovered ? { y: 0, opacity: 1 } : { y: '100%', opacity: 0 }}
-                    transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  >
+                  {/* Quick add to cart - slide-up on hover */}
+                  <div className="absolute bottom-0 left-0 right-0 p-2 translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out">
                     <Button
                       className="w-full bg-emerald-600 hover:bg-emerald-500 text-white h-9 text-xs shadow-lg shadow-emerald-600/30 hover:shadow-emerald-500/40 transition-all duration-300 hover:scale-[1.02]"
                       onClick={handleAddToCart}
@@ -277,15 +216,10 @@ export function ProductCard({ product }: ProductCardProps) {
                       <ShoppingCart className="h-3.5 w-3.5 mr-1.5" />
                       {stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                     </Button>
-                  </motion.div>
+                  </div>
 
-                  {/* Quick View button - slide-up animation on hover */}
-                  <motion.div
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                    initial={{ opacity: 0, y: 8, scale: 0.9 }}
-                    animate={isHovered ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 8, scale: 0.9 }}
-                    transition={{ duration: 0.25, ease: 'easeOut', delay: isHovered ? 0.05 : 0 }}
-                  >
+                  {/* Quick View button - appears on hover */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 scale-90 group-hover:scale-100 transition-all duration-300 ease-out">
                     <Button
                       variant="ghost"
                       className="h-auto px-4 py-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg hover:scale-105 transition-transform duration-200"
@@ -295,7 +229,7 @@ export function ProductCard({ product }: ProductCardProps) {
                       <Eye className="h-4 w-4 mr-1.5 text-gray-700" />
                       <span className="text-xs font-medium text-gray-700">Quick View</span>
                     </Button>
-                  </motion.div>
+                  </div>
 
                   {/* Stock indicator bar */}
                   <div className="absolute bottom-0 left-0 right-0 h-1 group-hover:h-0 transition-all duration-300">
@@ -365,10 +299,9 @@ export function ProductCard({ product }: ProductCardProps) {
                   </div>
                 </div>
               </CardContent>
-            </motion.div>
           </Card>
         </div>
-      </motion.div>
+      </div>
 
       {/* Quick View Modal */}
       <QuickViewModal
