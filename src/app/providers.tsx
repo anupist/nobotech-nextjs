@@ -1,19 +1,8 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
-import Script from 'next/script'
 
 const THEME_STORAGE_KEY = 'theme'
-
-const themeScript = `
-(function() {
-  try {
-    var t = localStorage.getItem('${THEME_STORAGE_KEY}');
-    if (!t) { t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
-    document.documentElement.className = t;
-  } catch(e) {}
-})()
-`
 
 interface ThemeContextValue {
   theme: string
@@ -64,7 +53,6 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeCtx.Provider value={ctx}>
-      <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: themeScript }} />
       <div className={mounted ? '' : 'invisible'}>
         {children}
       </div>
