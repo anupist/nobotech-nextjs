@@ -133,15 +133,28 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               name: true,
+              sku: true,
               price: true,
               discountPrice: true,
               thumbnail: true,
               inventory: { select: { quantity: true } },
+              attributeValues: {
+                select: {
+                  attributeValueId: true,
+                  attributeValue: {
+                    select: {
+                      id: true,
+                      value: true,
+                      attribute: { select: { slug: true, name: true } },
+                    },
+                  },
+                },
+              },
             },
           },
           images: {
             orderBy: { sortOrder: 'asc' },
-            select: { id: true, url: true, alt: true, sortOrder: true },
+            select: { id: true, url: true, alt: true, sortOrder: true, variantId: true },
           },
           _count: { select: { reviews: true } },
         },

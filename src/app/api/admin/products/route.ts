@@ -22,14 +22,16 @@ export async function GET(request: NextRequest) {
           brand: { select: { id: true, name: true, slug: true } },
           inventory: { select: { quantity: true, lowStockAlert: true } },
           variants: {
-            select: {
-              id: true,
-              name: true,
-              sku: true,
-              price: true,
-              discountPrice: true,
-              thumbnail: true,
-              isActive: true,
+            include: {
+              attributeValues: {
+                include: {
+                  attributeValue: {
+                    include: { attribute: { select: { slug: true, name: true } } },
+                  },
+                },
+              },
+              inventory: { select: { quantity: true } },
+              images: { orderBy: { sortOrder: 'asc' }, take: 1 },
             },
           },
           images: { orderBy: { sortOrder: 'asc' } },
@@ -166,14 +168,28 @@ export async function POST(request: NextRequest) {
         brandId: brandId || null,
         variants: variants
           ? {
-              create: variants.map((v: Record<string, unknown>) => ({
-                sku: v.sku as string,
-                name: v.name as string,
-                price: (v.price as number) || 0,
-                discountPrice: (v.discountPrice as number) || null,
-                thumbnail: (v.thumbnail as string) || null,
-                isActive: (v.isActive as boolean) !== false,
-              })),
+              create: variants.map((v: Record<string, unknown>) => {
+                const attrValueIds = v.attributeValueIds as string[] | undefined
+                const stock = (v.stock as number) || 0
+                return {
+                  sku: v.sku as string,
+                  name: v.name as string,
+                  price: (v.price as number) || 0,
+                  discountPrice: (v.discountPrice as number) || null,
+                  thumbnail: (v.thumbnail as string) || null,
+                  isActive: (v.isActive as boolean) !== false,
+                  attributeValues: attrValueIds?.length
+                    ? {
+                        create: attrValueIds.map((attributeValueId) => ({
+                          attributeValueId,
+                        })),
+                      }
+                    : undefined,
+                  inventory: {
+                    create: { quantity: stock, lowStockAlert: 10 },
+                  },
+                }
+              }),
             }
           : undefined,
         images: images
@@ -251,11 +267,53 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    // Handle variant replacement
+    if (updateData.variants) {
+      // Delete existing variant children first (cascade handles ProductVariantValue, Inventory, images)
+      await db.productVariant.deleteMany({ where: { productId: id } })
+      data.variants = {
+        create: updateData.variants.map((v: Record<string, unknown>) => {
+          const attrValueIds = v.attributeValueIds as string[] | undefined
+          const stock = (v.stock as number) || 0
+          return {
+            sku: v.sku as string,
+            name: v.name as string,
+            price: (v.price as number) || 0,
+            discountPrice: (v.discountPrice as number) || null,
+            thumbnail: (v.thumbnail as string) || null,
+            isActive: (v.isActive as boolean) !== false,
+            attributeValues: attrValueIds?.length
+              ? {
+                  create: attrValueIds.map((attributeValueId) => ({
+                    attributeValueId,
+                  })),
+                }
+              : undefined,
+            inventory: {
+              create: { quantity: stock, lowStockAlert: 10 },
+            },
+          }
+        }),
+      }
+    }
+
     const product = await db.product.update({
       where: { id },
       data,
       include: {
-        variants: true,
+        variants: {
+          include: {
+            attributeValues: {
+              include: {
+                attributeValue: {
+                  include: { attribute: { select: { slug: true, name: true } } },
+                },
+              },
+            },
+            inventory: { select: { quantity: true } },
+            images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+          },
+        },
         images: true,
         inventory: true,
       },

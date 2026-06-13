@@ -84,6 +84,21 @@ export interface ProductImage {
   url: string
   alt?: string | null
   sortOrder: number
+  variantId?: string | null
+}
+
+export interface AttributeValue {
+  id: string
+  value: string
+  meta?: string | null
+}
+
+export interface Attribute {
+  id: string
+  name: string
+  slug: string
+  type: string
+  values: AttributeValue[]
 }
 
 export interface Category {
@@ -194,6 +209,10 @@ export async function fetchBrands(): Promise<{ success: boolean; data: Brand[] }
 export async function fetchBanners(position?: string): Promise<{ success: boolean; data: Banner[] }> {
   const query = position ? `?position=${position}` : ''
   return fetchApi(`/banners${query}`)
+}
+
+export async function fetchAttributes(): Promise<{ success: boolean; data: Attribute[] }> {
+  return fetchApi('/admin/attributes')
 }
 
 export async function fetchSettings(): Promise<{ success: boolean; data: Record<string, string> }> {

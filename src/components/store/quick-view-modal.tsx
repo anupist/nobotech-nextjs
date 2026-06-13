@@ -54,6 +54,7 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null)
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
   const [heartAnimating, setHeartAnimating] = useState(false)
 
   const isWishlisted = useWishlistStore((s) => (product ? s.isWishlisted(product.id) : false))
@@ -67,6 +68,7 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
       setSelectedImage(0)
       setQuantity(1)
       setSelectedVariant(null)
+      setSelectedOptions({})
       return
     }
     const load = async () => {
@@ -77,6 +79,7 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
         setSelectedImage(0)
         setQuantity(1)
         setSelectedVariant(null)
+        setSelectedOptions({})
       } catch {
         toast.error('Failed to load product')
       } finally {
@@ -86,13 +89,20 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
     load()
   }, [productId, open])
 
-  // Images
+  // Images — filters by variant when selected
   const images = useMemo(() => {
     if (!product) return []
+    const variantId = currentVariant?.id
     const imgs: string[] = []
-    if (product.thumbnail) imgs.push(product.thumbnail)
+
+    if (product.thumbnail && !variantId) imgs.push(product.thumbnail)
+    else if (currentVariant?.thumbnail && !imgs.includes(currentVariant.thumbnail)) {
+      imgs.push(currentVariant.thumbnail)
+    } else if (product.thumbnail) imgs.push(product.thumbnail)
+
     if (product.images?.length) {
       product.images.forEach((img) => {
+        if (variantId && img.variantId && img.variantId !== variantId) return
         if (!imgs.includes(img.url)) imgs.push(img.url)
       })
     }
@@ -108,17 +118,31 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
       imgs.push(`https://picsum.photos/seed/${product.slug}/800/800`)
     }
     return imgs
-  }, [product])
+  }, [product, currentVariant])
 
-  const currentVariant = useMemo(
-    () => product?.variants?.find((v: ProductVariant) => v.id === selectedVariant),
-    [product, selectedVariant]
-  )
+  const currentVariant = useMemo(() => {
+    const selected = selectedOptions
+    const slugs = Object.keys(selected)
+    if (slugs.length === 0) {
+      return product?.variants?.find((v: ProductVariant) => v.id === selectedVariant) || null
+    }
+    return (
+      product?.variants?.find((v: ProductVariant) =>
+        slugs.every((slug) =>
+          v.attributeValues?.some(
+            (av) => av.attributeValue.attribute.slug === slug && av.attributeValue.value === selected[slug]
+          )
+        )
+      ) || null
+    )
+  }, [product, selectedOptions, selectedVariant])
 
-  // Group variant attributes
+  // Group variant attributes with availability per value
   const variantAttributes = useMemo(() => {
     if (!product?.variants?.length) return {}
     const attrs: Record<string, { name: string; values: Set<string>; meta?: Record<string, string> }> = {}
+    const allValuesBySlug: Record<string, Record<string, string[]>> = {}
+
     product.variants.forEach((v: ProductVariant) => {
       v.attributeValues?.forEach((av) => {
         const attrSlug = av.attributeValue.attribute.slug
@@ -126,13 +150,41 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
           attrs[attrSlug] = { name: av.attributeValue.attribute.name, values: new Set(), meta: {} }
         }
         attrs[attrSlug].values.add(av.attributeValue.value)
-        if (av.attributeValue.meta) {
-          attrs[attrSlug].meta![av.attributeValue.value] = av.attributeValue.meta
-        }
+        if (av.attributeValue.meta) attrs[attrSlug].meta![av.attributeValue.value] = av.attributeValue.meta
+        if (!allValuesBySlug[attrSlug]) allValuesBySlug[attrSlug] = {}
+        if (!allValuesBySlug[attrSlug][av.attributeValue.value]) allValuesBySlug[attrSlug][av.attributeValue.value] = []
+        allValuesBySlug[attrSlug][av.attributeValue.value].push(v.id)
       })
     })
+
+    const selected = selectedOptions
+    const availability: Record<string, { available: boolean }> = {}
+    for (const [slug, vals] of Object.entries(allValuesBySlug)) {
+      for (const [value, variantIds] of Object.entries(vals)) {
+        const otherSelected = { ...selected }
+        delete otherSelected[slug]
+        let available = true
+        const otherEntries = Object.entries(otherSelected)
+        if (otherEntries.length > 0) {
+          available = variantIds.some((vid) =>
+            otherEntries.every(([oslug, ovalue]) =>
+              product.variants?.some(
+                (pv: ProductVariant) =>
+                  pv.id === vid &&
+                  pv.attributeValues?.some(
+                    (pav) => pav.attributeValue.attribute.slug === oslug && pav.attributeValue.value === ovalue
+                  )
+              )
+            )
+          )
+        }
+        availability[`${slug}:${value}`] = { available }
+      }
+    }
+
+    ;(attrs as any)._availability = availability
     return attrs
-  }, [product])
+  }, [product, selectedOptions])
 
   const effectivePrice = currentVariant?.discountPrice || currentVariant?.price || product?.discountPrice || product?.sellingPrice || 0
   const originalPrice = currentVariant?.price || product?.sellingPrice || 0
@@ -141,8 +193,8 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
 
   const handleAddToCart = useCallback(() => {
     if (!product || stock === 0) return
-    if (product.variants && product.variants.length > 0 && !selectedVariant) {
-      toast.error('Please select a variant')
+    if (product.variants && product.variants.length > 0 && !currentVariant) {
+      toast.error('Please select all options')
       return
     }
     addItem({
@@ -161,7 +213,7 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
     toast.success(`${product.name} added to cart`)
     setOpen(true)
     onClose()
-  }, [product, currentVariant, quantity, stock, addItem, setOpen, onClose, originalPrice, effectivePrice, selectedVariant])
+  }, [product, currentVariant, quantity, stock, addItem, setOpen, onClose, originalPrice, effectivePrice])
 
   const handleBuyNow = useCallback(() => {
     handleAddToCart()
@@ -319,59 +371,60 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
 
                   <Separator />
 
-                  {/* Variant Selectors */}
-                  {Object.entries(variantAttributes).map(([slug, attr]) => (
-                    <div key={slug}>
-                      <p className="text-xs font-medium mb-1.5">
-                        {attr.name}:{' '}
-                        <span className="text-muted-foreground font-normal">
-                          Select {attr.name.toLowerCase()}
-                        </span>
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {Array.from(attr.values).map((value) => {
-                          const isColor = slug === 'color'
-                          const colorCode = attr.meta?.[value]
-                          const matchingVariant = product.variants?.find((v: ProductVariant) =>
-                            v.attributeValues?.some((av) => av.attributeValue.value === value)
-                          )
-                          const isSelected = matchingVariant && selectedVariant === matchingVariant.id
-                          return (
-                            <motion.button
-                              key={value}
-                              className={
-                                isColor && colorCode
-                                  ? 'w-8 h-8 p-0 rounded-full border-2 flex items-center justify-center'
-                                  : 'px-3 py-1.5 text-xs rounded-lg border font-medium transition-colors'
-                              }
-                              onClick={() => {
-                                if (matchingVariant) setSelectedVariant(matchingVariant.id)
-                              }}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              {isColor && colorCode ? (
-                                <div
-                                  className={`w-6 h-6 rounded-full ${isSelected ? 'ring-2 ring-emerald-500 ring-offset-1' : ''}`}
-                                  style={{ backgroundColor: colorCode }}
-                                />
-                              ) : (
-                                <span
-                                  className={
-                                    isSelected
-                                      ? 'text-emerald-600 border-emerald-500 bg-emerald-50'
-                                      : 'text-foreground hover:border-emerald-300 hover:text-emerald-600'
-                                  }
-                                >
-                                  {value}
-                                </span>
-                              )}
-                            </motion.button>
-                          )
-                        })}
+                  {/* Variant Selectors - Combination-based */}
+                  {Object.entries(variantAttributes).map(([slug, attr]) => {
+                    const availability = (variantAttributes as any)._availability || {}
+                    return (
+                      <div key={slug}>
+                        <p className="text-xs font-medium mb-1.5">
+                          {attr.name}:{' '}
+                          <span className="text-muted-foreground font-normal">
+                            {selectedOptions[slug] ? selectedOptions[slug] : `Select ${attr.name.toLowerCase()}`}
+                          </span>
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {Array.from(attr.values).map((value) => {
+                            const isColor = slug === 'color'
+                            const colorCode = attr.meta?.[value]
+                            const isSelected = selectedOptions[slug] === value
+                            const { available } = availability[`${slug}:${value}`] || { available: true }
+                            return (
+                              <motion.button
+                                key={value}
+                                disabled={!available}
+                                className={
+                                  isColor && colorCode
+                                    ? `w-8 h-8 p-0 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${isSelected ? 'border-emerald-500 shadow-sm' : !available ? 'border-gray-200 opacity-40 cursor-not-allowed' : 'border-muted hover:border-emerald-300'}`
+                                    : `px-3 py-1.5 text-xs rounded-lg border font-medium transition-all duration-200 ${isSelected ? 'border-emerald-500 bg-emerald-50 text-emerald-600 shadow-sm' : !available ? 'border-gray-200 opacity-40 cursor-not-allowed line-through' : 'hover:border-emerald-300 hover:text-emerald-600'}`
+                                }
+                                onClick={() => {
+                                  setSelectedOptions((prev) => {
+                                    if (prev[slug] === value) {
+                                      const next = { ...prev }
+                                      delete next[slug]
+                                      return next
+                                    }
+                                    return { ...prev, [slug]: value }
+                                  })
+                                }}
+                                whileHover={available ? { scale: 1.05 } : {}}
+                                whileTap={available ? { scale: 0.95 } : {}}
+                              >
+                                {isColor && colorCode ? (
+                                  <div
+                                    className={`w-6 h-6 rounded-full transition-all duration-200 ${isSelected ? 'ring-2 ring-emerald-500 ring-offset-1 ring-offset-background' : ''}`}
+                                    style={{ backgroundColor: colorCode }}
+                                  />
+                                ) : (
+                                  <span>{value}</span>
+                                )}
+                              </motion.button>
+                            )
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
 
                   {/* Variant pills for products without grouped attributes */}
                   {product.variants && product.variants.length > 0 && Object.keys(variantAttributes).length === 0 && (
@@ -386,7 +439,10 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
                                 ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
                                 : 'hover:border-emerald-300 hover:text-emerald-600'
                             }`}
-                            onClick={() => setSelectedVariant(variant.id)}
+                            onClick={() => {
+                              setSelectedOptions({})
+                              setSelectedVariant(variant.id)
+                            }}
                             whileHover={{ scale: 1.03 }}
                             whileTap={{ scale: 0.97 }}
                           >
@@ -437,12 +493,12 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
                     <Button
                       className="flex-1 h-10 bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-600/20"
                       onClick={handleAddToCart}
-                      disabled={stock === 0 || (product.variants && product.variants.length > 0 && !selectedVariant)}
+                      disabled={stock === 0 || (product.variants && product.variants.length > 0 && !currentVariant)}
                     >
                       <ShoppingCart className="h-4 w-4 mr-1.5" />
                       {stock === 0
                         ? 'Out of Stock'
-                        : product.variants && product.variants.length > 0 && !selectedVariant
+                        : product.variants && product.variants.length > 0 && !currentVariant
                           ? 'Select Options'
                           : 'Add to Cart'}
                     </Button>

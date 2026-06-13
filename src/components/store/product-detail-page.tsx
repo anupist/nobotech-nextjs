@@ -100,6 +100,7 @@ export function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null)
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({})
   const isWishlisted = useWishlistStore((s) => product ? s.isWishlisted(product.id) : false)
   const toggleWishlist = useWishlistStore((s) => s.toggleWishlist)
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -250,13 +251,22 @@ export function ProductDetailPage() {
     setIsZooming(false)
   }, [])
 
-  // Images memo must be defined BEFORE effects that reference it
+  // Images memo — filters by variant when one is selected
   const images = useMemo(() => {
     if (!product) return []
+    const variantId = currentVariant?.id
     const imgs: string[] = []
-    if (product.thumbnail) imgs.push(product.thumbnail)
+
+    // Always include product thumbnail
+    if (product.thumbnail && !variantId) imgs.push(product.thumbnail)
+    else if (currentVariant?.thumbnail && !imgs.includes(currentVariant.thumbnail)) {
+      imgs.push(currentVariant.thumbnail)
+    } else if (product.thumbnail) imgs.push(product.thumbnail)
+
+    // Filter images by variant when a variant is selected
     if (product.images?.length) {
       product.images.forEach((img) => {
+        if (variantId && img.variantId && img.variantId !== variantId) return
         if (!imgs.includes(img.url)) imgs.push(img.url)
       })
     }
@@ -272,7 +282,7 @@ export function ProductDetailPage() {
       imgs.push(`https://picsum.photos/seed/${product.slug}/800/800`)
     }
     return imgs
-  }, [product])
+  }, [product, currentVariant])
 
   // Lightbox keyboard navigation
   useEffect(() => {
@@ -297,33 +307,76 @@ export function ProductDetailPage() {
     }
   }, [lightboxOpen, selectedImage])
 
-  const currentVariant = useMemo(
-    () => product?.variants?.find((v) => v.id === selectedVariant),
-    [product, selectedVariant]
-  )
+  const currentVariant = useMemo(() => {
+    const selected = selectedOptions
+    const slugs = Object.keys(selected)
+    if (slugs.length === 0) {
+      // No combination selected — use selectedVariant as fallback for backward compat
+      return product?.variants?.find((v) => v.id === selectedVariant) || null
+    }
+    return (
+      product?.variants?.find((v) =>
+        slugs.every((slug) =>
+          v.attributeValues?.some(
+            (av) => av.attributeValue.attribute.slug === slug && av.attributeValue.value === selected[slug]
+          )
+        )
+      ) || null
+    )
+  }, [product, selectedOptions, selectedVariant])
 
-  // Group variant attributes - must be before early returns
+  // Group variant attributes with availability per value
   const variantAttributes = useMemo(() => {
     if (!product?.variants?.length) return {}
     const attrs: Record<string, { name: string; values: Set<string>; meta?: Record<string, string> }> = {}
+    const allValuesBySlug: Record<string, Record<string, string[]>> = {}
+
     product.variants.forEach((v) => {
       v.attributeValues?.forEach((av) => {
         const attrSlug = av.attributeValue.attribute.slug
         if (!attrs[attrSlug]) {
-          attrs[attrSlug] = {
-            name: av.attributeValue.attribute.name,
-            values: new Set(),
-            meta: {},
-          }
+          attrs[attrSlug] = { name: av.attributeValue.attribute.name, values: new Set(), meta: {} }
         }
         attrs[attrSlug].values.add(av.attributeValue.value)
-        if (av.attributeValue.meta) {
-          attrs[attrSlug].meta![av.attributeValue.value] = av.attributeValue.meta
-        }
+        if (av.attributeValue.meta) attrs[attrSlug].meta![av.attributeValue.value] = av.attributeValue.meta
+        // Track which variant IDs offer this value
+        if (!allValuesBySlug[attrSlug]) allValuesBySlug[attrSlug] = {}
+        if (!allValuesBySlug[attrSlug][av.attributeValue.value]) allValuesBySlug[attrSlug][av.attributeValue.value] = []
+        allValuesBySlug[attrSlug][av.attributeValue.value].push(v.id)
       })
     })
+
+    // Mark each value as available or disabled based on current selection
+    const selected = selectedOptions
+    const availability: Record<string, { available: boolean }> = {}
+    for (const [slug, vals] of Object.entries(allValuesBySlug)) {
+      for (const [value, variantIds] of Object.entries(vals)) {
+        const otherSelected = { ...selected }
+        delete otherSelected[slug]
+        // A value is available if there exists a variant matching all OTHER selected options
+        let available = true
+        const otherEntries = Object.entries(otherSelected)
+        if (otherEntries.length > 0) {
+          available = variantIds.some((vid) =>
+            otherEntries.every(([oslug, ovalue]) =>
+              product.variants?.some(
+                (pv) =>
+                  pv.id === vid &&
+                  pv.attributeValues?.some(
+                    (pav) => pav.attributeValue.attribute.slug === oslug && pav.attributeValue.value === ovalue
+                  )
+              )
+            )
+          )
+        }
+        availability[`${slug}:${value}`] = { available }
+      }
+    }
+
+    // Attach availability as a hidden property on the values set for lookups
+    ;(attrs as any)._availability = availability
     return attrs
-  }, [product])
+  }, [product, selectedOptions])
 
   const specifications = useMemo(() => {
     if (!product?.specifications) return []
@@ -412,9 +465,9 @@ export function ProductDetailPage() {
 
   const handleAddToCart = useCallback(() => {
     if (!product || stock === 0) return
-    // Validate variant selection if variants exist
-    if (product.variants && product.variants.length > 0 && !selectedVariant) {
-      toast.error('Please select a variant before adding to cart')
+    // Validate variant selection (combination-based or single)
+    if (product.variants && product.variants.length > 0 && !currentVariant) {
+      toast.error('Please select all options before adding to cart')
       return
     }
     addItem({
@@ -780,51 +833,60 @@ export function ProductDetailPage() {
 
           <Separator />
 
-          {/* Variant Selectors */}
-          {Object.entries(variantAttributes).map(([slug, attr]) => (
-            <div key={slug}>
-              <p className="text-sm font-medium mb-2">
-                {attr.name}: <span className="text-muted-foreground font-normal">Select {attr.name.toLowerCase()}</span>
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {Array.from(attr.values).map((value) => {
-                  const isColor = slug === 'color'
-                  const colorCode = attr.meta?.[value]
-                  const matchingVariant = product.variants?.find((v) =>
-                    v.attributeValues?.some((av) => av.attributeValue.value === value)
-                  )
-                  const isSelected = matchingVariant && selectedVariant === matchingVariant.id
-                  return (
-                    <motion.button
-                      key={value}
-                      className={
-                        isColor && colorCode
-                          ? `w-10 h-10 p-0 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${isSelected ? 'border-emerald-500 shadow-md shadow-emerald-500/20 variant-ring-pulse' : 'border-muted hover:border-emerald-300'}`
-                          : `px-4 py-2 text-sm rounded-lg border-2 font-medium transition-all duration-200 ${isSelected ? 'border-emerald-500 bg-emerald-50 text-emerald-600 shadow-md shadow-emerald-500/10 variant-ring-pulse' : 'border-muted hover:border-emerald-300 hover:text-emerald-600'}`
-                      }
-                      style={isColor && colorCode ? {} : undefined}
-                      onClick={() => {
-                        if (matchingVariant) setSelectedVariant(matchingVariant.id)
-                      }}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {isColor && colorCode ? (
-                        <div
-                          className={`w-7 h-7 rounded-full transition-all duration-200 ${isSelected ? 'ring-2 ring-emerald-500 ring-offset-2 ring-offset-background' : ''}`}
-                          style={{ backgroundColor: colorCode }}
-                        />
-                      ) : (
-                        <span>
-                          {value}
-                        </span>
-                      )}
-                    </motion.button>
-                  )
-                })}
+          {/* Variant Selectors - Combination-based */}
+          {Object.entries(variantAttributes).map(([slug, attr]) => {
+            const availability = (variantAttributes as any)._availability || {}
+            return (
+              <div key={slug}>
+                <p className="text-sm font-medium mb-2">
+                  {attr.name}: <span className="text-muted-foreground font-normal">{selectedOptions[slug] ? selectedOptions[slug] : `Select ${attr.name.toLowerCase()}`}</span>
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {Array.from(attr.values).map((value) => {
+                    const isColor = slug === 'color'
+                    const colorCode = attr.meta?.[value]
+                    const isSelected = selectedOptions[slug] === value
+                    const { available } = availability[`${slug}:${value}`] || { available: true }
+                    return (
+                      <motion.button
+                        key={value}
+                        disabled={!available}
+                        className={
+                          isColor && colorCode
+                            ? `w-10 h-10 p-0 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${isSelected ? 'border-emerald-500 shadow-md shadow-emerald-500/20 variant-ring-pulse' : !available ? 'border-gray-200 opacity-40 cursor-not-allowed' : 'border-muted hover:border-emerald-300'}`
+                            : `px-4 py-2 text-sm rounded-lg border-2 font-medium transition-all duration-200 ${isSelected ? 'border-emerald-500 bg-emerald-50 text-emerald-600 shadow-md shadow-emerald-500/10 variant-ring-pulse' : !available ? 'border-gray-200 opacity-40 cursor-not-allowed line-through' : 'border-muted hover:border-emerald-300 hover:text-emerald-600'}`
+                        }
+                        onClick={() => {
+                          setSelectedOptions((prev) => {
+                            // Toggle off if clicking the same value
+                            if (prev[slug] === value) {
+                              const next = { ...prev }
+                              delete next[slug]
+                              return next
+                            }
+                            return { ...prev, [slug]: value }
+                          })
+                        }}
+                        whileHover={available ? { scale: 1.05 } : {}}
+                        whileTap={available ? { scale: 0.95 } : {}}
+                      >
+                        {isColor && colorCode ? (
+                          <div
+                            className={`w-7 h-7 rounded-full transition-all duration-200 ${isSelected ? 'ring-2 ring-emerald-500 ring-offset-2 ring-offset-background' : ''}`}
+                            style={{ backgroundColor: colorCode }}
+                          />
+                        ) : (
+                          <span>
+                            {value}
+                          </span>
+                        )}
+                      </motion.button>
+                    )
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
 
           {/* Variant pills */}
           {product.variants && product.variants.length > 0 && Object.keys(variantAttributes).length === 0 && (
@@ -852,7 +914,10 @@ export function ProductDetailPage() {
                         ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20 variant-ring-pulse'
                         : 'border-muted hover:border-emerald-300 hover:text-emerald-600'
                     }`}
-                    onClick={() => setSelectedVariant(variant.id)}
+                    onClick={() => {
+                      setSelectedOptions({})
+                      setSelectedVariant(variant.id)
+                    }}
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                   >
@@ -947,10 +1012,10 @@ export function ProductDetailPage() {
                 <Button
                   className="flex-1 h-12 text-base bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/30 transition-all duration-300"
                   onClick={handleAddToCart}
-                  disabled={product.variants && product.variants.length > 0 && !selectedVariant}
+                  disabled={product.variants && product.variants.length > 0 && !currentVariant}
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
-                  {product.variants && product.variants.length > 0 && !selectedVariant ? 'Select Options' : 'Add to Cart'}
+                  {product.variants && product.variants.length > 0 && !currentVariant ? 'Select Options' : 'Add to Cart'}
                 </Button>
                 <Button
                   className="flex-1 h-12 text-base bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20 transition-all duration-300"
@@ -1107,10 +1172,10 @@ export function ProductDetailPage() {
                 <Button
                   className="bg-emerald-600 hover:bg-emerald-500 shadow-md shadow-emerald-600/20"
                   onClick={handleAddToCart}
-                  disabled={product.variants && product.variants.length > 0 && !selectedVariant}
+                  disabled={product.variants && product.variants.length > 0 && !currentVariant}
                 >
                   <ShoppingCart className="h-4 w-4 mr-1.5" />
-                  {product.variants && product.variants.length > 0 && !selectedVariant ? 'Select Options' : 'Add to Cart'}
+                  {product.variants && product.variants.length > 0 && !currentVariant ? 'Select Options' : 'Add to Cart'}
                 </Button>
               </div>
             </div>
