@@ -1,0 +1,531 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ RBAC System ============
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  permissions RolePermission[]
+  users       UserRole[]
+}
+
+model Permission {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  module    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  roles RolePermission[]
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+}
+
+model UserRole {
+  id     String @id @default(cuid())
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+}
+
+// ============ User & Customer ============
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  name          String
+  password      String?
+  phone         String?
+  avatar        String?
+  emailVerified Boolean    @default(false)
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  roles         UserRole[]
+  customer      Customer?
+  auditLogs     AuditLog[]
+}
+
+model Customer {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  loyaltyPoints Int   @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  addresses   Address[]
+  orders      Order[]
+  reviews     Review[]
+  wishlists   Wishlist[]
+  carts       Cart[]
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label       String   // Home, Office, etc.
+  firstName   String
+  lastName    String
+  phone       String
+  address1    String
+  address2    String?
+  city        String
+  state       String
+  zipCode     String
+  country     String   @default("BD")
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ============ Product System ============
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String?
+  parentId    String?
+  parent      Category? @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  products    Product[]
+}
+
+model Brand {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  logo      String?
+  description String?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  products  Product[]
+}
+
+model Attribute {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  type      String    @default("text") // text, color, size
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  values    AttributeValue[]
+}
+
+model AttributeValue {
+  id          String    @id @default(cuid())
+  attributeId String
+  attribute   Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+  value       String
+  meta        String?   // color code, etc.
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  productVariantValues ProductVariantValue[]
+
+  @@unique([attributeId, value])
+}
+
+model Product {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  sku           String    @unique
+  barcode       String?
+  description   String? @db.Text
+  specifications String? @db.Text  // JSON string
+  features      String? @db.Text   // JSON string
+  costPrice     Float     @default(0)
+  sellingPrice  Float     @default(0)
+  discountPrice Float?
+  thumbnail     String?
+  gallery       String? @db.Text   // JSON array of image URLs
+  videos        String? @db.Text   // JSON array of video URLs
+  metaTitle     String?
+  metaDescription String? @db.Text
+  metaKeywords  String? @db.Text
+  status        String    @default("draft") // draft, active, inactive
+  isFeatured    Boolean   @default(false)
+  isNewArrival  Boolean   @default(false)
+  isBestSeller  Boolean   @default(false)
+  totalSold     Int       @default(0)
+  averageRating Float     @default(0)
+  reviewCount   Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  categoryId    String?
+  category      Category? @relation(fields: [categoryId], references: [id])
+  brandId       String?
+  brand         Brand?    @relation(fields: [brandId], references: [id])
+
+  variants      ProductVariant[]
+  images        ProductImage[]
+  reviews       Review[]
+  inventory     Inventory?
+  cartItems     CartItem[]
+  wishlistItems Wishlist[]
+  orderItems    OrderItem[]
+  flashSales    FlashSaleProduct[]
+}
+
+model ProductVariant {
+  id          String    @id @default(cuid())
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku         String    @unique
+  name        String    // e.g., "Red / Small"
+  price       Float     @default(0)
+  discountPrice Float?
+  thumbnail   String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  attributeValues ProductVariantValue[]
+  inventory       Inventory?
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+}
+
+model ProductVariantValue {
+  id               String           @id @default(cuid())
+  variantId        String
+  attributeValueId String
+  variant          ProductVariant   @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  attributeValue   AttributeValue   @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+
+  @@unique([variantId, attributeValueId])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+// ============ Inventory ============
+
+model Inventory {
+  id          String    @id @default(cuid())
+  productId   String?   @unique
+  product     Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId   String?   @unique
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  quantity    Int       @default(0)
+  lowStockAlert Int     @default(10)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  logs        InventoryLog[]
+}
+
+model InventoryLog {
+  id          String     @id @default(cuid())
+  inventoryId String
+  inventory   Inventory  @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  type        String     // in, out, adjustment
+  quantity    Int
+  note        String?
+  createdAt   DateTime   @default(now())
+}
+
+// ============ Cart & Wishlist ============
+
+model Cart {
+  id         String     @id @default(cuid())
+  customerId String?
+  customer   Customer?  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  sessionId  String?    // For guest carts
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  items      CartItem[]
+}
+
+model CartItem {
+  id         String         @id @default(cuid())
+  cartId     String
+  cart       Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantId  String?
+  variant    ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  quantity   Int            @default(1)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([cartId, productId, variantId])
+}
+
+model Wishlist {
+  id         String    @id @default(cuid())
+  customerId String
+  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+
+  @@unique([customerId, productId])
+}
+
+// ============ Order System ============
+
+model Order {
+  id              String     @id @default(cuid())
+  orderNumber     String     @unique
+  customerId      String?
+  customer        Customer?  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  guestEmail      String?
+  status          String     @default("pending") // pending, confirmed, processing, packed, shipped, delivered, cancelled, returned, refunded
+  subtotal        Float      @default(0)
+  shippingCost    Float      @default(0)
+  discountAmount  Float      @default(0)
+  taxAmount       Float      @default(0)
+  totalAmount     Float      @default(0)
+  couponId        String?
+  coupon          Coupon?    @relation(fields: [couponId], references: [id])
+  shippingAddress String? @db.Text    // JSON
+  billingAddress  String? @db.Text    // JSON
+  shippingMethod  String?
+  paymentMethod   String?
+  paymentStatus   String     @default("pending") // pending, paid, failed, refunded
+  notes           String? @db.Text
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  items           OrderItem[]
+  payments        Payment[]
+  timeline        OrderTimeline[]
+}
+
+model OrderItem {
+  id          String          @id @default(cuid())
+  orderId     String
+  order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product         @relation(fields: [productId], references: [id])
+  variantId   String?
+  variant     ProductVariant? @relation(fields: [variantId], references: [id])
+  productName String
+  variantName String?
+  sku         String
+  price       Float
+  quantity    Int
+  total       Float
+  createdAt   DateTime        @default(now())
+}
+
+model OrderTimeline {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    String
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method        String   // cod, stripe, sslcommerz, bkash, nagad
+  amount        Float
+  status        String   @default("pending") // pending, completed, failed, refunded
+  transactionId String?
+  metadata      String? @db.Text  // JSON
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ============ Coupon & Promotions ============
+
+model Coupon {
+  id             String     @id @default(cuid())
+  code           String     @unique
+  type           String     // fixed, percentage
+  value          Float
+  minPurchase    Float      @default(0)
+  maxDiscount    Float?
+  usageLimit     Int?
+  usedCount      Int        @default(0)
+  startsAt       DateTime
+  expiresAt      DateTime
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  orders         Order[]
+}
+
+model FlashSale {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  startsAt    DateTime
+  endsAt      DateTime
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  products    FlashSaleProduct[]
+}
+
+model FlashSaleProduct {
+  id          String     @id @default(cuid())
+  flashSaleId String
+  flashSale   FlashSale  @relation(fields: [flashSaleId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  salePrice   Float
+  quantity    Int
+  soldCount   Int        @default(0)
+  createdAt   DateTime   @default(now())
+}
+
+// ============ Reviews ============
+
+model Review {
+  id          String    @id @default(cuid())
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  rating      Int
+  title       String?
+  comment     String? @db.Text
+  images      String? @db.Text   // JSON array
+  status      String    @default("pending") // pending, approved, rejected
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// ============ Banners & CMS ============
+
+model Banner {
+  id        String   @id @default(cuid())
+  title     String
+  image     String
+  link      String?
+  position  String   @default("hero") // hero, sidebar, footer
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String @db.Text
+  metaTitle String?
+  metaDescription String? @db.Text
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Blog {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String @db.Text
+  excerpt     String? @db.Text
+  thumbnail   String?
+  category    String?
+  tags        String? @db.Text  // JSON array
+  metaTitle   String?
+  metaDescription String? @db.Text
+  isPublished Boolean  @default(false)
+  authorId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Newsletter {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// ============ Settings ============
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  group String @default("general") // general, contact, social, seo, payment, shipping
+}
+
+// ============ Audit Log ============
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  module    String
+  details   String? @db.Text  // JSON
+  ip        String?
+  createdAt DateTime @default(now())
+}
+
+// ============ Media Gallery ============
+
+model Media {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int       // in bytes
+  url          String    // public URL path like /uploads/xxx.jpg
+  alt          String?
+  width        Int?
+  height       Int?
+  folder       String    @default("general")  // general, products, banners, categories, brands, blog
+  uploadedBy   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
