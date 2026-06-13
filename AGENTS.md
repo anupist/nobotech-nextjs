@@ -27,6 +27,10 @@
 
 ### No Tests
 - Zero test infrastructure. No test runner, no test files, no test scripts. This is a demo/prototype.
+- **Instead of tests, run `npm run build` to verify changes compile before pushing.**
+
+## Workflow
+- After completing a task, always: (1) run `npm run build` to verify, (2) stage all changes, (3) commit with a descriptive message, (4) push to `origin main`.
 
 ## Key Commands
 

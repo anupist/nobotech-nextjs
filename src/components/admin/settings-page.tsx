@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { Save } from 'lucide-react'
+import { MediaPickerButton } from '@/components/shared/media-picker-button'
 
 type Settings = Record<string, string>
 
@@ -104,19 +105,21 @@ export function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Logo URL</Label>
-                <Input
+                <Label>Logo</Label>
+                <MediaPickerButton
                   value={settings.site_logo || ''}
-                  onChange={(e) => updateSetting('site_logo', e.target.value)}
-                  placeholder="https://..."
+                  onChange={(url) => updateSetting('site_logo', url)}
+                  folder="general"
+                  label="Choose Logo"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Favicon URL</Label>
-                <Input
+                <Label>Favicon</Label>
+                <MediaPickerButton
                   value={settings.site_favicon || ''}
-                  onChange={(e) => updateSetting('site_favicon', e.target.value)}
-                  placeholder="https://..."
+                  onChange={(url) => updateSetting('site_favicon', url)}
+                  folder="general"
+                  label="Choose Favicon"
                 />
               </div>
               <div className="space-y-2">

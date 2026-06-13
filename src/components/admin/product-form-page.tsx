@@ -719,8 +719,43 @@ export function ProductFormPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="gallery" className="text-xs text-muted-foreground">Gallery URLs (comma-separated)</Label>
-                      <Textarea id="gallery" value={gallery} onChange={(e) => setGallery(e.target.value)} placeholder="https://..., https://..." rows={2} className="text-xs" />
+                      <Label className="text-xs text-muted-foreground">Gallery Images</Label>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <MediaPickerButton
+                          value=""
+                          onChange={(url) => {
+                            if (url) {
+                              const newImg: UploadedImage = {
+                                id: `img-${Date.now()}`,
+                                url,
+                                isThumbnail: false,
+                              }
+                              setUploadedImages((prev) => {
+                                const updated = [...prev, newImg]
+                                syncImageFields(updated)
+                                return updated
+                              })
+                            }
+                          }}
+                          folder="products"
+                          label="Add from Gallery"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setMediaGalleryOpen(true)}
+                          className="gap-1.5"
+                        >
+                          <ImageIcon className="h-3.5 w-3.5" />
+                          Browse All
+                        </Button>
+                      </div>
+                      {gallery && (
+                        <p className="text-xs text-muted-foreground truncate max-w-md">
+                          {uploadedImages.filter(i => !i.isThumbnail).length} gallery image(s)
+                        </p>
+                      )}
                     </div>
                   </div>
                 </CardContent>

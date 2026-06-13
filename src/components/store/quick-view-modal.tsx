@@ -186,9 +186,12 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose() }}>
       <DialogContent
-        className="max-w-3xl p-0 gap-0 overflow-hidden [&>button]:hidden"
+        className="sm:max-w-3xl p-0 gap-0 overflow-hidden"
         showCloseButton={false}
       >
+        <DialogTitle className="sr-only">
+          {product?.name || 'Quick view'}
+        </DialogTitle>
         <AnimatePresence>
           {loading ? (
             <motion.div
@@ -210,11 +213,11 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
               transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               {/* Left: Image Gallery */}
-              <div className="md:w-1/2 bg-muted/20">
+              <div className="md:w-1/2 bg-muted/20 relative">
                 {/* Close button */}
                 <button
                   onClick={onClose}
-                  className="absolute top-3 left-3 z-10 h-8 w-8 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white flex items-center justify-center shadow-sm transition-colors md:left-auto md:right-3"
+                  className="absolute top-3 right-3 z-10 h-8 w-8 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white flex items-center justify-center shadow-sm transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -256,7 +259,7 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
               </div>
 
               {/* Right: Product Info */}
-              <ScrollArea className="md:w-1/2 max-h-[85dvh] md:max-h-[500px]">
+              <ScrollArea className="md:w-1/2 md:max-h-[500px]">
                 <div className="p-5 space-y-4">
                   {/* Brand + Name */}
                   <div>
