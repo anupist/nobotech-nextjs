@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { pageToUrl } from '@/lib/route-map'
 
 export type StorePage = 
   | 'home'
@@ -85,9 +86,14 @@ export const useNavStore = create<NavState>((set, get) => ({
     set({
       storePage: page,
       pageParams: params,
+      viewMode: 'store',
       history: [...state.history, { page: state.storePage, params: state.pageParams, mode: 'store' }],
     })
     window.scrollTo(0, 0)
+    if (typeof window !== 'undefined') {
+      const url = pageToUrl(page, params)
+      window.history.pushState({ page, params }, '', url)
+    }
   },
 
   navigateAdmin: (page, params = {}) => {

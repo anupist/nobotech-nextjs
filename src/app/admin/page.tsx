@@ -39,7 +39,10 @@ export default function AdminPage() {
     }
 
     const role = currentUser ? normalizeRole(currentUser.role) : ''
-    if (!isAuthenticated || !ADMIN_ROLES.includes(role)) {
+
+    if (!isAuthenticated) {
+      window.location.href = '/admin/login'
+    } else if (!ADMIN_ROLES.includes(role)) {
       window.location.href = '/'
     }
   }, [mounted])
