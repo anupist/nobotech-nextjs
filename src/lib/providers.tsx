@@ -58,6 +58,8 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
+export { ThemeProvider }
+
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
