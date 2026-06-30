@@ -251,38 +251,22 @@ export function ProductDetailPage() {
     setIsZooming(false)
   }, [])
 
-  // Images memo — filters by variant when one is selected
-  const images = useMemo(() => {
-    if (!product) return []
-    const variantId = currentVariant?.id
-    const imgs: string[] = []
-
-    // Always include product thumbnail
-    if (product.thumbnail && !variantId) imgs.push(product.thumbnail)
-    else if (currentVariant?.thumbnail && !imgs.includes(currentVariant.thumbnail)) {
-      imgs.push(currentVariant.thumbnail)
-    } else if (product.thumbnail) imgs.push(product.thumbnail)
-
-    // Filter images by variant when a variant is selected
-    if (product.images?.length) {
-      product.images.forEach((img) => {
-        if (variantId && img.variantId && img.variantId !== variantId) return
-        if (!imgs.includes(img.url)) imgs.push(img.url)
-      })
+  const currentVariant = useMemo(() => {
+    const selected = selectedOptions
+    const slugs = Object.keys(selected)
+    if (slugs.length === 0) {
+      return product?.variants?.find((v) => v.id === selectedVariant) || null
     }
-    if (product.gallery) {
-      try {
-        const gallery = JSON.parse(product.gallery) as string[]
-        gallery.forEach((url) => {
-          if (!imgs.includes(url)) imgs.push(url)
-        })
-      } catch { /* ignore */ }
-    }
-    if (imgs.length === 0) {
-      imgs.push(`https://picsum.photos/seed/${product.slug}/800/800`)
-    }
-    return imgs
-  }, [product, currentVariant])
+    return (
+      product?.variants?.find((v) =>
+        slugs.every((slug) =>
+          v.attributeValues?.some(
+            (av) => av.attributeValue.attribute.slug === slug && av.attributeValue.value === selected[slug]
+          )
+        )
+      ) || null
+    )
+  }, [product, selectedOptions, selectedVariant])
 
   // Lightbox keyboard navigation
   useEffect(() => {
@@ -307,23 +291,36 @@ export function ProductDetailPage() {
     }
   }, [lightboxOpen, selectedImage])
 
-  const currentVariant = useMemo(() => {
-    const selected = selectedOptions
-    const slugs = Object.keys(selected)
-    if (slugs.length === 0) {
-      // No combination selected — use selectedVariant as fallback for backward compat
-      return product?.variants?.find((v) => v.id === selectedVariant) || null
+  // Images memo — filters by variant when one is selected
+  const images = useMemo(() => {
+    if (!product) return []
+    const variantId = currentVariant?.id
+    const imgs: string[] = []
+
+    if (product.thumbnail && !variantId) imgs.push(product.thumbnail)
+    else if (currentVariant?.thumbnail && !imgs.includes(currentVariant.thumbnail)) {
+      imgs.push(currentVariant.thumbnail)
+    } else if (product.thumbnail) imgs.push(product.thumbnail)
+
+    if (product.images?.length) {
+      product.images.forEach((img) => {
+        if (variantId && img.variantId && img.variantId !== variantId) return
+        if (!imgs.includes(img.url)) imgs.push(img.url)
+      })
     }
-    return (
-      product?.variants?.find((v) =>
-        slugs.every((slug) =>
-          v.attributeValues?.some(
-            (av) => av.attributeValue.attribute.slug === slug && av.attributeValue.value === selected[slug]
-          )
-        )
-      ) || null
-    )
-  }, [product, selectedOptions, selectedVariant])
+    if (product.gallery) {
+      try {
+        const gallery = JSON.parse(product.gallery) as string[]
+        gallery.forEach((url) => {
+          if (!imgs.includes(url)) imgs.push(url)
+        })
+      } catch { /* ignore */ }
+    }
+    if (imgs.length === 0) {
+      imgs.push(`https://picsum.photos/seed/${product.slug}/800/800`)
+    }
+    return imgs
+  }, [product, currentVariant])
 
   // Group variant attributes with availability per value
   const variantAttributes = useMemo(() => {

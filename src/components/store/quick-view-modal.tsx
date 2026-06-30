@@ -89,6 +89,23 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
     load()
   }, [productId, open])
 
+  const currentVariant = useMemo(() => {
+    const selected = selectedOptions
+    const slugs = Object.keys(selected)
+    if (slugs.length === 0) {
+      return product?.variants?.find((v: ProductVariant) => v.id === selectedVariant) || null
+    }
+    return (
+      product?.variants?.find((v: ProductVariant) =>
+        slugs.every((slug) =>
+          v.attributeValues?.some(
+            (av) => av.attributeValue.attribute.slug === slug && av.attributeValue.value === selected[slug]
+          )
+        )
+      ) || null
+    )
+  }, [product, selectedOptions, selectedVariant])
+
   // Images — filters by variant when selected
   const images = useMemo(() => {
     if (!product) return []
@@ -119,23 +136,6 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
     }
     return imgs
   }, [product, currentVariant])
-
-  const currentVariant = useMemo(() => {
-    const selected = selectedOptions
-    const slugs = Object.keys(selected)
-    if (slugs.length === 0) {
-      return product?.variants?.find((v: ProductVariant) => v.id === selectedVariant) || null
-    }
-    return (
-      product?.variants?.find((v: ProductVariant) =>
-        slugs.every((slug) =>
-          v.attributeValues?.some(
-            (av) => av.attributeValue.attribute.slug === slug && av.attributeValue.value === selected[slug]
-          )
-        )
-      ) || null
-    )
-  }, [product, selectedOptions, selectedVariant])
 
   // Group variant attributes with availability per value
   const variantAttributes = useMemo(() => {
