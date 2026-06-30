@@ -700,9 +700,7 @@ export function ProductsPage() {
                                     Edit
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => {
-                                    const navState = useNavStore.getState()
-                                    navState.setViewMode('store')
-                                    navState.navigateStore('product-detail', { slug: product.slug })
+                                    window.location.href = `/?page=product-detail&slug=${product.slug}`
                                   }}>
                                     <ExternalLink className="mr-2 h-4 w-4" />
                                     View on Store

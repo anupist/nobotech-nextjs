@@ -189,14 +189,14 @@ interface AdminHeaderProps {
 }
 
 export function AdminHeader({ onMobileMenuToggle }: AdminHeaderProps) {
-  const { adminPage, navigateAdmin, setViewMode } = useNavStore()
+  const { adminPage, navigateAdmin } = useNavStore()
   const { user, logout } = useAuthStore()
   const [notifications, setNotifications] = useState(sampleNotifications)
 
   const handleLogout = useCallback(() => {
     logout()
-    setViewMode('store')
-  }, [logout, setViewMode])
+    window.location.href = '/'
+  }, [logout])
 
   const markAllAsRead = useCallback(() => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
@@ -409,7 +409,7 @@ export function AdminHeader({ onMobileMenuToggle }: AdminHeaderProps) {
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setViewMode('store')}>
+            <DropdownMenuItem onClick={() => window.location.href = '/'}>
               <Store className="mr-2 h-4 w-4" />
               Back to Store
               <ExternalLink className="ml-auto h-3 w-3 text-muted-foreground" />

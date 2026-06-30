@@ -127,7 +127,8 @@ export function StoreHeader() {
   const user = useAuthStore((s) => s.user)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const logout = useAuthStore((s) => s.logout)
-  const setViewMode = useNavStore((s) => s.setViewMode)
+
+  const isAdminUser = user && ['super_admin', 'admin', 'product_manager', 'order_manager', 'customer_support'].includes(user.role)
 
   useEffect(() => {
     fetchCategories()
@@ -794,12 +795,12 @@ export function StoreHeader() {
             </Button>
 
             {/* Admin Dashboard Button */}
-            {isAuthenticated && (
+            {isAuthenticated && isAdminUser && (
               <Button
                 variant="ghost"
                 size="icon"
                 className="hidden sm:flex"
-                onClick={() => setViewMode('admin')}
+                onClick={() => window.location.href = '/admin'}
                 aria-label="Admin Dashboard"
                 title="Admin Dashboard"
               >
@@ -837,10 +838,12 @@ export function StoreHeader() {
                     Wishlist
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => { setViewMode('admin') }}>
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Admin Dashboard
-                  </DropdownMenuItem>
+                  {isAdminUser && (
+                    <DropdownMenuItem onClick={() => window.location.href = '/admin'}>
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Admin Dashboard
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={logout} className="text-red-600">
                     <LogOut className="mr-2 h-4 w-4" />

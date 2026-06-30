@@ -66,7 +66,6 @@ interface NavState {
   history: Array<{ page: StorePage | AdminPage; params: Record<string, string>; mode: 'store' | 'admin' }>
 
   // Actions
-  setViewMode: (mode: 'store' | 'admin') => void
   navigateStore: (page: StorePage, params?: Record<string, string>) => void
   navigateAdmin: (page: AdminPage, params?: Record<string, string>) => void
   setSearchQuery: (query: string) => void
@@ -80,11 +79,6 @@ export const useNavStore = create<NavState>((set, get) => ({
   pageParams: {},
   searchQuery: '',
   history: [],
-
-  setViewMode: (mode) => {
-    console.log('setViewMode called:', mode)
-    set({ viewMode: mode })
-  },
 
   navigateStore: (page, params = {}) => {
     const state = get()

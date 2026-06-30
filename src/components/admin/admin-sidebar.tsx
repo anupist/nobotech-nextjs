@@ -117,7 +117,7 @@ interface AdminSidebarProps {
 }
 
 export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
-  const { adminPage, navigateAdmin, setViewMode } = useNavStore()
+  const { adminPage, navigateAdmin } = useNavStore()
   const { user } = useAuthStore()
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
     Object.fromEntries(navGroupsBase.map((g) => [g.title, true]))
@@ -225,7 +225,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setViewMode('store')}
+                  onClick={() => window.location.href = '/'}
                   className="w-full text-slate-400 hover:text-emerald-400 hover:bg-emerald-950/50 h-8"
                 >
                   <Store className="h-3.5 w-3.5" />
@@ -239,7 +239,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setViewMode('store')}
+              onClick={() => window.location.href = '/'}
               className="w-full text-slate-400 hover:text-emerald-400 hover:bg-emerald-950/50 justify-start gap-2"
             >
               <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
