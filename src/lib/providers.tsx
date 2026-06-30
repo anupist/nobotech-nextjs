@@ -53,9 +53,7 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeCtx.Provider value={ctx}>
-      <div className={mounted ? '' : 'invisible'}>
-        {children}
-      </div>
+      {children}
     </ThemeCtx.Provider>
   )
 }
