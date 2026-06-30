@@ -6,8 +6,8 @@ import { AdminApp } from '@/components/admin/admin-app'
 
 const ADMIN_ROLES = ['super-admin', 'admin', 'product-manager', 'order-manager', 'customer-support']
 
-function normalizeRole(role: string): string {
-  const nameToSlug: Record<string, string> = {
+function roleToSlug(role: string): string {
+  const map: Record<string, string> = {
     'Super Admin': 'super-admin',
     'Admin': 'admin',
     'Product Manager': 'product-manager',
@@ -15,42 +15,42 @@ function normalizeRole(role: string): string {
     'Customer Support': 'customer-support',
     'Customer': 'customer',
   }
-  return nameToSlug[role] || role
+  return map[role] || role
 }
 
 export default function AdminPage() {
-  const [mounted, setMounted] = useState(false)
+  const [ready, setReady] = useState(false)
   const { user, isAuthenticated } = useAuthStore()
 
   useEffect(() => {
-    setMounted(true)
+    const t = setTimeout(() => setReady(true), 0)
+    return () => clearTimeout(t)
   }, [])
 
   useEffect(() => {
-    if (!mounted) return
-
-    // Migrate old role name format to slug
-    const currentUser = useAuthStore.getState().user
-    if (currentUser) {
-      const normalized = normalizeRole(currentUser.role)
-      if (normalized !== currentUser.role) {
-        useAuthStore.getState().setUser({ ...currentUser, role: normalized })
+    if (!ready) return
+    // Migrate old role name format persisted from before the API slug fix
+    const u = useAuthStore.getState().user
+    if (u) {
+      const normalized = roleToSlug(u.role)
+      if (normalized !== u.role) {
+        useAuthStore.getState().setUser({ ...u, role: normalized })
       }
     }
 
-    const role = currentUser ? normalizeRole(currentUser.role) : ''
-
     if (!isAuthenticated) {
       window.location.href = '/admin/login'
-    } else if (!ADMIN_ROLES.includes(role)) {
+      return
+    }
+    const role = roleToSlug(user?.role || '')
+    if (!ADMIN_ROLES.includes(role)) {
       window.location.href = '/'
     }
-  }, [mounted])
+  }, [ready, isAuthenticated, user])
 
-  if (!mounted) return null
-
-  const role = user ? normalizeRole(user.role) : ''
-  if (!isAuthenticated || !ADMIN_ROLES.includes(role)) return null
+  if (!ready) return null
+  const role = roleToSlug(user?.role || '')
+  if (!isAuthenticated || !user || !ADMIN_ROLES.includes(role)) return null
 
   return <AdminApp />
 }
