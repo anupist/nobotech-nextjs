@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const roles = user.roles.map((ur) => ur.role.name);
+    const roles = user.roles.map((ur) => ur.role.slug);
     const permissions = user.roles.flatMap((ur) =>
       ur.role.permissions.map((rp) => rp.permission.slug)
     );

@@ -218,8 +218,16 @@ export function AdminHeader({ onMobileMenuToggle }: AdminHeaderProps) {
         .toUpperCase()
     : 'AD'
 
-  const roleLabel = user?.role === 'super_admin' ? 'Super Admin' : user?.role === 'admin' ? 'Admin' : 'Manager'
-  const roleBadgeColor = user?.role === 'super_admin'
+  const roleLabels: Record<string, string> = {
+    'super-admin': 'Super Admin',
+    'admin': 'Admin',
+    'product-manager': 'Product Manager',
+    'order-manager': 'Order Manager',
+    'customer-support': 'Customer Support',
+    'customer': 'Customer',
+  }
+  const roleLabel = roleLabels[user?.role || ''] || 'Staff'
+  const roleBadgeColor = user?.role === 'super-admin'
     ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
     : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
 

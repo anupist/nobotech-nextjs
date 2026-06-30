@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useAuthStore } from '@/stores/auth-store'
 import { AdminApp } from '@/components/admin/admin-app'
 
-const ADMIN_ROLES = ['super_admin', 'admin', 'product_manager', 'order_manager', 'customer_support']
+const ADMIN_ROLES = ['super-admin', 'admin', 'product-manager', 'order-manager', 'customer-support']
 
 export default function AdminPage() {
   const { user, isAuthenticated } = useAuthStore()

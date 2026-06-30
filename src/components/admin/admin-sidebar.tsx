@@ -209,7 +209,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                 <p className="text-sm font-semibold truncate">{user?.name || 'Admin'}</p>
                 <Badge className="h-4 px-1.5 text-[8px] bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 hover:from-emerald-600 hover:to-teal-600 shrink-0">PRO</Badge>
               </div>
-              <p className="text-[11px] text-slate-400 truncate">{user?.role === 'super_admin' ? 'Super Admin' : user?.role || 'Administrator'}</p>
+              <p className="text-[11px] text-slate-400 truncate">{user?.role === 'super-admin' ? 'Super Admin' : user?.role === 'admin' ? 'Admin' : user?.role === 'customer' ? 'Customer' : user?.role || 'Administrator'}</p>
             </div>
           )}
         </div>

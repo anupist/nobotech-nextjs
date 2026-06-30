@@ -128,7 +128,7 @@ export function StoreHeader() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const logout = useAuthStore((s) => s.logout)
 
-  const isAdminUser = user && ['super_admin', 'admin', 'product_manager', 'order_manager', 'customer_support'].includes(user.role)
+  const isAdminUser = user && ['super-admin', 'admin', 'product-manager', 'order-manager', 'customer-support'].includes(user.role)
 
   useEffect(() => {
     fetchCategories()
