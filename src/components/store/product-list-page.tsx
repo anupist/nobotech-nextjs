@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useNavStore } from '@/stores/nav-store'
 import { useCartStore } from '@/stores/cart-store'
 import {
@@ -73,6 +73,7 @@ const pageSizeOptions = [12, 24, 48]
 
 export function ProductListPage() {
   const pageParams = useNavStore((s) => s.pageParams)
+  const navigateStore = useNavStore((s) => s.navigateStore)
 
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -99,6 +100,16 @@ export function ProductListPage() {
     fetchCategories().then((res) => setCategories(res.data)).catch(() => {})
     fetchBrands().then((res) => setBrands(res.data)).catch(() => {})
   }, [])
+
+  // Sync pageParams.category → local filters.category when navigation comes from menu/URL
+  const prevCategoryRef = useRef(pageParams.category || '')
+  useEffect(() => {
+    const cat = pageParams.category || ''
+    if (cat !== prevCategoryRef.current) {
+      prevCategoryRef.current = cat
+      setFilters((prev) => ({ ...prev, category: cat, page: 1 }))
+    }
+  }, [pageParams.category])
 
   const buildQueryParams = useCallback((f: FilterState): Record<string, string> => {
     const params: Record<string, string> = {
@@ -139,8 +150,12 @@ export function ProductListPage() {
   const updateFilter = useCallback(
     (key: keyof FilterState, value: unknown) => {
       setFilters((prev) => ({ ...prev, [key]: value, page: 1 }))
+      if (key === 'category') {
+        prevCategoryRef.current = value as string
+        navigateStore('products', { category: value as string })
+      }
     },
-    []
+    [navigateStore]
   )
 
   const clearFilters = useCallback(() => {
@@ -154,7 +169,9 @@ export function ProductListPage() {
       page: 1,
       pageSize: 12,
     })
-  }, [])
+    prevCategoryRef.current = ''
+    navigateStore('products', {})
+  }, [navigateStore])
 
   const activeFilterCount = useMemo(() => {
     let count = 0
