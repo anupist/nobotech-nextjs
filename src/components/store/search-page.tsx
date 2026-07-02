@@ -195,7 +195,7 @@ export function SearchPage() {
 
   const handleInstantClick = (product: Product) => {
     addSearchHistory(product.name)
-    navigateStore('product-detail', { id: product.id })
+    navigateStore('product-detail', { slug: product.slug, id: product.id })
     setShowInstantDropdown(false)
   }
 

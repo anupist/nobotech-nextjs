@@ -260,7 +260,7 @@ export function CartPage() {
                     {/* Product Image */}
                     <div
                       className="shrink-0 cursor-pointer"
-                      onClick={() => navigateStore('product-detail', { id: item.productId })}
+                      onClick={() => navigateStore('product-detail', { slug: item.productSlug, id: item.productId })}
                     >
                       <img
                         src={item.thumbnail || `https://picsum.photos/seed/${item.productSlug}/160/160`}
@@ -275,7 +275,7 @@ export function CartPage() {
                         <div className="min-w-0">
                           <h3
                             className="font-medium text-sm line-clamp-2 cursor-pointer hover:text-emerald-600 transition-colors"
-                            onClick={() => navigateStore('product-detail', { id: item.productId })}
+                      onClick={() => navigateStore('product-detail', { slug: item.productSlug, id: item.productId })}
                           >
                             {item.productName}
                           </h3>

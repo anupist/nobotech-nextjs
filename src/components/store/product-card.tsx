@@ -75,8 +75,8 @@ export function ProductCard({ product }: ProductCardProps) {
   )
 
   const handleView = useCallback(() => {
-    navigateStore('product-detail', { id: product.id })
-  }, [navigateStore, product.id])
+    navigateStore('product-detail', { slug: product.slug, id: product.id })
+  }, [navigateStore, product.slug, product.id])
 
   const handleCompare = useCallback(
     (e: React.MouseEvent) => {

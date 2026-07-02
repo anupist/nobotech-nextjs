@@ -332,7 +332,7 @@ export function DealsPage() {
                     >
                       <Card
                         className="overflow-hidden cursor-pointer group hover:shadow-lg transition-shadow h-full"
-                        onClick={() => navigateStore('product-detail', { id: product.id })}
+                        onClick={() => navigateStore('product-detail', { slug: product.slug, id: product.id })}
                       >
                         <div className="relative aspect-[4/3] bg-muted overflow-hidden">
                           {product.thumbnail ? (
@@ -481,7 +481,7 @@ export function DealsPage() {
                     <motion.div key={product.id} variants={itemVariants}>
                       <Card
                         className="overflow-hidden cursor-pointer group hover:shadow-lg transition-shadow h-full"
-                        onClick={() => navigateStore('product-detail', { id: product.id })}
+                        onClick={() => navigateStore('product-detail', { slug: product.slug, id: product.id })}
                       >
                         <div className="relative aspect-square bg-muted overflow-hidden">
                           {product.thumbnail ? (

@@ -232,7 +232,7 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
   const handleViewFullDetails = useCallback(() => {
     if (!product) return
     onClose()
-    navigateStore('product-detail', { id: product.id })
+    navigateStore('product-detail', { slug: product.slug, id: product.id })
   }, [product, onClose, navigateStore])
 
   return (
@@ -379,7 +379,7 @@ export function QuickViewModal({ productId, open, onClose }: QuickViewModalProps
                         <p className="text-xs font-medium mb-1.5">
                           {attr.name}:{' '}
                           <span className="text-muted-foreground font-normal">
-                            {selectedOptions[slug] ? selectedOptions[slug] : `Select ${attr.name.toLowerCase()}`}
+                            {selectedOptions[slug] ? selectedOptions[slug] : `Select ${(attr?.name || slug).toLowerCase()}`}
                           </span>
                         </p>
                         <div className="flex flex-wrap gap-1.5">

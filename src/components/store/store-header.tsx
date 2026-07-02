@@ -237,7 +237,7 @@ export function StoreHeader() {
   const handleSuggestionClick = useCallback(
     (product: Product) => {
       addSearchHistory(product.name)
-      navigateStore('product-detail', { id: product.id })
+      navigateStore('product-detail', { slug: product.slug, id: product.id })
       setShowSuggestions(false)
       setSearchFocused(false)
       handleSearchChange('')

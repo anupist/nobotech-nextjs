@@ -337,7 +337,7 @@ export function ProductComparePage() {
                         <td key={product.id} className="p-4 text-sm align-top">
                           {row.key === 'image' && (
                             <div className="relative aspect-square rounded-xl overflow-hidden bg-muted/30 mb-2 group cursor-pointer"
-                              onClick={() => navigateStore('product-detail', { id: product.id })}
+                              onClick={() => navigateStore('product-detail', { slug: product.slug, id: product.id })}
                             >
                               <img
                                 src={product.thumbnail || `https://picsum.photos/seed/${product.slug}/300/300`}
@@ -359,7 +359,7 @@ export function ProductComparePage() {
                           {row.key === 'name' && (
                             <button
                               className="font-semibold text-left hover:text-emerald-600 transition-colors line-clamp-2"
-                              onClick={() => navigateStore('product-detail', { id: product.id })}
+                              onClick={() => navigateStore('product-detail', { slug: product.slug, id: product.id })}
                             >
                               {product.name}
                             </button>
@@ -457,7 +457,7 @@ export function ProductComparePage() {
                         <Button
                           className="w-full bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/10 text-sm"
                           size="sm"
-                          onClick={() => navigateStore('product-detail', { id: product.id })}
+                          onClick={() => navigateStore('product-detail', { slug: product.slug, id: product.id })}
                         >
                           View Details
                           <ArrowRight className="h-3.5 w-3.5 ml-1" />

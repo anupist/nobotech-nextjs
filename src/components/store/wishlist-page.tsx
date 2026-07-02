@@ -378,7 +378,7 @@ export function WishlistPage() {
                   <div className="p-3 space-y-2">
                     <h3
                       className="text-sm font-medium line-clamp-1 cursor-pointer hover:text-emerald-600 transition-colors"
-                      onClick={() => navigateStore('product-detail', { id: item.id })}
+                      onClick={() => navigateStore('product-detail', { slug: item.slug, id: item.id })}
                     >
                       {item.name}
                     </h3>

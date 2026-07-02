@@ -785,8 +785,8 @@ function ProductListItem({ product }: { product: Product }) {
   )
 
   const handleClick = useCallback(() => {
-    navigateStore('product-detail', { id: product.id })
-  }, [navigateStore, product.id])
+    navigateStore('product-detail', { slug: product.slug, id: product.id })
+  }, [navigateStore, product.slug, product.id])
 
   return (
     <motion.div

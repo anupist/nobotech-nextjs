@@ -105,7 +105,7 @@ function RecommendedProductCard({ product }: { product: Product }) {
     <div className="flex gap-2 p-2 rounded-lg border bg-card hover:border-emerald-300 transition-colors cursor-pointer"
       onClick={() => {
         setOpen(false)
-        navigateStore('product', { id: product.id, slug: product.slug })
+        navigateStore('product-detail', { slug: product.slug, id: product.id })
       }}
     >
       <img

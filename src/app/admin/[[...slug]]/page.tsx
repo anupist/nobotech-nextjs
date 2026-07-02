@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/stores/auth-store'
+import { useNavStore } from '@/stores/nav-store'
+import { adminUrlToPage } from '@/lib/route-map'
 import { AdminApp } from '@/components/admin/admin-app'
 
 const ADMIN_ROLES = ['super-admin', 'admin', 'product-manager', 'order-manager', 'customer-support']
@@ -18,9 +20,10 @@ function roleToSlug(role: string): string {
   return map[role] || role
 }
 
-export default function AdminPage() {
+export default function AdminCatchAllPage() {
   const [ready, setReady] = useState(false)
   const { user, isAuthenticated } = useAuthStore()
+  const navigateAdmin = useNavStore((s) => s.navigateAdmin)
 
   useEffect(() => {
     const t = setTimeout(() => setReady(true), 0)
@@ -29,7 +32,6 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!ready) return
-    // Migrate old role name format persisted from before the API slug fix
     const u = useAuthStore.getState().user
     if (u) {
       const normalized = roleToSlug(u.role)
@@ -47,6 +49,34 @@ export default function AdminPage() {
       window.location.href = '/'
     }
   }, [ready, isAuthenticated, user])
+
+  // Sync URL → store on initial load and back/forward
+  useEffect(() => {
+    if (!ready) return
+
+    const syncUrlToStore = () => {
+      const path = window.location.pathname
+      const { page, params } = adminUrlToPage(path)
+      const state = useNavStore.getState()
+      if (page !== state.adminPage || JSON.stringify(params) !== JSON.stringify(state.pageParams)) {
+        useNavStore.setState({ adminPage: page, pageParams: params, viewMode: 'admin' })
+      }
+    }
+
+    syncUrlToStore()
+
+    const handlePopState = () => {
+      const path = window.location.pathname
+      const { page, params } = adminUrlToPage(path)
+      const state = useNavStore.getState()
+      if (page !== state.adminPage || JSON.stringify(params) !== JSON.stringify(state.pageParams)) {
+        useNavStore.setState({ adminPage: page, pageParams: params, viewMode: 'admin' })
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [ready])
 
   if (!ready) return null
   const role = roleToSlug(user?.role || '')

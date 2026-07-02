@@ -198,6 +198,10 @@ export async function fetchProduct(id: string): Promise<{ success: boolean; data
   return fetchApi(`/products/${id}`)
 }
 
+export async function fetchProductBySlug(slug: string): Promise<{ success: boolean; data: Product }> {
+  return fetchApi(`/products/slug/${slug}`)
+}
+
 export async function fetchCategories(): Promise<{ success: boolean; data: Category[] }> {
   return fetchApi('/categories')
 }

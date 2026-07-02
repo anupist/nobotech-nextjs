@@ -7,6 +7,7 @@ import { useRecentlyViewedStore } from '@/stores/recently-viewed-store'
 import { useWishlistStore } from '@/stores/wishlist-store'
 import {
   fetchProduct,
+  fetchProductBySlug,
   fetchProducts,
   submitReview,
   type Product,
@@ -146,14 +147,18 @@ export function ProductDetailPage() {
   const ctaRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!pageParams.id) {
+    const slug = pageParams.slug
+    const id = pageParams.id
+    if (!slug && !id) {
       setLoading(false)
       return
     }
     const load = async () => {
       setLoading(true)
       try {
-        const res = await fetchProduct(pageParams.id)
+        const res = slug
+          ? await fetchProductBySlug(slug)
+          : await fetchProduct(id)
         setProduct(res.data)
         // Add to recently viewed
         addRecentlyViewed({
@@ -221,7 +226,7 @@ export function ProductDetailPage() {
       }
     }
     load()
-  }, [pageParams.id, addRecentlyViewed])
+  }, [pageParams.slug, pageParams.id, addRecentlyViewed])
 
   // Sticky add-to-cart bar - detect when main CTA is out of view
   useEffect(() => {
@@ -268,31 +273,8 @@ export function ProductDetailPage() {
     )
   }, [product, selectedOptions, selectedVariant])
 
-  // Lightbox keyboard navigation
-  useEffect(() => {
-    if (!lightboxOpen) return
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') {
-        setLightboxImage((prev) => (prev > 0 ? prev - 1 : images.length - 1))
-      } else if (e.key === 'ArrowRight') {
-        setLightboxImage((prev) => (prev < images.length - 1 ? prev + 1 : 0))
-      } else if (e.key === 'Escape') {
-        setLightboxOpen(false)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [lightboxOpen, images.length])
-
-  // Sync lightbox image with selected image when opening
-  useEffect(() => {
-    if (lightboxOpen) {
-      setLightboxImage(selectedImage)
-    }
-  }, [lightboxOpen, selectedImage])
-
   // Images memo — filters by variant when one is selected
-  const images = useMemo(() => {
+  const productImages = useMemo(() => {
     if (!product) return []
     const variantId = currentVariant?.id
     const imgs: string[] = []
@@ -321,6 +303,29 @@ export function ProductDetailPage() {
     }
     return imgs
   }, [product, currentVariant])
+
+  // Lightbox keyboard navigation
+  useEffect(() => {
+    if (!lightboxOpen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        setLightboxImage((prev) => (prev > 0 ? prev - 1 : productImages.length - 1))
+      } else if (e.key === 'ArrowRight') {
+        setLightboxImage((prev) => (prev < productImages.length - 1 ? prev + 1 : 0))
+      } else if (e.key === 'Escape') {
+        setLightboxOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [lightboxOpen, productImages.length])
+
+  // Sync lightbox image with selected image when opening
+  useEffect(() => {
+    if (lightboxOpen) {
+      setLightboxImage(selectedImage)
+    }
+  }, [lightboxOpen, selectedImage])
 
   // Group variant attributes with availability per value
   const variantAttributes = useMemo(() => {
@@ -407,17 +412,17 @@ export function ProductDetailPage() {
 
   // Auto-play effect: cycle images every 4 seconds
   useEffect(() => {
-    if (!autoPlay || images.length <= 1) {
+    if (!autoPlay || productImages.length <= 1) {
       if (autoPlayTimerRef.current) clearInterval(autoPlayTimerRef.current)
       return
     }
     autoPlayTimerRef.current = setInterval(() => {
-      setSelectedImage((prev) => (prev < images.length - 1 ? prev + 1 : 0))
+      setSelectedImage((prev) => (prev < productImages.length - 1 ? prev + 1 : 0))
     }, 4000)
     return () => {
       if (autoPlayTimerRef.current) clearInterval(autoPlayTimerRef.current)
     }
-  }, [autoPlay, images.length])
+  }, [autoPlay, productImages.length])
 
   // Pause auto-play when user manually selects an image, resume after 8 seconds
   const handleManualImageSelect = useCallback((idx: number) => {
@@ -454,9 +459,10 @@ export function ProductDetailPage() {
 
   // Check if product is Clothing or Shoes for Size Guide
   const isSizeGuideVisible = useMemo(() => {
-    if (!product?.category) return false
-    const catName = product.category.name.toLowerCase()
-    const catSlug = product.category.slug.toLowerCase()
+    const cat = product?.category
+    if (!cat) return false
+    const catName = (cat.name || '').toLowerCase()
+    const catSlug = (cat.slug || '').toLowerCase()
     return catName.includes('clothing') || catName.includes('shoe') || catName.includes('apparel') || catName.includes('fashion') || catSlug.includes('clothing') || catSlug.includes('shoe') || catSlug.includes('apparel') || catSlug.includes('fashion')
   }, [product])
 
@@ -549,7 +555,7 @@ export function ProductDetailPage() {
 
   // Spec icon mapping
   const getSpecIcon = (label: string) => {
-    const l = label.toLowerCase()
+    const l = (label || '').toLowerCase()
     if (l.includes('weight')) return <Weight className="h-4 w-4 text-emerald-500" />
     if (l.includes('dimension') || l.includes('size') || l.includes('length') || l.includes('width') || l.includes('height')) return <Ruler className="h-4 w-4 text-emerald-500" />
     if (l.includes('material') || l.includes('color')) return <Tag className="h-4 w-4 text-emerald-500" />
@@ -607,7 +613,7 @@ export function ProductDetailPage() {
               <AnimatePresence mode="wait">
                 <motion.img
                   key={selectedImage}
-                  src={images[selectedImage]}
+                  src={productImages[selectedImage]}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-300 ease-out"
                   initial={{ opacity: 0 }}
@@ -632,14 +638,14 @@ export function ProductDetailPage() {
               )}
 
               {/* Image Counter Badge - top right */}
-              {images.length > 1 && (
+              {productImages.length > 1 && (
                 <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-2.5 py-1 rounded-full">
-                  {selectedImage + 1}/{images.length}
+                  {selectedImage + 1}/{productImages.length}
                 </div>
               )}
 
               {/* Auto-play Toggle Button */}
-              {images.length > 1 && (
+              {productImages.length > 1 && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
@@ -654,11 +660,11 @@ export function ProductDetailPage() {
               )}
 
               {/* Left Arrow Navigation */}
-              {images.length > 1 && (
+              {productImages.length > 1 && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleManualImageSelect(selectedImage > 0 ? selectedImage - 1 : images.length - 1)
+                    handleManualImageSelect(selectedImage > 0 ? selectedImage - 1 : productImages.length - 1)
                   }}
                   className="absolute left-3 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full bg-emerald-600/90 hover:bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
                   aria-label="Previous image"
@@ -668,11 +674,11 @@ export function ProductDetailPage() {
               )}
 
               {/* Right Arrow Navigation */}
-              {images.length > 1 && (
+              {productImages.length > 1 && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleManualImageSelect(selectedImage < images.length - 1 ? selectedImage + 1 : 0)
+                    handleManualImageSelect(selectedImage < productImages.length - 1 ? selectedImage + 1 : 0)
                   }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full bg-emerald-600/90 hover:bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
                   aria-label="Next image"
@@ -684,9 +690,9 @@ export function ProductDetailPage() {
           </div>
 
           {/* Filmstrip / Thumbnail strip */}
-          {images.length > 1 && (
+          {productImages.length > 1 && (
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
-              {images.map((img, idx) => (
+              {productImages.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleManualImageSelect(idx)}
@@ -736,15 +742,15 @@ export function ProductDetailPage() {
 
               {/* Image Counter at bottom */}
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-sm text-white text-sm font-medium px-4 py-2 rounded-full">
-                {lightboxImage + 1} / {images.length}
+                {lightboxImage + 1} / {productImages.length}
               </div>
 
               {/* Left arrow */}
-              {images.length > 1 && (
+              {productImages.length > 1 && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    setLightboxImage((prev) => (prev > 0 ? prev - 1 : images.length - 1))
+                    setLightboxImage((prev) => (prev > 0 ? prev - 1 : productImages.length - 1))
                   }}
                   className="absolute left-4 top-1/2 -translate-y-1/2 z-10 h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
                 >
@@ -753,11 +759,11 @@ export function ProductDetailPage() {
               )}
 
               {/* Right arrow */}
-              {images.length > 1 && (
+              {productImages.length > 1 && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    setLightboxImage((prev) => (prev < images.length - 1 ? prev + 1 : 0))
+                    setLightboxImage((prev) => (prev < productImages.length - 1 ? prev + 1 : 0))
                   }}
                   className="absolute right-4 top-1/2 -translate-y-1/2 z-10 h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
                 >
@@ -768,7 +774,7 @@ export function ProductDetailPage() {
               {/* Main image */}
               <motion.img
                 key={lightboxImage}
-                src={images[lightboxImage]}
+                src={productImages[lightboxImage]}
                 alt={product.name}
                 className="max-h-[85vh] max-w-[90vw] object-contain"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -836,7 +842,7 @@ export function ProductDetailPage() {
             return (
               <div key={slug}>
                 <p className="text-sm font-medium mb-2">
-                  {attr.name}: <span className="text-muted-foreground font-normal">{selectedOptions[slug] ? selectedOptions[slug] : `Select ${attr.name.toLowerCase()}`}</span>
+                  {(attr?.name || slug)}: <span className="text-muted-foreground font-normal">{selectedOptions[slug] ? selectedOptions[slug] : `Select ${(attr?.name || slug).toLowerCase()}`}</span>
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {Array.from(attr.values).map((value) => {
@@ -949,7 +955,7 @@ export function ProductDetailPage() {
           <SizeGuide
             open={sizeGuideOpen}
             onOpenChange={setSizeGuideOpen}
-            defaultTab={product.category?.slug?.toLowerCase().includes('shoe') ? 'shoes' : 'clothing'}
+            defaultTab={(product.category?.slug || '').toLowerCase().includes('shoe') ? 'shoes' : 'clothing'}
           />
 
           {/* Quantity */}

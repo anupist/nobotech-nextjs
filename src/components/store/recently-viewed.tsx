@@ -159,7 +159,7 @@ export function RecentlyViewed() {
                 transition={{ duration: 0.3 }}
               >
                 <button
-                  onClick={() => navigateStore('product-detail', { id: item.id })}
+                  onClick={() => navigateStore('product-detail', { slug: item.slug, id: item.id })}
                   className="group/card w-full text-left rounded-xl border bg-card shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden hover:border-emerald-300 relative"
                   onMouseEnter={() => setHoveredItem(item.id)}
                   onMouseLeave={() => setHoveredItem(null)}
