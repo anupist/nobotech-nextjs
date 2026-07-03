@@ -5,22 +5,38 @@ import { Button } from '@/components/ui/button'
 import { X, Cookie, Shield, ExternalLink } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavStore } from '@/stores/nav-store'
+import { fetchSettings } from '@/lib/api'
 
 const CONSENT_KEY = 'shophub-cookie-consent'
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false)
   const [showCustomize, setShowCustomize] = useState(false)
+  const [active, setActive] = useState(true)
   const navigateStore = useNavStore((s) => s.navigateStore)
 
   useEffect(() => {
+    fetchSettings()
+      .then((res) => {
+        if (!res.success) return
+        if (res.data.cookie_consent_active === 'false') {
+          setActive(false)
+          return
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (!active) return
     const consent = localStorage.getItem(CONSENT_KEY)
     if (!consent) {
-      // Small delay so the page loads first
       const timer = setTimeout(() => setVisible(true), 1500)
       return () => clearTimeout(timer)
     }
-  }, [])
+  }, [active])
+
+  if (!active) return null
 
   const handleAcceptAll = () => {
     localStorage.setItem(CONSENT_KEY, JSON.stringify({ accepted: true, all: true, date: new Date().toISOString() }))
@@ -48,12 +64,10 @@ export function CookieConsent() {
         >
           <div className="container mx-auto max-w-4xl">
             <div className="relative rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white shadow-2xl shadow-black/30 overflow-hidden">
-              {/* Decorative emerald glow */}
               <div className="absolute top-0 left-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -translate-x-8 -translate-y-8 pointer-events-none" />
               <div className="absolute bottom-0 right-0 w-24 h-24 bg-teal-500/10 rounded-full blur-3xl translate-x-8 translate-y-8 pointer-events-none" />
 
               <div className="relative p-5 sm:p-6">
-                {/* Close button */}
                 <button
                   onClick={handleDismiss}
                   className="absolute top-3 right-3 h-7 w-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
@@ -63,7 +77,6 @@ export function CookieConsent() {
                 </button>
 
                 <div className="flex gap-4 items-start">
-                  {/* Cookie icon */}
                   <div className="hidden sm:flex h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
                     <Cookie className="h-5 w-5 text-white" />
                   </div>
@@ -85,7 +98,6 @@ export function CookieConsent() {
                       </button>
                     </p>
 
-                    {/* Customization panel */}
                     <AnimatePresence>
                       {showCustomize && (
                         <motion.div
@@ -118,7 +130,6 @@ export function CookieConsent() {
                       )}
                     </AnimatePresence>
 
-                    {/* Action buttons */}
                     <div className="flex flex-wrap gap-2">
                       <Button
                         onClick={handleAcceptAll}

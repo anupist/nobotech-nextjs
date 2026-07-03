@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { formatPrice } from '@/lib/api'
 import { useNavStore } from '@/stores/nav-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -165,7 +166,7 @@ export function CustomerDetailPage() {
           id: `order-${o.id}`,
           type: 'order' as const,
           title: `Order #${o.orderNumber}`,
-          description: `$${o.totalAmount.toFixed(2)} — ${o.status}`,
+          description: `${formatPrice(o.totalAmount)} — ${o.status}`,
           timestamp: o.createdAt,
           icon: ShoppingCart,
           color: 'from-emerald-400 to-teal-500',
@@ -305,7 +306,7 @@ export function CustomerDetailPage() {
                     Total Spent
                   </span>
                   <span className="text-sm font-bold">
-                    ${(customer.totalSpent || 0).toFixed(2)}
+                    {formatPrice(customer.totalSpent || 0)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -470,7 +471,7 @@ export function CustomerDetailPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right font-semibold text-sm">
-                        ${order.totalAmount.toFixed(2)}
+                        {formatPrice(order.totalAmount)}
                       </TableCell>
                     </TableRow>
                   ))}

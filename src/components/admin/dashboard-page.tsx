@@ -20,6 +20,7 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from '@/components/ui/collapsible'
+import { formatPrice, getCurrencySymbol } from '@/lib/api'
 import {
   DollarSign,
   ShoppingCart,
@@ -45,8 +46,6 @@ import {
   Target,
   Repeat,
   ShoppingCartIcon,
-  Sun,
-  Megaphone,
   ChevronDown,
   CheckCheck,
   Star,
@@ -258,7 +257,7 @@ const topProductRevenueColors = ['#10b981', '#14b8a6', '#0d9488', '#0f766e', '#1
 
 // Performance metrics
 const performanceMetrics = [
-  { label: 'Avg Order Value', value: 89.50, suffix: '$', target: 100, color: '#10b981', icon: DollarSign },
+  { label: 'Avg Order Value', value: 89.50, target: 100, color: '#10b981', icon: DollarSign },
   { label: 'Conversion Rate', value: 3.2, suffix: '%', target: 5, color: '#14b8a6', icon: Target },
   { label: 'Customer Retention', value: 68, suffix: '%', target: 100, color: '#0d9488', icon: Repeat },
   { label: 'Cart Abandonment', value: 24, suffix: '%', target: 100, color: '#f59e0b', icon: ShoppingCartIcon },
@@ -272,13 +271,6 @@ const productTrendData: Record<number, number[]> = {
   3: [6, 9, 7, 11, 8, 13, 10],
   4: [10, 8, 12, 9, 14, 11, 15],
 }
-
-// Announcements data
-const announcementsData = [
-  { id: '1', title: 'Summer Sale Campaign Starting', message: 'Configure summer sale discounts and banners before June 1st', icon: Sun, date: 'May 28, 2025', color: 'text-amber-600 bg-amber-50 dark:bg-amber-950 dark:text-amber-400' },
-  { id: '2', title: 'New Payment Method Available', message: 'bKash and Nagad payment integration is now live for customers', icon: CreditCard, date: 'May 25, 2025', color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-400' },
-  { id: '3', title: 'Inventory Review Needed', message: '5 products are below low stock threshold and require attention', icon: AlertTriangle, date: 'May 24, 2025', color: 'text-rose-600 bg-rose-50 dark:bg-rose-950 dark:text-rose-400' },
-]
 
 // Circular Progress Component
 function CircularProgress({ value, target, color, size = 72, strokeWidth = 6 }: { value: number; target: number; color: string; size?: number; strokeWidth?: number }) {
@@ -449,7 +441,7 @@ function LowStockAlerts({ navigateAdmin }: { navigateAdmin: (page: 'inventory' |
                       <p className="text-sm font-medium truncate">{product.name}</p>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-xs text-muted-foreground">
-                          ${product.sellingPrice.toFixed(2)}
+                          {formatPrice(product.sellingPrice)}
                         </span>
                         <div className={`h-1.5 w-16 rounded-full overflow-hidden ${isCritical ? 'bg-red-200 dark:bg-red-900' : 'bg-amber-200 dark:bg-amber-900'}`}>
                           <motion.div
@@ -517,8 +509,6 @@ export function DashboardPage() {
   const [revenuePeriod, setRevenuePeriod] = useState<'7d' | '30d' | '90d' | '1y'>('7d')
   const [chartType, setChartType] = useState<'area' | 'bar'>('area')
   const [activityItems, setActivityItems] = useState(activityFeedInitial.map(a => ({ ...a, read: a.unread ? false : true })))
-  const [announcementsOpen, setAnnouncementsOpen] = useState(true)
-  const [readAnnouncements, setReadAnnouncements] = useState<Set<string>>(new Set())
   const [currentTime, setCurrentTime] = useState(new Date())
 
   // Live clock
@@ -577,10 +567,6 @@ export function DashboardPage() {
   const markAllRead = useCallback(() => {
     setActivityItems(prev => prev.map(a => ({ ...a, read: true })))
     toast.success('All activities marked as read')
-  }, [])
-
-  const markAnnouncementRead = useCallback((id: string) => {
-    setReadAnnouncements(prev => new Set(prev).add(id))
   }, [])
 
   const daysRemainingInMonth = useMemo(() => {
@@ -718,79 +704,6 @@ export function DashboardPage() {
       initial="hidden"
       animate="show"
     >
-      {/* Admin Announcements */}
-      <motion.div variants={itemVariants}>
-        <Collapsible open={announcementsOpen} onOpenChange={setAnnouncementsOpen}>
-          <Card className="border-0 shadow-sm overflow-hidden">
-            <div className="h-1 bg-gradient-to-r from-amber-400 via-emerald-500 to-teal-500" />
-            <CollapsibleTrigger asChild>
-              <button className="w-full">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Megaphone className="h-4 w-4 text-amber-500" />
-                      Announcements
-                      {announcementsData.filter(a => !readAnnouncements.has(a.id)).length > 0 && (
-                        <Badge className="h-5 px-1.5 text-[10px] bg-amber-500 text-white border-0 hover:bg-amber-600">
-                          {announcementsData.filter(a => !readAnnouncements.has(a.id)).length} new
-                        </Badge>
-                      )}
-                    </CardTitle>
-                    <motion.div
-                      animate={{ rotate: announcementsOpen ? 180 : 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    </motion.div>
-                  </div>
-                </CardHeader>
-              </button>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <CardContent className="pt-0 pb-4">
-                <div className="space-y-2">
-                  {announcementsData.map((announcement) => {
-                    const AnnIcon = announcement.icon
-                    const isRead = readAnnouncements.has(announcement.id)
-                    return (
-                      <motion.div
-                        key={announcement.id}
-                        layout
-                        className={`flex items-start gap-3 p-3 rounded-xl transition-colors ${isRead ? 'opacity-60' : 'bg-muted/30'}`}
-                      >
-                        <div className={`p-2 rounded-lg shrink-0 ${announcement.color}`}>
-                          <AnnIcon className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-medium">{announcement.title}</p>
-                            {!isRead && (
-                              <Badge className="h-4 px-1 text-[9px] bg-emerald-500 text-white border-0">New</Badge>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-0.5">{announcement.message}</p>
-                          <p className="text-[11px] text-muted-foreground mt-1">{announcement.date}</p>
-                        </div>
-                        {!isRead && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-xs shrink-0"
-                            onClick={() => markAnnouncementRead(announcement.id)}
-                          >
-                            Mark read
-                          </Button>
-                        )}
-                      </motion.div>
-                    )
-                  })}
-                </div>
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
-      </motion.div>
-
       {/* Today's Summary Card with Live Clock */}
       <motion.div variants={itemVariants}>
         <Card className="border-0 shadow-sm overflow-hidden">
@@ -1222,7 +1135,7 @@ export function DashboardPage() {
                       yAxisId="revenue"
                       tick={{ fontSize: 12 }}
                       className="text-muted-foreground"
-                      tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
+                      tickFormatter={(v: number) => `${getCurrencySymbol()}${(v / 1000).toFixed(0)}k`}
                     />
                     <YAxis
                       yAxisId="orders"
@@ -1259,7 +1172,7 @@ export function DashboardPage() {
                     <YAxis
                       tick={{ fontSize: 12 }}
                       className="text-muted-foreground"
-                      tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`}
+                      tickFormatter={(v: number) => `${getCurrencySymbol()}${(v / 1000).toFixed(0)}k`}
                     />
                     <Tooltip content={<RevenueTooltip />} />
                     <Legend />
@@ -1301,7 +1214,7 @@ export function DashboardPage() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">{category.name}</span>
-                    <span className="text-xs text-muted-foreground">${category.revenue.toLocaleString()}</span>
+                    <span className="text-xs text-muted-foreground">{formatPrice(category.revenue)}</span>
                   </div>
                   <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
                     <motion.div
@@ -1414,7 +1327,7 @@ export function DashboardPage() {
                       <CircularProgress value={metric.value} target={metric.target} color={metric.color} />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-sm font-bold">
-                          {metric.suffix === '$' ? '$' : ''}{metric.value}{metric.suffix !== '$' ? metric.suffix : ''}
+                          {metric.suffix ? `${metric.value}${metric.suffix}` : formatPrice(metric.value)}
                         </span>
                       </div>
                     </div>
@@ -1454,7 +1367,7 @@ export function DashboardPage() {
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
                     <XAxis dataKey="month" tick={{ fontSize: 12 }} className="text-muted-foreground" />
-                    <YAxis tick={{ fontSize: 12 }} className="text-muted-foreground" tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
+                    <YAxis tick={{ fontSize: 12 }} className="text-muted-foreground" tickFormatter={(v: number) => `${getCurrencySymbol()}${(v / 1000).toFixed(0)}k`} />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: 'hsl(var(--card))',
@@ -1462,7 +1375,7 @@ export function DashboardPage() {
                         borderRadius: '8px',
                         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                       }}
-                      formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
+                      formatter={(value: number) => [formatPrice(value), 'Revenue']}
                     />
                     <Area
                       type="monotone"
@@ -1574,7 +1487,7 @@ export function DashboardPage() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right text-sm font-semibold">
-                          ${order.totalAmount.toFixed(2)}
+                          {formatPrice(order.totalAmount)}
                         </TableCell>
                       </TableRow>
                     )
@@ -1700,7 +1613,7 @@ export function DashboardPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={topProductsRevenueData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                    <XAxis type="number" tick={{ fontSize: 11 }} className="text-muted-foreground" tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
+                    <XAxis type="number" tick={{ fontSize: 11 }} className="text-muted-foreground" tickFormatter={(v: number) => `${getCurrencySymbol()}${(v / 1000).toFixed(0)}k`} />
                     <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} className="text-muted-foreground" width={120} />
                     <Tooltip
                       contentStyle={{
@@ -1708,7 +1621,7 @@ export function DashboardPage() {
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
                       }}
-                      formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
+                      formatter={(value: number) => [formatPrice(value), 'Revenue']}
                     />
                     <Bar dataKey="revenue" radius={[0, 6, 6, 0]}>
                       {topProductsRevenueData.map((entry, index) => (

@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import { useNavStore } from '@/stores/nav-store'
+import { usePageMeta } from '@/hooks/use-page-meta'
 import { AdminSidebar } from './admin-sidebar'
 import { AdminHeader } from './admin-header'
 import { DashboardPage } from './dashboard-page'
@@ -25,10 +26,19 @@ import { AuditLogsPage } from './audit-logs-page'
 import { FlashSalesPage } from './flash-sales-page'
 import { CustomerDetailPage } from './customer-detail-page'
 import { MediaPage } from './media-page'
+import { TestimonialsPage } from './testimonials-page'
+import { AnnouncementsPage } from './announcements-page'
+import { NavigationPage } from './navigation-page'
+import { FooterWidgetsPage } from './footer-widgets-page'
+import { FeaturesPage } from './features-page'
+import { PaymentMethodsPage } from './payment-methods-page'
+import { FAQPage } from './faq-page'
+import { AboutSectionsPage } from './about-sections-page'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 
 export function AdminApp() {
   const adminPage = useNavStore((s) => s.adminPage)
+  usePageMeta()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -86,6 +96,22 @@ export function AdminApp() {
         return <CustomerDetailPage />
       case 'media':
         return <MediaPage />
+      case 'testimonials':
+        return <TestimonialsPage />
+      case 'announcements':
+        return <AnnouncementsPage />
+      case 'navigation':
+        return <NavigationPage />
+      case 'footer-widgets':
+        return <FooterWidgetsPage />
+      case 'features':
+        return <FeaturesPage />
+      case 'payment-methods':
+        return <PaymentMethodsPage />
+      case 'faq':
+        return <FAQPage />
+      case 'about-sections':
+        return <AboutSectionsPage />
       default:
         return <DashboardPage />
     }

@@ -2,6 +2,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { getCurrencySymbol } from '@/lib/api'
 
 interface GiftCard {
   code: string
@@ -47,7 +48,7 @@ export const useGiftCardStore = create<GiftCardState>()(
             code: card.code,
             isActive: true,
           })
-          return { success: true, message: `Gift card reactivated! Balance: $${card.balance.toFixed(2)}` }
+          return { success: true, message: `Gift card reactivated! Balance: ${getCurrencySymbol()}${card.balance.toFixed(2)}` }
         }
 
         // Check demo cards
@@ -64,7 +65,7 @@ export const useGiftCardStore = create<GiftCardState>()(
             isActive: true,
             redeemedCards: [...state.redeemedCards, newCard],
           })
-          return { success: true, message: `Gift card redeemed! Balance: $${cardValue.toFixed(2)}` }
+          return { success: true, message: `Gift card redeemed! Balance: ${getCurrencySymbol()}${cardValue.toFixed(2)}` }
         }
 
         return { success: false, message: 'Invalid gift card code' }
@@ -76,19 +77,19 @@ export const useGiftCardStore = create<GiftCardState>()(
         // Check active card
         const state = get()
         if (state.code === upperCode && state.isActive) {
-          return { balance: state.balance, message: `Current balance: $${state.balance.toFixed(2)}` }
+          return { balance: state.balance, message: `Current balance: ${getCurrencySymbol()}${state.balance.toFixed(2)}` }
         }
 
         // Check redeemed cards
         const card = state.redeemedCards.find((c) => c.code === upperCode)
         if (card) {
-          return { balance: card.balance, message: `Card balance: $${card.balance.toFixed(2)}` }
+          return { balance: card.balance, message: `Card balance: ${getCurrencySymbol()}${card.balance.toFixed(2)}` }
         }
 
         // Check demo cards
         const cardValue = DEMO_CARDS[upperCode]
         if (cardValue) {
-          return { balance: cardValue, message: `Card available! Value: $${cardValue.toFixed(2)}` }
+          return { balance: cardValue, message: `Card available! Value: ${getCurrencySymbol()}${cardValue.toFixed(2)}` }
         }
 
         return { balance: null, message: 'Invalid gift card code' }
@@ -116,7 +117,7 @@ export const useGiftCardStore = create<GiftCardState>()(
 
         return {
           success: true,
-          message: `$${applied.toFixed(2)} applied from gift card`,
+          message: `${getCurrencySymbol()}${applied.toFixed(2)} applied from gift card`,
           applied,
         }
       },

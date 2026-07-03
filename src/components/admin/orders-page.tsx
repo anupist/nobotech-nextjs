@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { formatPrice } from '@/lib/api'
 import { useNavStore } from '@/stores/nav-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -208,6 +209,7 @@ export function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [statusCounts, setStatusCounts] = useState<Record<string, number>>({})
   const limit = 10
 
   // Bulk actions state
@@ -232,6 +234,7 @@ export function OrdersPage() {
       if (data.success) {
         setOrders(data.data || [])
         setTotalPages(data.meta?.totalPages || 1)
+        if (data.meta?.statusCounts) setStatusCounts(data.meta.statusCounts)
       }
     } catch (error) {
       console.error('Failed to fetch orders:', error)
@@ -457,11 +460,21 @@ export function OrdersPage() {
       {/* Status Tabs */}
       <Tabs value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
         <TabsList className="flex-wrap h-auto gap-1 w-full">
-          {statusTabs.map((tab) => (
-            <TabsTrigger key={tab} value={tab} className="text-xs capitalize">
-              {tab}
-            </TabsTrigger>
-          ))}
+          {statusTabs.map((tab) => {
+            const count = tab === 'all'
+              ? Object.values(statusCounts).reduce((a, b) => a + b, 0)
+              : statusCounts[tab] || 0
+            return (
+              <TabsTrigger key={tab} value={tab} className="text-xs capitalize">
+                {tab}
+                {count > 0 && (
+                  <Badge className="ml-1.5 h-4 px-1 text-[10px] bg-emerald-600 text-white border-0">
+                    {count}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            )
+          })}
         </TabsList>
       </Tabs>
 
@@ -553,7 +566,7 @@ export function OrdersPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">${order.totalAmount.toFixed(2)}</span>
+                          <span className="font-medium text-sm">{formatPrice(order.totalAmount)}</span>
                           {(() => {
                             const priority = getOrderPriority(order.totalAmount)
                             const PriorityIcon = priority.icon

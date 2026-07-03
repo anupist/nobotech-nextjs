@@ -56,6 +56,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
+import { setPageMeta } from '@/lib/page-meta'
 import { BreadcrumbNav } from '@/components/shared/breadcrumb-nav'
 import { SocialShare } from '@/components/store/social-share'
 import { SizeGuide } from '@/components/store/size-guide'
@@ -160,6 +161,10 @@ export function ProductDetailPage() {
           ? await fetchProductBySlug(slug)
           : await fetchProduct(id)
         setProduct(res.data)
+        setPageMeta({
+          title: res.data.metaTitle || res.data.name,
+          description: res.data.metaDescription || res.data.description?.slice(0, 160) || '',
+        })
         // Add to recently viewed
         addRecentlyViewed({
           id: res.data.id,

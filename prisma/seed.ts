@@ -1980,6 +1980,25 @@ async function main() {
   console.log('📊 SEEDING SUMMARY');
   console.log('='.repeat(50));
 
+  // Seed notifications for admin users
+  const existingNotifs = await prisma.notification.count();
+  if (existingNotifs === 0) {
+    const adminUsers = await prisma.user.findMany({
+      where: { email: { in: ['superadmin@shop.com', 'admin@shop.com'] } },
+    });
+    for (const u of adminUsers) {
+      await prisma.notification.createMany({
+        data: [
+          { userId: u.id, title: 'New order #1234 received', description: 'A new order has been placed and needs processing.', type: 'order', read: false },
+          { userId: u.id, title: 'Low stock alert: Samsung Galaxy Watch 6', description: 'Only 3 units remaining. Consider restocking soon.', type: 'warning', read: false },
+          { userId: u.id, title: 'New review on Apple AirPods Pro 2', description: 'A customer left a 5-star review with photos.', type: 'info', read: false },
+          { userId: u.id, title: 'Coupon WELCOME10 expiring soon', description: 'This coupon expires in 2 days. Review and extend if needed.', type: 'warning', read: false },
+          { userId: u.id, title: '5 new customer registrations today', description: 'New signups are up 25% compared to last week.', type: 'success', read: true },
+        ],
+      });
+    }
+  }
+
   // Count all records
   const counts = {
     roles: await prisma.role.count(),
@@ -2001,6 +2020,7 @@ async function main() {
     reviews: await prisma.review.count(),
     blogs: await prisma.blog.count(),
     pages: await prisma.page.count(),
+    notifications: await prisma.notification.count(),
     settings: await prisma.setting.count(),
     addresses: await prisma.address.count(),
   };

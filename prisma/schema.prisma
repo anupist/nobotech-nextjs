@@ -69,6 +69,7 @@ model User {
   roles         UserRole[]
   customer      Customer?
   auditLogs     AuditLog[]
+  notifications Notification[]
 }
 
 model Customer {
@@ -113,6 +114,7 @@ model Category {
   slug        String    @unique
   description String?
   image       String?
+  icon        String?   // Lucide icon name (e.g., "Laptop", "Shirt")
   parentId    String?
   parent      Category? @relation("CategoryTree", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryTree")
@@ -347,9 +349,9 @@ model OrderItem {
   orderId     String
   order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId   String
-  product     Product         @relation(fields: [productId], references: [id])
+  product     Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
   variantId   String?
-  variant     ProductVariant? @relation(fields: [variantId], references: [id])
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
   productName String
   variantName String?
   sku         String
@@ -408,6 +410,7 @@ model FlashSale {
   startsAt    DateTime
   endsAt      DateTime
   isActive    Boolean    @default(true)
+  isFeatured  Boolean    @default(false)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
@@ -513,6 +516,150 @@ model AuditLog {
   details   String? @db.Text  // JSON
   ip        String?
   createdAt DateTime @default(now())
+}
+
+// ============ Notifications ============
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  title       String
+  description String?
+  type        String   @default("info") // order, warning, info, success
+  link        String?
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+// ============ Testimonials ============
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  avatar    String?
+  rating    Int
+  comment   String @db.Text
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============ Announcements ============
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String? @db.Text
+  url       String?
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============ Navigation ============
+
+model NavigationItem {
+  id        String           @id @default(cuid())
+  label     String
+  url       String
+  parentId  String?
+  parent    NavigationItem?  @relation("NavigationTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children  NavigationItem[] @relation("NavigationTree")
+  location  String           @default("header") // header, footer
+  sortOrder Int              @default(0)
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+// ============ Footer Widgets ============
+
+model FooterWidget {
+  id        String             @id @default(cuid())
+  title     String
+  location  String             // quick_links, customer_service
+  sortOrder Int                @default(0)
+  isActive  Boolean            @default(true)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  links     FooterWidgetLink[]
+}
+
+model FooterWidgetLink {
+  id        String       @id @default(cuid())
+  widgetId  String
+  widget    FooterWidget @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+  label     String
+  url       String
+  sortOrder Int          @default(0)
+}
+
+// ============ Feature Items (Footer Features Bar) ============
+
+model FeatureItem {
+  id          String   @id @default(cuid())
+  icon        String?  // Lucide icon name (e.g., "Truck", "Shield", "RotateCcw")
+  title       String
+  description String
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ============ Payment Methods ============
+
+model PaymentMethod {
+  id        String   @id @default(cuid())
+  name      String
+  image     String   // Media URL
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============ FAQ ============
+
+model FAQCategory {
+  id        String   @id @default(cuid())
+  name      String
+  icon      String?  // Lucide icon name
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  faqs      FAQ[]
+}
+
+model FAQ {
+  id          String       @id @default(cuid())
+  categoryId  String
+  category    FAQCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  question    String
+  answer      String @db.Text
+  sortOrder   Int          @default(0)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+// ============ About Sections ============
+
+model AboutSection {
+  id          String   @id @default(cuid())
+  type        String   // hero, values, stats, team, timeline, cta
+  title       String?
+  description String? @db.Text
+  items       String? @db.Text  // JSON array of section-specific items
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // ============ Media Gallery ============

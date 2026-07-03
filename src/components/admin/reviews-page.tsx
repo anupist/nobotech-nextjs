@@ -64,6 +64,7 @@ export function ReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('all')
+  const [statusCounts, setStatusCounts] = useState<Record<string, number>>({})
   const [ratingFilter, setRatingFilter] = useState<number>(0)
   const [selectedReview, setSelectedReview] = useState<Review | null>(null)
   const [adminResponse, setAdminResponse] = useState('')
@@ -82,6 +83,7 @@ export function ReviewsPage() {
         const data = await res.json()
         if (data.success) {
           setReviews(data.data || [])
+          if (data.meta?.statusCounts) setStatusCounts(data.meta.statusCounts)
           return
         }
       }
@@ -212,17 +214,27 @@ export function ReviewsPage() {
       <div className="flex flex-wrap items-center gap-3">
         {/* Status Filter */}
         <div className="flex items-center gap-1">
-          {['all', 'pending', 'approved', 'rejected'].map((status) => (
-            <Button
-              key={status}
-              variant={statusFilter === status ? 'default' : 'outline'}
-              size="sm"
-              className={statusFilter === status ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}
-              onClick={() => setStatusFilter(status)}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </Button>
-          ))}
+          {['all', 'pending', 'approved', 'rejected'].map((status) => {
+            const count = status === 'all'
+              ? Object.values(statusCounts).reduce((a, b) => a + b, 0)
+              : statusCounts[status] || 0
+            return (
+              <Button
+                key={status}
+                variant={statusFilter === status ? 'default' : 'outline'}
+                size="sm"
+                className={statusFilter === status ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}
+                onClick={() => setStatusFilter(status)}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {count > 0 && (
+                  <Badge className="ml-1.5 h-4 px-1 text-[10px] bg-emerald-600 text-white border-0">
+                    {count}
+                  </Badge>
+                )}
+              </Button>
+            )
+          })}
         </div>
 
         <Separator orientation="vertical" className="h-6" />

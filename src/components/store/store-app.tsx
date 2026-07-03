@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { useNavStore, type StorePage } from '@/stores/nav-store'
+import { usePageMeta } from '@/hooks/use-page-meta'
 import { StoreHeader } from './store-header'
 import { StoreFooter } from './store-footer'
 import { CartSidebar } from './cart-sidebar'
@@ -25,12 +26,12 @@ import { ContactPage } from './contact-page'
 import { FAQPage } from './faq-page'
 import { GiftCardPage } from './gift-card-page'
 import { DealsPage } from './deals-page'
-import { ShippingPage } from './shipping-page'
+// import { ShippingPage } from './shipping-page'
 import { AboutPage } from './about-page'
 import { CookieConsent } from './cookie-consent'
 import { PWAInstallPrompt } from './pwa-install-prompt'
 import { OfflineIndicator } from './offline-indicator'
-import { PromoBar } from './promo-bar'
+// import { PromoBar } from './promo-bar'
 import { KeyboardShortcuts } from '@/components/shared/keyboard-shortcuts'
 import { SocialProof } from './social-proof'
 import { NewsletterPopup } from './newsletter-popup'
@@ -60,7 +61,7 @@ const pageComponents: Record<StorePage, React.ComponentType> = {
   faq: FAQPage,
   'gift-cards': GiftCardPage,
   deals: DealsPage,
-  shipping: ShippingPage,
+  shipping: HomePage,
   about: AboutPage,
   'return-request': ReturnRequestPage,
 }
@@ -90,6 +91,7 @@ const pageVariants = {
 
 export function StoreApp() {
   const storePage = useNavStore((s) => s.storePage)
+  usePageMeta()
 
   // Register service worker for PWA
   useEffect(() => {
@@ -104,7 +106,6 @@ export function StoreApp() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <PromoBar />
       <StoreHeader />
       <main className="flex-1">
         <AnimatePresence mode="wait">

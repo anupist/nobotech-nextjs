@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, Fragment } from 'react'
 import { useNavStore } from '@/stores/nav-store'
 import { useCartStore } from '@/stores/cart-store'
 import { useAuthStore } from '@/stores/auth-store'
-import { fetchCategories, fetchProducts, type Category, type Product } from '@/lib/api'
+import { fetchCategories, fetchProducts, fetchAnnouncements, fetchNavigation, fetchSettings, formatPrice, type Category, type Product, type Announcement, type NavigationItem } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -48,7 +48,9 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
-import { NotificationCenter } from '@/components/store/notification-center'
+import { useWishlistStore } from '@/stores/wishlist-store'
+import Image from 'next/image'
+
 
 const categoryIconMap: Record<string, LucideIcon> = {
   electronics: Smartphone,
@@ -69,14 +71,6 @@ function getCategoryIcon(slug: string): LucideIcon {
 
 const SEARCH_HISTORY_KEY = 'shophub-search-history'
 const MAX_HISTORY = 5
-
-const TRENDING_SEARCHES = [
-  'Wireless Headphones',
-  'Running Shoes',
-  'Smart Watch',
-  'Laptop Stand',
-  'Yoga Mat',
-]
 
 function getSearchHistory(): string[] {
   try {
@@ -113,6 +107,10 @@ export function StoreHeader() {
   const [megaMenuOpen, setMegaMenuOpen] = useState(false)
   const [announcementPaused, setAnnouncementPaused] = useState(false)
   const [searchHistory, setSearchHistory] = useState<string[]>([])
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [logo, setLogo] = useState('')
+  const [siteName, setSiteName] = useState('ShopHub')
+  const [navItems, setNavItems] = useState<NavigationItem[]>([])
   const searchRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -127,12 +125,34 @@ export function StoreHeader() {
   const user = useAuthStore((s) => s.user)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const logout = useAuthStore((s) => s.logout)
+  const wishlistItems = useWishlistStore((s) => s.items)
 
   const isAdminUser = user && ['super-admin', 'admin', 'product-manager', 'order-manager', 'customer-support'].includes(user.role)
 
   useEffect(() => {
     fetchCategories()
       .then((res) => setCategories(res.data))
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    fetchAnnouncements()
+      .then((res) => setAnnouncements(res.data))
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    fetchNavigation('header')
+      .then((res) => setNavItems(res.data))
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    fetchSettings()
+      .then((res) => {
+        if (res.data.site_logo) setLogo(res.data.site_logo)
+        if (res.data.site_name) setSiteName(res.data.site_name)
+      })
       .catch(() => {})
   }, [])
 
@@ -256,18 +276,6 @@ export function StoreHeader() {
     [navigateStore]
   )
 
-  const handleTrendingClick = useCallback(
-    (query: string) => {
-      setSearchValue(query)
-      addSearchHistory(query)
-      useNavStore.getState().setSearchQuery(query)
-      navigateStore('search')
-      setShowSuggestions(false)
-      setSearchFocused(false)
-    },
-    [navigateStore]
-  )
-
   // Mega menu hover handlers with delay
   const handleMegaMenuEnter = useCallback(() => {
     if (megaMenuTimeoutRef.current) clearTimeout(megaMenuTimeoutRef.current)
@@ -279,8 +287,6 @@ export function StoreHeader() {
       setMegaMenuOpen(false)
     }, 200)
   }, [])
-
-  const wishlistCount = 0
 
   // Filter top-level categories for mega menu
   const topLevelCategories = categories.filter((c) => !c.parentId)
@@ -296,36 +302,43 @@ export function StoreHeader() {
       }`}
     >
       {/* Enhanced Announcement Bar */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 text-white text-xs py-1.5">
-        <div
-          className="flex whitespace-nowrap"
-          onMouseEnter={() => setAnnouncementPaused(true)}
-          onMouseLeave={() => setAnnouncementPaused(false)}
-        >
+      {announcements.length > 0 && (
+        <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 text-white text-xs py-1.5">
           <div
-            className={`flex items-center gap-8 ${
-              announcementPaused ? '' : 'animate-marquee'
-            }`}
+            className="flex whitespace-nowrap"
+            onMouseEnter={() => setAnnouncementPaused(true)}
+            onMouseLeave={() => setAnnouncementPaused(false)}
           >
-            {Array.from({ length: 3 }).map((_, i) => (
-              <span key={i} className="flex items-center gap-2">
-                <Sparkles className="h-3 w-3 shrink-0" />
-                <span>Free shipping on orders over $50!</span>
-                <span className="mx-2 opacity-40">|</span>
-                <Gift className="h-3 w-3 shrink-0" />
-                <span>Use code <span className="font-bold">FREESHIP</span> at checkout</span>
-                <span className="mx-2 opacity-40">|</span>
-                <Megaphone className="h-3 w-3 shrink-0" />
-                <span>New arrivals every week — Shop now!</span>
-                <span className="mx-2 opacity-40">|</span>
-                <span className="font-bold">20% OFF</span>
-                <span>with code SAVE20</span>
-                <span className="mx-8" />
-              </span>
-            ))}
+            <div
+              className={`flex items-center gap-8 ${
+                announcementPaused ? '' : 'animate-marquee'
+              }`}
+            >
+              {Array.from({ length: 3 }).map((_, i) => (
+                <span key={i} className="flex items-center gap-2">
+                  {announcements.map((a, idx) => (
+                    <Fragment key={a.id}>
+                      {idx > 0 && <span className="mx-2 opacity-40">|</span>}
+                      {a.url ? (
+                        <a href={a.url} className="flex items-center gap-2 hover:underline">
+                          <Sparkles className="h-3 w-3 shrink-0" />
+                          <span>{a.content || a.title}</span>
+                        </a>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <Sparkles className="h-3 w-3 shrink-0" />
+                          <span>{a.content || a.title}</span>
+                        </span>
+                      )}
+                    </Fragment>
+                  ))}
+                  <span className="mx-8" />
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 gap-4">
@@ -402,28 +415,35 @@ export function StoreHeader() {
             onClick={() => navigateStore('home')}
             className="flex items-center gap-2 shrink-0 group logo-glow transition-filter duration-300"
           >
-            <Package className="h-7 w-7 text-emerald-600 group-hover:scale-110 transition-transform duration-200" />
-            <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
-              ShopHub
-            </span>
+            {logo ? (
+              <Image src={logo} alt={siteName} width={28} height={28} className="object-contain" />
+            ) : (
+              <>
+                <Package className="h-7 w-7 text-emerald-600 group-hover:scale-110 transition-transform duration-200" />
+                <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
+                  {siteName}
+                </span>
+              </>
+            )}
           </button>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1 ml-8">
-            <button
-              onClick={() => navigateStore('home')}
-              className="px-3 py-2 text-sm font-medium rounded-md hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
-            >
-              Home
-            </button>
-            <span className="w-px h-4 bg-border/60" aria-hidden="true" />
-            <button
-              onClick={() => navigateStore('products')}
-              className="px-3 py-2 text-sm font-medium rounded-md hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
-            >
-              Products
-            </button>
-            <span className="w-px h-4 bg-border/60" aria-hidden="true" />
+            {navItems.map((item, i) => (
+              <Fragment key={item.id}>
+                {i > 0 && <span className="w-px h-4 bg-border/60" aria-hidden="true" />}
+                <button
+                  onClick={() => {
+                    const page = (item.url.startsWith('/') ? item.url.slice(1) : item.url) || 'home'
+                    navigateStore(page as any)
+                  }}
+                  className="px-3 py-2 text-sm font-medium rounded-md hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+                >
+                  {item.label}
+                </button>
+              </Fragment>
+            ))}
+            {navItems.length > 0 && <span className="w-px h-4 bg-border/60" aria-hidden="true" />}
 
             {/* Mega Menu Categories */}
             <div
@@ -523,20 +543,6 @@ export function StoreHeader() {
                 )}
               </AnimatePresence>
             </div>
-
-            <button
-              onClick={() => navigateStore('deals')}
-              className="px-3 py-2 text-sm font-medium rounded-md hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
-            >
-              Deals
-            </button>
-            <span className="w-px h-4 bg-border/60" aria-hidden="true" />
-            <button
-              onClick={() => navigateStore('blog')}
-              className="px-3 py-2 text-sm font-medium rounded-md hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
-            >
-              Blog
-            </button>
           </nav>
 
           {/* Enhanced Search bar with suggestions, history, and trending */}
@@ -616,11 +622,11 @@ export function StoreHeader() {
                                       <p className="text-sm font-medium truncate">{product.name}</p>
                                       <div className="flex items-center gap-2">
                                         <p className="text-xs text-emerald-600 font-semibold">
-                                          ${(product.discountPrice || product.sellingPrice).toFixed(2)}
+                                          {formatPrice(product.discountPrice || product.sellingPrice)}
                                         </p>
                                         {product.discountPrice && (
                                           <span className="text-[10px] text-muted-foreground line-through">
-                                            ${product.sellingPrice.toFixed(2)}
+                                            {formatPrice(product.sellingPrice)}
                                           </span>
                                         )}
                                       </div>
@@ -662,7 +668,7 @@ export function StoreHeader() {
                                 setShowSuggestions(false)
                                 setSearchFocused(false)
                               }}
-                              className="text-xs px-3 py-1.5 rounded-full bg-muted text-muted-foreground hover:bg-emerald-50 hover:text-emerald-600 transition-colors font-medium"
+                              className="text-xs px-3 py-1.5 rounded-full bg-muted hover:bg-emerald-50 hover:text-emerald-600 transition-colors font-medium"
                             >
                               Browse Categories
                             </button>
@@ -695,28 +701,6 @@ export function StoreHeader() {
                               <span className="truncate">{query}</span>
                             </button>
                           ))}
-                        </div>
-                      )}
-
-                      {/* Trending Searches (when focused with no query) */}
-                      {!searchValue.trim() && (
-                        <div className="p-2">
-                          <p className="text-xs text-muted-foreground px-2 py-1 font-medium flex items-center gap-1.5">
-                            <TrendingUp className="h-3 w-3" />
-                            Trending Searches
-                          </p>
-                          <div className="flex flex-wrap gap-1.5 px-2 pt-1">
-                            {TRENDING_SEARCHES.map((term) => (
-                              <button
-                                key={term}
-                                onClick={() => handleTrendingClick(term)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full bg-muted/80 hover:bg-emerald-50 hover:text-emerald-600 transition-colors border border-transparent hover:border-emerald-200"
-                              >
-                                <TrendingUp className="h-2.5 w-2.5 text-muted-foreground" />
-                                {term}
-                              </button>
-                            ))}
-                          </div>
                         </div>
                       )}
 
@@ -764,19 +748,24 @@ export function StoreHeader() {
               variant="ghost"
               size="icon"
               className="relative hidden sm:flex"
-              onClick={() => navigateStore('wishlist')}
+              onClick={() => {
+                if (isAuthenticated) {
+                  navigateStore('wishlist')
+                } else {
+                  navigateStore('auth')
+                }
+              }}
               aria-label="Wishlist"
             >
               <Heart className="h-5 w-5" />
-              {wishlistCount > 0 && (
+              {wishlistItems.length > 0 && (
                 <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-emerald-600 text-white border-0">
-                  {wishlistCount}
+                  {wishlistItems.length}
                 </Badge>
               )}
             </Button>
 
-            {/* Notification Center */}
-            <NotificationCenter />
+
 
             {/* Cart */}
             <Button

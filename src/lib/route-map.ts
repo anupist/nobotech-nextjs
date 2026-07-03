@@ -218,6 +218,22 @@ export function adminPageToUrl(page: AdminPage, params: Record<string, string>):
       return '/admin/audit-logs'
     case 'media':
       return '/admin/media'
+    case 'testimonials':
+      return '/admin/testimonials'
+    case 'announcements':
+      return '/admin/announcements'
+    case 'navigation':
+      return '/admin/navigation'
+    case 'footer-widgets':
+      return '/admin/footer-widgets'
+    case 'features':
+      return '/admin/features'
+    case 'payment-methods':
+      return '/admin/payment-methods'
+    case 'faq':
+      return '/admin/faq'
+    case 'about-sections':
+      return '/admin/about-sections'
     default:
       return '/admin'
   }
@@ -253,6 +269,14 @@ export function adminUrlToPage(pathname: string): { page: AdminPage; params: Rec
     inventory: 'inventory',
     'audit-logs': 'audit-logs',
     media: 'media',
+    testimonials: 'testimonials',
+    announcements: 'announcements',
+    navigation: 'navigation',
+    'footer-widgets': 'footer-widgets',
+    features: 'features',
+    'payment-methods': 'payment-methods',
+    faq: 'faq',
+    'about-sections': 'about-sections',
   }
 
   // Handle /admin/products/new → add-product

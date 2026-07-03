@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useNavStore } from '@/stores/nav-store'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,10 +20,6 @@ import {
   Mail,
   Clock,
   Send,
-  Facebook,
-  Twitter,
-  Instagram,
-  Youtube,
   MessageCircle,
   ChevronRight,
   HelpCircle,
@@ -34,6 +30,7 @@ import {
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 import { BreadcrumbNav } from '@/components/shared/breadcrumb-nav'
+import { fetchSettings, submitContactForm } from '@/lib/api'
 
 interface FormErrors {
   name?: string
@@ -42,29 +39,29 @@ interface FormErrors {
   message?: string
 }
 
-const contactInfo = [
+const contactCardConfig = [
   {
+    key: 'contact_address' as const,
     icon: MapPin,
     title: 'Our Address',
-    details: ['123 Commerce Street', 'New York, NY 10001', 'United States'],
     gradient: 'from-emerald-400 to-teal-500',
   },
   {
+    key: 'contact_phone' as const,
     icon: Phone,
     title: 'Phone Number',
-    details: ['+1 (555) 123-4567', '+1 (555) 987-6543', 'Mon-Fri 9AM-6PM EST'],
     gradient: 'from-teal-400 to-cyan-500',
   },
   {
+    key: 'contact_email' as const,
     icon: Mail,
     title: 'Email Address',
-    details: ['support@shophub.com', 'sales@shophub.com', 'We reply within 24 hours'],
     gradient: 'from-cyan-400 to-sky-500',
   },
   {
+    key: 'business_hours' as const,
     icon: Clock,
     title: 'Business Hours',
-    details: ['Mon - Fri: 9:00 AM - 6:00 PM', 'Saturday: 10:00 AM - 4:00 PM', 'Sunday: Closed'],
     gradient: 'from-sky-400 to-blue-500',
   },
 ]
@@ -85,13 +82,6 @@ const faqTeaser = [
     answer: 'Standard shipping takes 3-5 business days, express 1-2 days.',
     page: 'faq' as const,
   },
-]
-
-const socialLinks = [
-  { icon: Facebook, label: 'Facebook', href: '#', color: 'hover:bg-blue-500' },
-  { icon: Twitter, label: 'Twitter', href: '#', color: 'hover:bg-sky-500' },
-  { icon: Instagram, label: 'Instagram', href: '#', color: 'hover:bg-pink-500' },
-  { icon: Youtube, label: 'Youtube', href: '#', color: 'hover:bg-red-600' },
 ]
 
 const containerVariants = {
@@ -119,6 +109,19 @@ export function ContactPage() {
   })
   const [errors, setErrors] = useState<FormErrors>({})
   const [submitting, setSubmitting] = useState(false)
+  const [settings, setSettings] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    fetchSettings()
+      .then((res) => setSettings(res.data))
+      .catch(() => {})
+  }, [])
+
+  const getContactDetails = (key: string): string[] => {
+    const value = settings[key]
+    if (!value) return []
+    return value.split('\n').map((s) => s.trim()).filter(Boolean)
+  }
 
   const validate = useCallback((): boolean => {
     const newErrors: FormErrors = {}
@@ -143,14 +146,23 @@ export function ContactPage() {
       e.preventDefault()
       if (!validate()) return
       setSubmitting(true)
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      setSubmitting(false)
-      toast.success('Message sent successfully! We\'ll get back to you soon.')
-      setFormData({ name: '', email: '', subject: '', message: '' })
-      setErrors({})
+      try {
+        const res = await submitContactForm({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+        })
+        toast.success(res.data.message || "Message sent successfully! We'll get back to you soon.")
+        setFormData({ name: '', email: '', subject: '', message: '' })
+        setErrors({})
+      } catch {
+        toast.error('Failed to send message. Please try again later.')
+      } finally {
+        setSubmitting(false)
+      }
     },
-    [validate]
+    [validate, formData]
   )
 
   return (
@@ -337,21 +349,26 @@ export function ContactPage() {
             initial="hidden"
             animate="visible"
           >
-            {contactInfo.map((info) => {
-              const Icon = info.icon
+            {contactCardConfig.map((card) => {
+              const Icon = card.icon
+              const details = getContactDetails(card.key)
               return (
-                <motion.div key={info.title} variants={itemVariants}>
+                <motion.div key={card.key} variants={itemVariants}>
                   <Card className="overflow-hidden hover:shadow-md transition-shadow group">
                     <CardContent className="p-5">
                       <div className="flex gap-4">
-                        <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${info.gradient} flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform`}>
+                        <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${card.gradient} flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform`}>
                           <Icon className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <h3 className="font-semibold mb-1">{info.title}</h3>
-                          {info.details.map((detail, idx) => (
-                            <p key={idx} className="text-sm text-muted-foreground">{detail}</p>
-                          ))}
+                          <h3 className="font-semibold mb-1">{card.title}</h3>
+                          {details.length > 0 ? (
+                            details.map((detail, idx) => (
+                              <p key={idx} className="text-sm text-muted-foreground">{detail}</p>
+                            ))
+                          ) : (
+                            <p className="text-sm text-muted-foreground">Not set</p>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -359,52 +376,6 @@ export function ContactPage() {
                 </motion.div>
               )
             })}
-
-            {/* Map Placeholder */}
-            <motion.div variants={itemVariants}>
-              <Card className="overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="relative h-48 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 flex items-center justify-center">
-                    <div className="absolute inset-0 opacity-20">
-                      <div className="grid grid-cols-8 grid-rows-4 h-full w-full">
-                        {Array.from({ length: 32 }).map((_, i) => (
-                          <div key={i} className="border border-emerald-200/50" />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="text-center z-10">
-                      <MapPin className="h-10 w-10 text-emerald-600 mx-auto mb-2" />
-                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">123 Commerce St, NY</p>
-                      <p className="text-xs text-muted-foreground">Interactive map coming soon</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Social Links */}
-            <motion.div variants={itemVariants}>
-              <Card>
-                <CardContent className="p-5">
-                  <h3 className="font-semibold mb-3">Follow Us</h3>
-                  <div className="flex items-center gap-3">
-                    {socialLinks.map((social) => {
-                      const SocialIcon = social.icon
-                      return (
-                        <a
-                          key={social.label}
-                          href={social.href}
-                          className={`h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground ${social.color} hover:text-white transition-all duration-300`}
-                          aria-label={social.label}
-                        >
-                          <SocialIcon className="h-4 w-4" />
-                        </a>
-                      )
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
           </motion.div>
         </div>
 

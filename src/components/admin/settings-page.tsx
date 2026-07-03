@@ -87,6 +87,8 @@ export function SettingsPage() {
           <TabsTrigger value="social">Social Media</TabsTrigger>
           <TabsTrigger value="payment">Payment</TabsTrigger>
           <TabsTrigger value="shipping">Shipping</TabsTrigger>
+          <TabsTrigger value="email">Email</TabsTrigger>
+          <TabsTrigger value="seo">SEO</TabsTrigger>
         </TabsList>
 
         {/* General */}
@@ -131,6 +133,30 @@ export function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
+                <Label>Tagline</Label>
+                <Input
+                  value={settings.site_tagline || ''}
+                  onChange={(e) => updateSetting('site_tagline', e.target.value)}
+                  placeholder="Your One-Stop Online Shop"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Slogan</Label>
+                <Input
+                  value={settings.site_slogan || ''}
+                  onChange={(e) => updateSetting('site_slogan', e.target.value)}
+                  placeholder="Discover Amazing Products"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Site Description</Label>
+                <Input
+                  value={settings.site_description || ''}
+                  onChange={(e) => updateSetting('site_description', e.target.value)}
+                  placeholder="Describe your store for search engines"
+                />
+              </div>
+              <div className="space-y-2">
                 <Label>Currency Symbol</Label>
                 <Input
                   value={settings.currency_symbol || ''}
@@ -138,6 +164,76 @@ export function SettingsPage() {
                   placeholder="$"
                 />
               </div>
+
+              <Separator />
+              <h3 className="text-sm font-semibold">Newsletter Popup</h3>
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="font-medium">Enable Newsletter Popup</p>
+                  <p className="text-sm text-muted-foreground">Show newsletter subscription popup</p>
+                </div>
+                <Switch
+                  checked={settings.newsletter_popup_active !== 'false'}
+                  onCheckedChange={(v) => updateSetting('newsletter_popup_active', v ? 'true' : 'false')}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Discount Code</Label>
+                <Input
+                  value={settings.newsletter_popup_discount_code || ''}
+                  onChange={(e) => updateSetting('newsletter_popup_discount_code', e.target.value)}
+                  placeholder="WELCOME10"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Discount Text</Label>
+                <Input
+                  value={settings.newsletter_popup_discount_text || ''}
+                  onChange={(e) => updateSetting('newsletter_popup_discount_text', e.target.value)}
+                  placeholder="Get 10% OFF"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Popup Delay (ms)</Label>
+                <Input
+                  type="number"
+                  value={settings.newsletter_popup_delay_ms || '30000'}
+                  onChange={(e) => updateSetting('newsletter_popup_delay_ms', e.target.value)}
+                />
+              </div>
+
+              <Separator />
+              <h3 className="text-sm font-semibold">Cookie Consent</h3>
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="font-medium">Enable Cookie Consent</p>
+                  <p className="text-sm text-muted-foreground">Show cookie consent popup to visitors</p>
+                </div>
+                <Switch
+                  checked={settings.cookie_consent_active !== 'false'}
+                  onCheckedChange={(v) => updateSetting('cookie_consent_active', v ? 'true' : 'false')}
+                />
+              </div>
+
+              <Separator />
+              <h3 className="text-sm font-semibold">Download Our App</h3>
+              <div className="space-y-2">
+                <Label>iOS App Store URL</Label>
+                <Input
+                  value={settings.download_app_ios_url || ''}
+                  onChange={(e) => updateSetting('download_app_ios_url', e.target.value)}
+                  placeholder="https://apps.apple.com/..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Android Google Play URL</Label>
+                <Input
+                  value={settings.download_app_android_url || ''}
+                  onChange={(e) => updateSetting('download_app_android_url', e.target.value)}
+                  placeholder="https://play.google.com/..."
+                />
+              </div>
+
               <Button onClick={() => saveGroup('general')} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
                 <Save className="h-4 w-4 mr-2" />
                 {saving ? 'Saving...' : 'Save General Settings'}
@@ -316,6 +412,162 @@ export function SettingsPage() {
               <Button onClick={() => saveGroup('shipping')} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
                 <Save className="h-4 w-4 mr-2" />
                 {saving ? 'Saving...' : 'Save Shipping Settings'}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Email / SMTP */}
+        <TabsContent value="email">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">SMTP Email Configuration</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">Configure SMTP settings for sending transactional emails (contact form submissions, order notifications, etc.)</p>
+              <div className="space-y-2">
+                <Label>SMTP Host</Label>
+                <Input
+                  value={settings.smtp_host || ''}
+                  onChange={(e) => updateSetting('smtp_host', e.target.value)}
+                  placeholder="smtp.gmail.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>SMTP Port</Label>
+                <Input
+                  value={settings.smtp_port || ''}
+                  onChange={(e) => updateSetting('smtp_port', e.target.value)}
+                  placeholder="587"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>SMTP Username</Label>
+                <Input
+                  value={settings.smtp_user || ''}
+                  onChange={(e) => updateSetting('smtp_user', e.target.value)}
+                  placeholder="user@gmail.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>SMTP Password</Label>
+                <Input
+                  type="password"
+                  value={settings.smtp_pass || ''}
+                  onChange={(e) => updateSetting('smtp_pass', e.target.value)}
+                  placeholder="app password"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>From Email</Label>
+                <Input
+                  value={settings.smtp_from_email || ''}
+                  onChange={(e) => updateSetting('smtp_from_email', e.target.value)}
+                  placeholder="noreply@mystore.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>From Name</Label>
+                <Input
+                  value={settings.smtp_from_name || ''}
+                  onChange={(e) => updateSetting('smtp_from_name', e.target.value)}
+                  placeholder="My Store"
+                />
+              </div>
+              <Button onClick={() => saveGroup('smtp')} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
+                <Save className="h-4 w-4 mr-2" />
+                {saving ? 'Saving...' : 'Save Email Settings'}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* SEO */}
+        <TabsContent value="seo">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">SEO & Meta Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold mb-3">Home Page</h3>
+                <div className="space-y-3 pl-2 border-l-2 border-emerald-200">
+                  <div className="space-y-2">
+                    <Label>Meta Title</Label>
+                    <Input
+                      value={settings.seo_meta_title || ''}
+                      onChange={(e) => updateSetting('seo_meta_title', e.target.value)}
+                      placeholder="ShopHub - Your One-Stop Online Shop"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Meta Description</Label>
+                    <Input
+                      value={settings.seo_meta_description || ''}
+                      onChange={(e) => updateSetting('seo_meta_description', e.target.value)}
+                      placeholder="Discover amazing products at great prices..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Meta Keywords</Label>
+                    <Input
+                      value={settings.seo_meta_keywords || ''}
+                      onChange={(e) => updateSetting('seo_meta_keywords', e.target.value)}
+                      placeholder="e-commerce, online shopping, fashion, electronics"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div>
+                <h3 className="text-sm font-semibold mb-3">Section Meta</h3>
+                <p className="text-xs text-muted-foreground mb-4">Default meta for sections that don't have their own meta fields (product, page, blog posts use their own).</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { key: 'meta_products', label: 'Products' },
+                    { key: 'meta_cart', label: 'Cart' },
+                    { key: 'meta_checkout', label: 'Checkout' },
+                    { key: 'meta_auth', label: 'Auth (Login/Register)' },
+                    { key: 'meta_account', label: 'My Account' },
+                    { key: 'meta_wishlist', label: 'Wishlist' },
+                    { key: 'meta_compare', label: 'Compare' },
+                    { key: 'meta_search', label: 'Search' },
+                    { key: 'meta_blog', label: 'Blog' },
+                    { key: 'meta_contact', label: 'Contact' },
+                    { key: 'meta_faq', label: 'FAQ' },
+                    { key: 'meta_about', label: 'About Us' },
+                    { key: 'meta_shipping', label: 'Shipping' },
+                    { key: 'meta_deals', label: 'Deals' },
+                    { key: 'meta_gift_cards', label: 'Gift Cards' },
+                    { key: 'meta_return_request', label: 'Return Request' },
+                    { key: 'meta_order_detail', label: 'Order Detail' },
+                    { key: 'meta_order_tracking', label: 'Order Tracking' },
+                    { key: 'meta_category', label: 'Category' },
+                    { key: 'meta_brand', label: 'Brand' },
+                  ].map(({ key, label }) => (
+                    <div key={key} className="space-y-2">
+                      <Label>{label}</Label>
+                      <Input
+                        value={settings[`${key}_title`] || ''}
+                        onChange={(e) => updateSetting(`${key}_title`, e.target.value)}
+                        placeholder={`${label} title...`}
+                      />
+                      <Input
+                        value={settings[`${key}_description`] || ''}
+                        onChange={(e) => updateSetting(`${key}_description`, e.target.value)}
+                        placeholder={`${label} description...`}
+                        className="text-xs"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Button onClick={() => saveGroup('seo')} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
+                <Save className="h-4 w-4 mr-2" />
+                {saving ? 'Saving...' : 'Save SEO Settings'}
               </Button>
             </CardContent>
           </Card>

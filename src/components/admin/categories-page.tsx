@@ -43,6 +43,7 @@ interface Category {
   slug: string
   description?: string | null
   image?: string | null
+  icon?: string | null
   parentId?: string | null
   sortOrder: number
   isActive: boolean
@@ -69,6 +70,7 @@ export function CategoriesPage() {
   const [formSlug, setFormSlug] = useState('')
   const [formDescription, setFormDescription] = useState('')
   const [formImage, setFormImage] = useState('')
+  const [formIcon, setFormIcon] = useState('')
   const [formParentId, setFormParentId] = useState('')
   const [formSortOrder, setFormSortOrder] = useState('0')
   const [formIsActive, setFormIsActive] = useState(true)
@@ -119,6 +121,7 @@ export function CategoriesPage() {
     setFormSlug('')
     setFormDescription('')
     setFormImage('')
+    setFormIcon('')
     setFormParentId('')
     setFormSortOrder('0')
     setFormIsActive(true)
@@ -131,6 +134,7 @@ export function CategoriesPage() {
     setFormSlug(cat.slug)
     setFormDescription(cat.description || '')
     setFormImage(cat.image || '')
+    setFormIcon(cat.icon || '')
     setFormParentId(cat.parentId || '')
     setFormSortOrder(String(cat.sortOrder || 0))
     setFormIsActive(cat.isActive)
@@ -150,6 +154,7 @@ export function CategoriesPage() {
         slug: formSlug,
         description: formDescription || null,
         image: formImage || null,
+        icon: formIcon || null,
         parentId: formParentId || null,
         sortOrder: parseInt(formSortOrder) || 0,
         isActive: formIsActive,
@@ -172,7 +177,7 @@ export function CategoriesPage() {
     } catch {
       toast.error('Failed to save category')
     }
-  }, [editingCategory, formName, formSlug, formDescription, formImage, formParentId, formSortOrder, formIsActive, fetchCategories])
+  }, [editingCategory, formName, formSlug, formDescription, formImage, formIcon, formParentId, formSortOrder, formIsActive, fetchCategories])
 
   const handleDelete = useCallback(async () => {
     if (!deleteId) return
@@ -233,6 +238,7 @@ export function CategoriesPage() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium truncate">{cat.name}</span>
+                {cat.icon && <Badge variant="outline" className="text-xs font-mono">{cat.icon}</Badge>}
                 {!cat.isActive && (
                   <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-500">Inactive</Badge>
                 )}
@@ -315,6 +321,10 @@ export function CategoriesPage() {
                 folder="categories"
                 label="Choose Category Image"
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Icon</Label>
+              <Input value={formIcon} onChange={(e) => setFormIcon(e.target.value)} placeholder="e.g. Laptop, Shirt, Home, Book" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

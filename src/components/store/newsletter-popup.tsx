@@ -5,11 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Gift, Sparkles, CheckCircle2, PartyPopper } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { subscribeNewsletter } from '@/lib/api'
+import { subscribeNewsletter, fetchSettings } from '@/lib/api'
 import { toast } from 'sonner'
 
 const STORAGE_KEY = 'shophub-newsletter-popup-dismissed'
-const SHOW_DELAY = 30000 // 30 seconds
+const SHOW_DELAY = 30000
 const REMEMBER_DAYS = 7
 
 function isRecentlyDismissed(): boolean {
@@ -31,7 +31,6 @@ function rememberDismissal(): void {
   } catch { /* ignore */ }
 }
 
-// Confetti effect for success state
 function MiniConfetti() {
   const particles = Array.from({ length: 20 }).map((_, i) => {
     const angle = (i * 18) * (Math.PI / 180)
@@ -60,8 +59,31 @@ export function NewsletterPopup() {
   const [email, setEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [discountCode, setDiscountCode] = useState('WELCOME10')
+  const [discountText, setDiscountText] = useState('Get 10% OFF')
+  const [active, setActive] = useState(true)
 
   useEffect(() => {
+    fetchSettings()
+      .then((res) => {
+        if (!res.success) return
+        const settings = res.data
+        if (settings.newsletter_popup_active === 'false') {
+          setActive(false)
+          return
+        }
+        if (settings.newsletter_popup_discount_code) {
+          setDiscountCode(settings.newsletter_popup_discount_code)
+        }
+        if (settings.newsletter_popup_discount_text) {
+          setDiscountText(settings.newsletter_popup_discount_text)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (!active) return
     if (isRecentlyDismissed()) return
 
     const timer = setTimeout(() => {
@@ -69,7 +91,7 @@ export function NewsletterPopup() {
     }, SHOW_DELAY)
 
     return () => clearTimeout(timer)
-  }, [])
+  }, [active])
 
   const handleDismiss = useCallback(() => {
     setVisible(false)
@@ -85,7 +107,6 @@ export function NewsletterPopup() {
       await subscribeNewsletter(email)
       setSuccess(true)
       toast.success('Welcome! Check your email for the discount code.')
-      // Auto-dismiss after showing success
       setTimeout(() => {
         setVisible(false)
         rememberDismissal()
@@ -104,11 +125,12 @@ export function NewsletterPopup() {
     }
   }, [email])
 
+  if (!active) return null
+
   return (
     <AnimatePresence>
       {visible && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -118,7 +140,6 @@ export function NewsletterPopup() {
             onClick={handleDismiss}
           />
 
-          {/* Popup */}
           <motion.div
             initial={{ opacity: 0, scale: 0.85, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -127,7 +148,6 @@ export function NewsletterPopup() {
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
             <div className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto pointer-events-auto">
-              {/* Dismiss button */}
               <button
                 onClick={handleDismiss}
                 className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-card border shadow-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors z-10"
@@ -137,9 +157,7 @@ export function NewsletterPopup() {
               </button>
 
               <div className="rounded-2xl overflow-hidden shadow-2xl border border-emerald-200/50 dark:border-emerald-800/30">
-                {/* Gradient header */}
                 <div className="bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600 p-6 text-white text-center relative overflow-hidden">
-                  {/* Background decorations */}
                   <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
                   <div className="absolute bottom-0 right-0 w-24 h-24 bg-white/10 rounded-full translate-x-1/3 translate-y-1/3" />
 
@@ -158,7 +176,7 @@ export function NewsletterPopup() {
                       transition={{ delay: 0.3 }}
                       className="text-2xl font-bold mb-2"
                     >
-                      Get 10% OFF
+                      {discountText}
                     </motion.h2>
                     <motion.p
                       initial={{ opacity: 0, y: 10 }}
@@ -175,12 +193,11 @@ export function NewsletterPopup() {
                       className="mt-3 inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-mono font-bold"
                     >
                       <Sparkles className="h-4 w-4" />
-                      WELCOME10
+                      {discountCode}
                     </motion.div>
                   </div>
                 </div>
 
-                {/* Form section */}
                 <div className="bg-card p-6">
                   <AnimatePresence mode="wait">
                     {success ? (
@@ -201,7 +218,7 @@ export function NewsletterPopup() {
                         </motion.div>
                         <h3 className="text-lg font-bold mb-1">You&apos;re In!</h3>
                         <p className="text-sm text-muted-foreground">
-                          Use code <span className="font-mono font-bold text-emerald-600">WELCOME10</span> for 10% off
+                          Use code <span className="font-mono font-bold text-emerald-600">{discountCode}</span> for {discountText.toLowerCase().replace('get ', '')}
                         </p>
                       </motion.div>
                     ) : (
@@ -241,7 +258,7 @@ export function NewsletterPopup() {
                           ) : (
                             <span className="flex items-center gap-2">
                               <Mail className="h-4 w-4" />
-                              Get My 10% Off
+                              {discountText.includes('OFF') ? `Get My ${discountText}` : discountText}
                             </span>
                           )}
                         </Button>

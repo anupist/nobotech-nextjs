@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { getCurrencySymbol } from '@/lib/api'
 
 interface RewardHistoryEntry {
   id: string
@@ -35,7 +36,7 @@ const demoHistory: RewardHistoryEntry[] = [
   {
     id: '3',
     points: 500,
-    description: 'Redeemed - $5 off coupon',
+    description: `Redeemed - ${getCurrencySymbol()}5 off coupon`,
     date: '2025-02-01',
     type: 'redeemed',
   },
@@ -56,7 +57,7 @@ const demoHistory: RewardHistoryEntry[] = [
   {
     id: '6',
     points: 1000,
-    description: 'Redeemed - $10 off coupon',
+    description: `Redeemed - ${getCurrencySymbol()}10 off coupon`,
     date: '2025-02-20',
     type: 'redeemed',
   },
@@ -77,7 +78,7 @@ const demoHistory: RewardHistoryEntry[] = [
   {
     id: '9',
     points: 500,
-    description: 'Redeemed - $5 off coupon',
+    description: `Redeemed - ${getCurrencySymbol()}5 off coupon`,
     date: '2025-03-10',
     type: 'redeemed',
   },

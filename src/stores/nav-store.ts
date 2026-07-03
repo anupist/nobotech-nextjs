@@ -51,6 +51,14 @@ export type AdminPage =
   | 'audit-logs'
   | 'customer-detail'
   | 'media'
+  | 'testimonials'
+  | 'announcements'
+  | 'navigation'
+  | 'footer-widgets'
+  | 'features'
+  | 'payment-methods'
+  | 'faq'
+  | 'about-sections'
 
 interface NavState {
   // View mode: 'store' for customer, 'admin' for dashboard

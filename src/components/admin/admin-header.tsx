@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useNavStore, type AdminPage } from '@/stores/nav-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { Input } from '@/components/ui/input'
@@ -127,48 +127,14 @@ const pageGroups: Record<string, string> = {
   'audit-logs': 'System',
 }
 
-const sampleNotifications = [
-  {
-    id: '1',
-    title: 'New order #1234 received',
-    description: 'A new order has been placed and needs processing.',
-    time: '5 min ago',
-    type: 'order' as const,
-    read: false,
-  },
-  {
-    id: '2',
-    title: 'Low stock alert: Samsung Galaxy Watch 6',
-    description: 'Only 3 units remaining. Consider restocking soon.',
-    time: '15 min ago',
-    type: 'warning' as const,
-    read: false,
-  },
-  {
-    id: '3',
-    title: 'New review on Apple AirPods Pro 2',
-    description: 'A customer left a 5-star review with photos.',
-    time: '1 hour ago',
-    type: 'info' as const,
-    read: false,
-  },
-  {
-    id: '4',
-    title: 'Coupon WELCOME10 expiring soon',
-    description: 'This coupon expires in 2 days. Review and extend if needed.',
-    time: '2 hours ago',
-    type: 'warning' as const,
-    read: false,
-  },
-  {
-    id: '5',
-    title: '5 new customer registrations today',
-    description: 'New signups are up 25% compared to last week.',
-    time: '3 hours ago',
-    type: 'success' as const,
-    read: true,
-  },
-]
+interface NotificationItem {
+  id: string
+  title: string
+  description: string | null
+  type: string
+  read: boolean
+  createdAt: string
+}
 
 const notificationIcons = {
   order: ShoppingCart,
@@ -191,7 +157,14 @@ interface AdminHeaderProps {
 export function AdminHeader({ onMobileMenuToggle }: AdminHeaderProps) {
   const { adminPage, navigateAdmin } = useNavStore()
   const { user, logout } = useAuthStore()
-  const [notifications, setNotifications] = useState(sampleNotifications)
+  const [notifications, setNotifications] = useState<NotificationItem[]>([])
+
+  useEffect(() => {
+    fetch('/api/admin/notifications')
+      .then((r) => r.json())
+      .then((res) => { if (res.success) setNotifications(res.data) })
+      .catch(() => {})
+  }, [])
 
   const handleLogout = useCallback(() => {
     logout()
@@ -200,10 +173,12 @@ export function AdminHeader({ onMobileMenuToggle }: AdminHeaderProps) {
 
   const markAllAsRead = useCallback(() => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+    fetch('/api/admin/notifications/read-all', { method: 'PUT' }).catch(() => {})
   }, [])
 
   const markAsRead = useCallback((id: string) => {
     setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
+    fetch(`/api/admin/notifications/${id}/read`, { method: 'PUT' }).catch(() => {})
   }, [])
 
   const currentLabel = pageLabels[adminPage] || 'Dashboard'
@@ -232,6 +207,17 @@ export function AdminHeader({ onMobileMenuToggle }: AdminHeaderProps) {
     : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
 
   const unreadCount = notifications.filter((n) => !n.read).length
+
+  const formatTime = (iso: string) => {
+    const diff = Date.now() - new Date(iso).getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 1) return 'Just now'
+    if (mins < 60) return `${mins} min ago`
+    const hrs = Math.floor(mins / 60)
+    if (hrs < 24) return `${hrs} hour${hrs > 1 ? 's' : ''} ago`
+    const days = Math.floor(hrs / 24)
+    return `${days} day${days > 1 ? 's' : ''} ago`
+  }
 
   return (
     <header className="shrink-0 z-30 flex items-center justify-between h-16 px-4 md:px-6 border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
@@ -325,7 +311,8 @@ export function AdminHeader({ onMobileMenuToggle }: AdminHeaderProps) {
             </div>
             <div className="max-h-80 overflow-y-auto">
               {notifications.map((notification, index) => {
-                const NotifIcon = notificationIcons[notification.type]
+                const nType = (['order', 'warning', 'info', 'success'].includes(notification.type) ? notification.type : 'info') as keyof typeof notificationIcons
+                const NotifIcon = notificationIcons[nType]
                 return (
                   <motion.div
                     key={notification.id}
@@ -337,7 +324,7 @@ export function AdminHeader({ onMobileMenuToggle }: AdminHeaderProps) {
                     }`}
                     onClick={() => markAsRead(notification.id)}
                   >
-                    <div className={`p-1.5 rounded-full shrink-0 ${notificationColors[notification.type]}`}>
+                    <div className={`p-1.5 rounded-full shrink-0 ${notificationColors[nType]}`}>
                       <NotifIcon className="h-3.5 w-3.5" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -353,7 +340,7 @@ export function AdminHeader({ onMobileMenuToggle }: AdminHeaderProps) {
                       <div className="flex items-center gap-1 mt-1">
                         <Clock className="h-3 w-3 text-muted-foreground/60" />
                         <p className="text-[11px] text-muted-foreground/70">
-                          {notification.time}
+                          {formatTime(notification.createdAt)}
                         </p>
                       </div>
                     </div>

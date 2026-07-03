@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { formatPrice } from '@/lib/api'
 import { useNavStore } from '@/stores/nav-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -318,9 +319,9 @@ export function OrderDetailPage() {
                 <tr key={item.id}>
                   <td className="border px-3 py-2 text-sm">{item.productName}{item.variantName ? ` (${item.variantName})` : ''}</td>
                   <td className="border px-3 py-2 text-sm text-gray-500">{item.sku}</td>
-                  <td className="border px-3 py-2 text-sm text-right">${item.price.toFixed(2)}</td>
+                  <td className="border px-3 py-2 text-sm text-right">{formatPrice(item.price)}</td>
                   <td className="border px-3 py-2 text-sm text-center">{item.quantity}</td>
-                  <td className="border px-3 py-2 text-sm text-right font-medium">${item.total.toFixed(2)}</td>
+                  <td className="border px-3 py-2 text-sm text-right font-medium">{formatPrice(item.total)}</td>
                 </tr>
               ))}
             </tbody>
@@ -331,28 +332,28 @@ export function OrderDetailPage() {
             <div className="w-64 space-y-1">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal</span>
-                <span>${order.subtotal.toFixed(2)}</span>
+                <span>{formatPrice(order.subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Shipping</span>
-                <span>${order.shippingCost.toFixed(2)}</span>
+                <span>{formatPrice(order.shippingCost)}</span>
               </div>
               {order.discountAmount > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Discount {order.coupon ? `(${order.coupon.code})` : ''}</span>
-                  <span className="text-emerald-600">-${order.discountAmount.toFixed(2)}</span>
+                  <span className="text-emerald-600">-{formatPrice(order.discountAmount)}</span>
                 </div>
               )}
               {order.taxAmount > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Tax</span>
-                  <span>${order.taxAmount.toFixed(2)}</span>
+                  <span>{formatPrice(order.taxAmount)}</span>
                 </div>
               )}
               <div className="border-t pt-1 mt-1">
                 <div className="flex justify-between font-bold text-lg">
                   <span>Grand Total</span>
-                  <span>${order.totalAmount.toFixed(2)}</span>
+                  <span>{formatPrice(order.totalAmount)}</span>
                 </div>
               </div>
             </div>
@@ -525,9 +526,9 @@ export function OrderDetailPage() {
                             </div>
                           </TableCell>
                           <TableCell className="text-sm text-muted-foreground font-mono text-xs">{item.sku}</TableCell>
-                          <TableCell className="text-sm">${item.price.toFixed(2)}</TableCell>
+                          <TableCell className="text-sm">{formatPrice(item.price)}</TableCell>
                           <TableCell className="text-sm">{item.quantity}</TableCell>
-                          <TableCell className="text-right font-medium text-sm">${item.total.toFixed(2)}</TableCell>
+                          <TableCell className="text-right font-medium text-sm">{formatPrice(item.total)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -535,28 +536,28 @@ export function OrderDetailPage() {
                   <div className="p-4 space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Subtotal</span>
-                      <span>${order.subtotal.toFixed(2)}</span>
+                      <span>{formatPrice(order.subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Shipping</span>
-                      <span>${order.shippingCost.toFixed(2)}</span>
+                      <span>{formatPrice(order.shippingCost)}</span>
                     </div>
                     {order.discountAmount > 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Discount {order.coupon ? `(${order.coupon.code})` : ''}</span>
-                        <span className="text-emerald-600">-${order.discountAmount.toFixed(2)}</span>
+                        <span className="text-emerald-600">-{formatPrice(order.discountAmount)}</span>
                       </div>
                     )}
                     {order.taxAmount > 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Tax</span>
-                        <span>${order.taxAmount.toFixed(2)}</span>
+                        <span>{formatPrice(order.taxAmount)}</span>
                       </div>
                     )}
                     <Separator />
                     <div className="flex justify-between font-bold text-lg">
                       <span>Total</span>
-                      <span className="text-emerald-600">${order.totalAmount.toFixed(2)}</span>
+                      <span className="text-emerald-600">{formatPrice(order.totalAmount)}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -752,7 +753,7 @@ export function OrderDetailPage() {
                     )}
                     <div className="flex justify-between pt-2 border-t">
                       <span className="text-muted-foreground">Amount</span>
-                      <span className="font-semibold text-emerald-600">${order.totalAmount.toFixed(2)}</span>
+                      <span className="font-semibold text-emerald-600">{formatPrice(order.totalAmount)}</span>
                     </div>
                   </div>
                 </CardContent>

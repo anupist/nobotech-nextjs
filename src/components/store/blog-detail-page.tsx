@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
+import { setPageMeta } from '@/lib/page-meta'
 import { BreadcrumbNav } from '@/components/shared/breadcrumb-nav'
 import { SocialShare } from '@/components/store/social-share'
 
@@ -33,6 +34,8 @@ interface BlogPost {
   thumbnail: string | null
   category: string | null
   tags: string | null
+  metaTitle?: string | null
+  metaDescription?: string | null
   isPublished: boolean
   authorId: string | null
   createdAt: string
@@ -55,6 +58,10 @@ export function BlogDetailPage() {
         const data = await res.json()
         if (data.success && data.data) {
           setPost(data.data)
+          setPageMeta({
+            title: data.data.metaTitle || data.data.title,
+            description: data.data.metaDescription || data.data.excerpt?.slice(0, 160) || '',
+          })
           // Load related posts (same category)
           if (data.data.category) {
             const relRes = await fetch('/api/blog')

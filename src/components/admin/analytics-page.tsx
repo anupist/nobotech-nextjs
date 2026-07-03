@@ -22,6 +22,7 @@ import {
   Legend,
 } from 'recharts'
 import { motion } from 'framer-motion'
+import { formatPrice, getCurrencySymbol } from '@/lib/api'
 import {
   DollarSign,
   Users,
@@ -57,11 +58,11 @@ const customerTypeData = [
 ]
 
 const clvDistribution = [
-  { range: '$0-50', count: 320 },
-  { range: '$50-100', count: 480 },
-  { range: '$100-200', count: 350 },
-  { range: '$200-500', count: 210 },
-  { range: '$500+', count: 85 },
+  { range: `${getCurrencySymbol()}0-50`, count: 320 },
+  { range: `${getCurrencySymbol()}50-100`, count: 480 },
+  { range: `${getCurrencySymbol()}100-200`, count: 350 },
+  { range: `${getCurrencySymbol()}200-500`, count: 210 },
+  { range: `${getCurrencySymbol()}500+`, count: 85 },
 ]
 
 const geoData = [
@@ -147,7 +148,7 @@ export function AnalyticsPage() {
   const kpiCards = useMemo(() => [
     {
       title: 'Total Revenue',
-      value: '$227,500',
+      value: formatPrice(227500),
       change: '+14.2%',
       trend: 'up' as const,
       icon: DollarSign,
@@ -156,7 +157,7 @@ export function AnalyticsPage() {
     },
     {
       title: 'Avg Order Value',
-      value: '$89.50',
+      value: formatPrice(89.50),
       change: '+5.8%',
       trend: 'up' as const,
       icon: ShoppingCart,
@@ -165,7 +166,7 @@ export function AnalyticsPage() {
     },
     {
       title: 'Revenue/Customer',
-      value: '$142.30',
+      value: formatPrice(142.30),
       change: '+3.1%',
       trend: 'up' as const,
       icon: Users,
@@ -284,7 +285,7 @@ export function AnalyticsPage() {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} className="text-muted-foreground" />
-                  <YAxis tick={{ fontSize: 12 }} className="text-muted-foreground" tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
+                  <YAxis tick={{ fontSize: 12 }} className="text-muted-foreground" tickFormatter={(v: number) => `${getCurrencySymbol()}${(v / 1000).toFixed(0)}k`} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: 'hsl(var(--card))',
@@ -293,7 +294,7 @@ export function AnalyticsPage() {
                       boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                     }}
                     formatter={(value: number, name: string) => [
-                      `$${value.toLocaleString()}`,
+                      formatPrice(value),
                       name === 'revenue' ? 'Current Period' : 'Previous Period',
                     ]}
                   />
@@ -444,7 +445,7 @@ export function AnalyticsPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={topProductsByRevenue} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                    <XAxis type="number" tick={{ fontSize: 10 }} className="text-muted-foreground" tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
+                    <XAxis type="number" tick={{ fontSize: 10 }} className="text-muted-foreground" tickFormatter={(v: number) => `${getCurrencySymbol()}${(v / 1000).toFixed(0)}k`} />
                     <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} className="text-muted-foreground" width={110} />
                     <Tooltip
                       contentStyle={{
@@ -452,7 +453,7 @@ export function AnalyticsPage() {
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
                       }}
-                      formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
+                      formatter={(value: number) => [formatPrice(value), 'Revenue']}
                     />
                     <Bar dataKey="revenue" fill="#10b981" radius={[0, 4, 4, 0]}>
                       {topProductsByRevenue.map((_, index) => (
@@ -482,7 +483,7 @@ export function AnalyticsPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">{cat.category}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold">${(cat.revenue / 1000).toFixed(0)}k</span>
+                        <span className="text-sm font-semibold">{getCurrencySymbol()}{(cat.revenue / 1000).toFixed(0)}k</span>
                         <span className={`text-xs font-semibold flex items-center gap-0.5 ${cat.growth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                           {cat.growth >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                           {Math.abs(cat.growth)}%

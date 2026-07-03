@@ -43,6 +43,8 @@ interface PageItem {
   slug: string
   content: string
   isActive: boolean
+  metaTitle?: string | null
+  metaDescription?: string | null
   createdAt: string
 }
 
@@ -56,6 +58,8 @@ export function PagesPage() {
   const [formTitle, setFormTitle] = useState('')
   const [formSlug, setFormSlug] = useState('')
   const [formContent, setFormContent] = useState('')
+  const [formMetaTitle, setFormMetaTitle] = useState('')
+  const [formMetaDescription, setFormMetaDescription] = useState('')
   const [formIsActive, setFormIsActive] = useState(true)
 
   const fetchPages = useCallback(async () => {
@@ -86,6 +90,8 @@ export function PagesPage() {
     setFormTitle('')
     setFormSlug('')
     setFormContent('')
+    setFormMetaTitle('')
+    setFormMetaDescription('')
     setFormIsActive(true)
     setDialogOpen(true)
   }, [])
@@ -95,6 +101,8 @@ export function PagesPage() {
     setFormTitle(page.title)
     setFormSlug(page.slug)
     setFormContent(page.content)
+    setFormMetaTitle(page.metaTitle || '')
+    setFormMetaDescription(page.metaDescription || '')
     setFormIsActive(page.isActive)
     setDialogOpen(true)
   }, [])
@@ -111,6 +119,8 @@ export function PagesPage() {
         title: formTitle,
         slug: formSlug,
         content: formContent,
+        metaTitle: formMetaTitle || null,
+        metaDescription: formMetaDescription || null,
         isActive: formIsActive,
       }
 
@@ -245,6 +255,19 @@ export function PagesPage() {
               <Label>Content</Label>
               <Textarea value={formContent} onChange={(e) => setFormContent(e.target.value)} rows={12} placeholder="Page content..." />
             </div>
+            <details className="border rounded-lg p-3">
+              <summary className="text-sm font-medium cursor-pointer">SEO Meta</summary>
+              <div className="mt-3 space-y-2">
+                <div className="space-y-2">
+                  <Label>Meta Title</Label>
+                  <Input value={formMetaTitle} onChange={(e) => setFormMetaTitle(e.target.value)} placeholder="Page title for search engines..." />
+                </div>
+                <div className="space-y-2">
+                  <Label>Meta Description</Label>
+                  <Input value={formMetaDescription} onChange={(e) => setFormMetaDescription(e.target.value)} placeholder="Page description for search engines..." />
+                </div>
+              </div>
+            </details>
             <div className="flex items-center justify-between">
               <Label>Active</Label>
               <Switch checked={formIsActive} onCheckedChange={setFormIsActive} />

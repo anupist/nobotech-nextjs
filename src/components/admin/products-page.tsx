@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { formatPrice } from '@/lib/api'
 import { useNavStore } from '@/stores/nav-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -669,9 +670,9 @@ export function ProductsPage() {
                             </TableCell>
                             <TableCell>
                               <div>
-                                <p className="font-medium text-sm">${product.sellingPrice.toFixed(2)}</p>
+                                <p className="font-medium text-sm">{formatPrice(product.sellingPrice)}</p>
                                 {product.discountPrice && (
-                                  <p className="text-xs text-emerald-600">${product.discountPrice.toFixed(2)}</p>
+                                  <p className="text-xs text-emerald-600">{formatPrice(product.discountPrice)}</p>
                                 )}
                               </div>
                             </TableCell>
@@ -812,11 +813,11 @@ export function ProductsPage() {
                         <div className="flex items-center justify-between mt-2">
                           <div>
                             <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                              ${product.discountPrice ? product.discountPrice.toFixed(2) : product.sellingPrice.toFixed(2)}
+                              {formatPrice(product.discountPrice || product.sellingPrice)}
                             </span>
                             {product.discountPrice && (
                               <span className="text-xs text-muted-foreground line-through ml-1">
-                                ${product.sellingPrice.toFixed(2)}
+                                {formatPrice(product.sellingPrice)}
                               </span>
                             )}
                           </div>

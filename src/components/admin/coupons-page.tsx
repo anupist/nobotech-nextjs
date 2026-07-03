@@ -1,5 +1,6 @@
 'use client'
 
+import { formatPrice } from '@/lib/api'
 import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -246,10 +247,10 @@ export function CouponsPage() {
                       </TableCell>
                       <TableCell className="capitalize text-sm">{coupon.type}</TableCell>
                       <TableCell className="text-sm font-medium">
-                        {coupon.type === 'percentage' ? `${coupon.value}%` : `$${coupon.value}`}
+                        {coupon.type === 'percentage' ? `${coupon.value}%` : formatPrice(coupon.value)}
                       </TableCell>
                       <TableCell className="hidden sm:table-cell text-sm">
-                        ${coupon.minPurchase.toFixed(2)}
+                        {formatPrice(coupon.minPurchase)}
                       </TableCell>
                       <TableCell className="hidden md:table-cell text-sm">
                         {coupon.usedCount}/{coupon.usageLimit || '∞'}

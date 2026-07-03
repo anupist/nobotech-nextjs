@@ -40,6 +40,14 @@ import {
   ArrowLeft,
   PanelLeftClose,
   PanelLeft,
+  MessageSquareQuote,
+  Megaphone,
+  Menu,
+  Grid3X3,
+  Truck,
+  CreditCard,
+  HelpCircle,
+  Info,
 } from 'lucide-react'
 import {
   Collapsible,
@@ -79,7 +87,7 @@ const navGroupsBase: NavGroup[] = [
   {
     title: 'Sales',
     items: [
-      { label: 'Orders', page: 'orders', icon: ShoppingCart, badge: 3 },
+      { label: 'Orders', page: 'orders', icon: ShoppingCart },
       { label: 'Coupons', page: 'coupons', icon: Ticket },
       { label: 'Flash Sales', page: 'flash-sales', icon: Zap },
     ],
@@ -91,14 +99,27 @@ const navGroupsBase: NavGroup[] = [
       { label: 'Banners', page: 'banners', icon: ImageIcon },
       { label: 'Blog', page: 'blog', icon: FileText },
       { label: 'Pages', page: 'pages', icon: File },
+      { label: 'Testimonials', page: 'testimonials', icon: MessageSquareQuote },
+      { label: 'FAQ', page: 'faq', icon: HelpCircle },
+      { label: 'About Sections', page: 'about-sections', icon: Info },
       { label: 'Newsletter', page: 'newsletter', icon: Mail },
+    ],
+  },
+  {
+    title: 'Appearance',
+    items: [
+      { label: 'Announcements', page: 'announcements', icon: Megaphone },
+      { label: 'Navigation', page: 'navigation', icon: Menu },
+      { label: 'Footer Widgets', page: 'footer-widgets', icon: Grid3X3 },
+      { label: 'Features', page: 'features', icon: Truck },
+      { label: 'Payment Methods', page: 'payment-methods', icon: CreditCard },
     ],
   },
   {
     title: 'Customers',
     items: [
       { label: 'Customers', page: 'customers', icon: Users },
-      { label: 'Reviews', page: 'reviews', icon: Star, badge: 2 },
+      { label: 'Reviews', page: 'reviews', icon: Star },
     ],
   },
   {
@@ -338,12 +359,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
                         {!collapsed && (
                           <>
                             <span className={cn('flex-1 text-left', isActive && 'font-medium')}>{item.label}</span>
-                            {item.badge && item.badge > 0 && (
-                              <Badge className="h-5 px-1.5 text-[10px] bg-emerald-600 text-white border-0 hover:bg-emerald-600">
-                                {item.badge}
-                              </Badge>
-                            )}
-                          </>
+                          </> 
                         )}
                       </motion.button>
                     )

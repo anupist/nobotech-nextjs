@@ -68,6 +68,14 @@ export async function GET(request: NextRequest) {
       db.order.count({ where }),
     ]);
 
+    const groupedCounts = await Promise.all([
+      db.order.groupBy({ by: ['status'], _count: true }),
+    ]);
+    const statusCounts: Record<string, number> = {};
+    for (const g of groupedCounts[0]) {
+      statusCounts[g.status] = g._count;
+    }
+
     return NextResponse.json({
       success: true,
       data: orders,
@@ -76,6 +84,7 @@ export async function GET(request: NextRequest) {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
+        statusCounts,
       },
     });
   } catch (error) {

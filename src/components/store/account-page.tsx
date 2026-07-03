@@ -48,7 +48,7 @@ import { toast } from 'sonner'
 import { BreadcrumbNav } from '@/components/shared/breadcrumb-nav'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRewardStore } from '@/stores/reward-store'
-import { formatPrice } from '@/lib/api'
+import { formatPrice, getCurrencySymbol } from '@/lib/api'
 
 // Order timeline steps
 const ORDER_STEPS = [
@@ -360,7 +360,7 @@ function OverviewOrders({ userId, navigateStore }: { userId: string; navigateSto
             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}`}>
               {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
             </span>
-            <span className="text-sm font-semibold">${order.totalAmount.toFixed(2)}</span>
+            <span className="text-sm font-semibold">{formatPrice(order.totalAmount)}</span>
           </div>
         </button>
       ))}
@@ -404,7 +404,7 @@ function OrdersTab({ navigateStore }: { navigateStore: (page: string, params?: R
       new Date(order.createdAt).toLocaleDateString(),
       order.status.charAt(0).toUpperCase() + order.status.slice(1),
       String(order.items.length),
-      `$${order.totalAmount.toFixed(2)}`,
+      `${formatPrice(order.totalAmount)}`,
     ])
 
     const csvContent = [headers, ...rows].map((row) => row.join(',')).join('\n')
@@ -498,7 +498,7 @@ function OrdersTab({ navigateStore }: { navigateStore: (page: string, params?: R
                     <span className="text-muted-foreground">
                       {order.items.length} item{order.items.length !== 1 ? 's' : ''}
                     </span>
-                    <span className="font-semibold">${order.totalAmount.toFixed(2)}</span>
+                    <span className="font-semibold">{formatPrice(order.totalAmount)}</span>
                   </div>
                 </div>
 
@@ -1143,16 +1143,16 @@ function RewardsTab() {
   }, [tier.name])
 
   const availableRewards = [
-    { points: 500, value: 5, description: '$5 off your next order', gradient: 'from-emerald-400 to-teal-500' },
-    { points: 1000, value: 10, description: '$10 off your next order', gradient: 'from-teal-400 to-cyan-500' },
-    { points: 2000, value: 20, description: '$20 off your next order', gradient: 'from-cyan-400 to-sky-500' },
-    { points: 5000, value: 50, description: '$50 off your next order', gradient: 'from-amber-400 to-orange-500' },
+    { points: 500, value: 5, description: `${getCurrencySymbol()}5 off your next order`, gradient: 'from-emerald-400 to-teal-500' },
+    { points: 1000, value: 10, description: `${getCurrencySymbol()}10 off your next order`, gradient: 'from-teal-400 to-cyan-500' },
+    { points: 2000, value: 20, description: `${getCurrencySymbol()}20 off your next order`, gradient: 'from-cyan-400 to-sky-500' },
+    { points: 5000, value: 50, description: `${getCurrencySymbol()}50 off your next order`, gradient: 'from-amber-400 to-orange-500' },
   ]
 
   const handleRedeem = useCallback((rewardPoints: number, rewardValue: number) => {
-    const success = redeemPoints(rewardPoints, `Redeemed - $${rewardValue} off coupon`)
+    const success = redeemPoints(rewardPoints, `Redeemed - ${getCurrencySymbol()}${rewardValue} off coupon`)
     if (success) {
-      toast.success(`Successfully redeemed ${rewardPoints} points for $${rewardValue} off!`)
+      toast.success(`Successfully redeemed ${rewardPoints} points for ${getCurrencySymbol()}${rewardValue} off!`)
     } else {
       toast.error('Not enough points to redeem this reward')
     }
@@ -1327,7 +1327,7 @@ function RewardsTab() {
                 <Card className={`overflow-hidden ${canRedeem ? 'hover:shadow-md cursor-pointer' : 'opacity-60'} transition-all`}>
                   <CardContent className="p-0">
                     <div className={`bg-gradient-to-r ${reward.gradient} p-3 text-white`}>
-                      <span className="text-2xl font-bold">${reward.value}</span>
+                      <span className="text-2xl font-bold">{formatPrice(reward.value)}</span>
                       <span className="text-sm ml-1 opacity-90">OFF</span>
                     </div>
                     <div className="p-3">

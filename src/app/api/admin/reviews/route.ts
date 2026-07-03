@@ -32,10 +32,16 @@ export async function GET(request: NextRequest) {
       db.review.count({ where }),
     ]);
 
+    const groupedCounts = await db.review.groupBy({ by: ['status'], _count: true });
+    const statusCounts: Record<string, number> = {};
+    for (const g of groupedCounts) {
+      statusCounts[g.status] = g._count;
+    }
+
     return NextResponse.json({
       success: true,
       data: reviews,
-      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      meta: { page, limit, total, totalPages: Math.ceil(total / limit), statusCounts },
     });
   } catch (error) {
     console.error('Admin reviews fetch error:', error);

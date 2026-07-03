@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { useNavStore } from '@/stores/nav-store'
 import { useGiftCardStore } from '@/stores/gift-card-store'
+import { formatPrice, getCurrencySymbol } from '@/lib/api'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,10 +24,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { BreadcrumbNav } from '@/components/shared/breadcrumb-nav'
 
 const giftCardOptions = [
-  { amount: 25, label: '$25', gradient: 'from-emerald-400 to-teal-500', description: 'Perfect for small treats' },
-  { amount: 50, label: '$50', gradient: 'from-teal-400 to-cyan-500', description: 'Great for gifts' },
-  { amount: 75, label: '$75', gradient: 'from-cyan-400 to-emerald-500', description: 'Something special' },
-  { amount: 100, label: '$100', gradient: 'from-emerald-500 to-teal-600', description: 'The ultimate gift' },
+  { amount: 25, label: formatPrice(25), gradient: 'from-emerald-400 to-teal-500', description: 'Perfect for small treats' },
+  { amount: 50, label: formatPrice(50), gradient: 'from-teal-400 to-cyan-500', description: 'Great for gifts' },
+  { amount: 75, label: formatPrice(75), gradient: 'from-cyan-400 to-emerald-500', description: 'Something special' },
+  { amount: 100, label: formatPrice(100), gradient: 'from-emerald-500 to-teal-600', description: 'The ultimate gift' },
 ]
 
 export function GiftCardPage() {
@@ -66,7 +67,7 @@ export function GiftCardPage() {
   }, [cardCode, redeemCard])
 
   const handleAddToCart = useCallback((amount: number) => {
-    toast.success(`$${amount} Gift Card added to cart!`)
+    toast.success(`${getCurrencySymbol()}${amount} Gift Card added to cart!`)
   }, [])
 
   return (
@@ -117,7 +118,7 @@ export function GiftCardPage() {
                     <p className="text-sm text-muted-foreground">Active Gift Card Balance</p>
                     <div className="flex items-center gap-2">
                       <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                        ${balance.toFixed(2)}
+                        {formatPrice(balance)}
                       </span>
                       <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-0 text-xs">
                         {code}

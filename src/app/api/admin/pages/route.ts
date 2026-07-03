@@ -23,7 +23,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, slug, content, isActive } = body;
+    const { title, slug, content, isActive, metaTitle, metaDescription } = body;
 
     if (!title || !slug) {
       return NextResponse.json(
@@ -46,6 +46,8 @@ export async function POST(request: NextRequest) {
         slug,
         content: content || '',
         isActive: isActive !== false,
+        metaTitle: metaTitle || null,
+        metaDescription: metaDescription || null,
       },
     });
 
@@ -79,7 +81,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const allowedFields = ['title', 'slug', 'content', 'isActive'];
+    const allowedFields = ['title', 'slug', 'content', 'isActive', 'metaTitle', 'metaDescription'];
     const data: Record<string, unknown> = {};
     for (const field of allowedFields) {
       if (updateData[field] !== undefined) {

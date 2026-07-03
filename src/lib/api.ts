@@ -251,11 +251,127 @@ export async function subscribeNewsletter(email: string): Promise<{ success: boo
   })
 }
 
+export interface Testimonial {
+  id: string; name: string; avatar?: string | null; rating: number
+  comment: string; isActive: boolean; sortOrder: number
+}
+
+export interface Announcement {
+  id: string; title: string; content?: string | null; url?: string | null
+  isActive: boolean; sortOrder: number
+}
+
+export interface NavigationItem {
+  id: string; label: string; url: string; parentId?: string | null
+  location: string; sortOrder: number; isActive: boolean
+  children?: NavigationItem[]
+}
+
+export interface FooterWidget {
+  id: string; title: string; location: string; sortOrder: number; isActive: boolean
+  links: { id: string; label: string; url: string; sortOrder: number }[]
+}
+
+export interface FeatureItem {
+  id: string; icon?: string | null; title: string; description: string
+  isActive: boolean; sortOrder: number
+}
+
+export interface PaymentMethod {
+  id: string; name: string; image: string; isActive: boolean; sortOrder: number
+}
+
+export interface FAQCategory {
+  id: string; name: string; icon?: string | null
+  faqs: { id: string; question: string; answer: string }[]
+}
+
+export interface AboutSection {
+  id: string; type: string; title?: string | null; description?: string | null
+  items: unknown | null; sortOrder: number; isActive: boolean
+}
+
+export interface FlashSale {
+  id: string; name: string; slug: string; startsAt: string; endsAt: string
+  isActive: boolean; isFeatured: boolean
+  products: { id: string; salePrice: number; quantity: number; soldCount: number; product: Product }[]
+}
+
+export async function fetchTestimonials(): Promise<{ success: boolean; data: Testimonial[] }> {
+  return fetchApi('/testimonials')
+}
+
+export async function fetchAnnouncements(): Promise<{ success: boolean; data: Announcement[] }> {
+  return fetchApi('/announcements')
+}
+
+export async function fetchNavigation(location?: string): Promise<{ success: boolean; data: NavigationItem[] }> {
+  const query = location ? `?location=${location}` : ''
+  return fetchApi(`/navigation${query}`)
+}
+
+export async function fetchFooterWidgets(): Promise<{ success: boolean; data: FooterWidget[] }> {
+  return fetchApi('/footer-widgets')
+}
+
+export async function fetchFeatures(): Promise<{ success: boolean; data: FeatureItem[] }> {
+  return fetchApi('/features')
+}
+
+export async function fetchPaymentMethods(): Promise<{ success: boolean; data: PaymentMethod[] }> {
+  return fetchApi('/payment-methods')
+}
+
+export async function fetchFAQ(): Promise<{ success: boolean; data: FAQCategory[] }> {
+  return fetchApi('/faq')
+}
+
+export async function fetchAboutSections(): Promise<{ success: boolean; data: AboutSection[] }> {
+  return fetchApi('/about-sections')
+}
+
+export async function fetchFlashSales(): Promise<{ success: boolean; data: FlashSale[] }> {
+  return fetchApi('/flash-sales')
+}
+
+export async function fetchFeaturedFlashSale(): Promise<{ success: boolean; data: FlashSale | null }> {
+  return fetchApi('/flash-sales/featured')
+}
+
+export async function fetchPageBySlug(slug: string): Promise<{ success: boolean; data: { id: string; title: string; slug: string; content: string } }> {
+  return fetchApi(`/pages?slug=${slug}`)
+}
+
+export async function submitContactForm(data: { name: string; email: string; subject?: string; message: string }): Promise<{ success: boolean; data: { message: string; emailSent: boolean } }> {
+  return fetchApi('/contact', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
+let _currencySettings = { currency: 'USD', symbol: '$', locale: 'en-US' }
+
+export function initCurrency(settings: Record<string, string>) {
+  _currencySettings = {
+    currency: settings.currency || 'USD',
+    symbol: settings.currency_symbol || '$',
+    locale: 'en-US',
+  }
+}
+
+export function getCurrencySymbol(): string {
+  return _currencySettings.symbol
+}
+
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(_currencySettings.locale, {
     style: 'currency',
-    currency: 'USD',
+    currency: _currencySettings.currency,
   }).format(price)
+}
+
+export function formatPriceSimple(price: number): string {
+  return `${_currencySettings.symbol}${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 export function getDiscountPercentage(price: number, discountPrice: number): number {

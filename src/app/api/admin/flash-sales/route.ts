@@ -8,16 +8,17 @@ export async function GET() {
       include: {
         products: {
           include: {
-            product: { select: { id: true, name: true, thumbnail: true, sellingPrice: true } },
+            product: {
+              select: {
+                id: true, name: true, slug: true, thumbnail: true,
+                sellingPrice: true, discountPrice: true,
+              },
+            },
           },
         },
       },
     });
-
-    return NextResponse.json({
-      success: true,
-      data: flashSales,
-    });
+    return NextResponse.json({ success: true, data: flashSales });
   } catch (error) {
     console.error('Flash sales fetch error:', error);
     return NextResponse.json(
@@ -30,7 +31,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, slug, startsAt, endsAt, isActive } = body;
+    const { name, slug, startsAt, endsAt, isActive, isFeatured } = body;
 
     if (!name || !slug || !startsAt || !endsAt) {
       return NextResponse.json(
@@ -47,6 +48,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (isFeatured) {
+      await db.flashSale.updateMany({
+        where: { isFeatured: true },
+        data: { isFeatured: false },
+      });
+    }
+
     const flashSale = await db.flashSale.create({
       data: {
         name,
@@ -54,6 +62,7 @@ export async function POST(request: NextRequest) {
         startsAt: new Date(startsAt),
         endsAt: new Date(endsAt),
         isActive: isActive !== false,
+        isFeatured: isFeatured === true,
       },
     });
 
@@ -62,6 +71,85 @@ export async function POST(request: NextRequest) {
     console.error('Flash sale creation error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to create flash sale' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, products, ...updateData } = body;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: 'Flash sale ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const existing = await db.flashSale.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json(
+        { success: false, error: 'Flash sale not found' },
+        { status: 404 }
+      );
+    }
+
+    const allowedFields = ['name', 'slug', 'startsAt', 'endsAt', 'isActive', 'isFeatured'];
+    const data: Record<string, unknown> = {};
+
+    if (updateData.isFeatured) {
+      await db.flashSale.updateMany({
+        where: { isFeatured: true, id: { not: id } },
+        data: { isFeatured: false },
+      });
+    }
+
+    for (const field of allowedFields) {
+      if (updateData[field] !== undefined) {
+        data[field] = field === 'startsAt' || field === 'endsAt'
+          ? new Date(updateData[field])
+          : updateData[field];
+      }
+    }
+
+    if (products) {
+      await db.flashSaleProduct.deleteMany({ where: { flashSaleId: id } });
+      if (products.length > 0) {
+        await db.flashSaleProduct.createMany({
+          data: products.map((p: { productId: string; salePrice: number; quantity: number }) => ({
+            flashSaleId: id,
+            productId: p.productId,
+            salePrice: p.salePrice,
+            quantity: p.quantity || 0,
+          })),
+        });
+      }
+    }
+
+    const flashSale = await db.flashSale.update({
+      where: { id },
+      data,
+      include: {
+        products: {
+          include: {
+            product: {
+              select: {
+                id: true, name: true, slug: true, thumbnail: true,
+                sellingPrice: true, discountPrice: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({ success: true, data: flashSale });
+  } catch (error) {
+    console.error('Flash sale update error:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to update flash sale' },
       { status: 500 }
     );
   }

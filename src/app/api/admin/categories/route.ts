@@ -35,7 +35,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, slug, description, image, parentId, sortOrder, isActive } = body;
+    const { name, slug, description, image, icon, parentId, sortOrder, isActive } = body;
 
     if (!name || !slug) {
       return NextResponse.json(
@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
         slug,
         description: description || null,
         image: image || null,
+        icon: icon || null,
         parentId: parentId || null,
         sortOrder: sortOrder || 0,
         isActive: isActive !== false,
@@ -98,7 +99,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const allowedFields = ['name', 'slug', 'description', 'image', 'parentId', 'sortOrder', 'isActive'];
+    const allowedFields = ['name', 'slug', 'description', 'image', 'icon', 'parentId', 'sortOrder', 'isActive'];
     const data: Record<string, unknown> = {};
     for (const field of allowedFields) {
       if (updateData[field] !== undefined) {

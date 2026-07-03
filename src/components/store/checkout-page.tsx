@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo } from 'react'
 import { useCartStore } from '@/stores/cart-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useNavStore } from '@/stores/nav-store'
-import { createOrder, formatPrice, validateCoupon, type CouponData } from '@/lib/api'
+import { createOrder, formatPrice, getCurrencySymbol, validateCoupon, type CouponData } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -564,7 +564,7 @@ export function CheckoutPage() {
                           </div>
                         </div>
                         <span className="text-sm font-medium">
-                          {subtotal > 50 ? <Badge className="bg-emerald-100 text-emerald-700 border-0">Free</Badge> : '$9.99'}
+                          {subtotal > 50 ? <Badge className="bg-emerald-100 text-emerald-700 border-0">Free</Badge> : `${getCurrencySymbol()}9.99`}
                         </span>
                       </label>
                       <label className="flex items-center justify-between p-4 border rounded-xl cursor-pointer hover:border-emerald-300 has-[input:checked]:border-emerald-600 has-[input:checked]:bg-emerald-50/50 transition-all duration-200 group">
@@ -578,7 +578,7 @@ export function CheckoutPage() {
                             <p className="text-xs text-muted-foreground">2-3 business days</p>
                           </div>
                         </div>
-                        <span className="text-sm font-medium">$19.99</span>
+                        <span className="text-sm font-medium">{`${getCurrencySymbol()}19.99`}</span>
                       </label>
                     </div>
                   </RadioGroup>
