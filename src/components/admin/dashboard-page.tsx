@@ -53,6 +53,7 @@ import {
   Archive,
   Bell,
   LayoutList,
+  Sun,
   CalendarDays,
   Timer,
   Sparkles,
