@@ -62,6 +62,16 @@ async function cleanup() {
   await prisma.page.deleteMany();
   await prisma.blog.deleteMany();
   await prisma.newsletter.deleteMany();
+  await prisma.footerWidgetLink.deleteMany();
+  await prisma.footerWidget.deleteMany();
+  await prisma.navigationItem.deleteMany();
+  await prisma.featureItem.deleteMany();
+  await prisma.paymentMethod.deleteMany();
+  await prisma.testimonial.deleteMany();
+  await prisma.fAQ.deleteMany();
+  await prisma.fAQCategory.deleteMany();
+  await prisma.aboutSection.deleteMany();
+  await prisma.announcement.deleteMany();
   await prisma.setting.deleteMany();
   await prisma.auditLog.deleteMany();
 
@@ -1948,6 +1958,88 @@ async function seedPages() {
   console.log(`✅ Created ${pagesData.length} pages`);
 }
 
+// ============ Navigation ============
+async function seedNavigation() {
+  console.log('🧭 Seeding navigation items...');
+
+  const navItems = [
+    { label: 'Home', url: 'home', location: 'header', sortOrder: 1, isActive: true },
+    { label: 'Products', url: 'products', location: 'header', sortOrder: 2, isActive: true },
+    { label: 'Deals', url: 'deals', location: 'header', sortOrder: 3, isActive: true },
+    { label: 'Blog', url: 'blog', location: 'header', sortOrder: 4, isActive: true },
+    { label: 'Contact', url: 'contact', location: 'header', sortOrder: 5, isActive: true },
+    { label: 'FAQ', url: 'faq', location: 'header', sortOrder: 6, isActive: true },
+  ];
+
+  for (const item of navItems) {
+    await prisma.navigationItem.create({ data: item });
+  }
+
+  console.log(`✅ Created ${navItems.length} navigation items`);
+}
+
+// ============ Footer Widgets ============
+async function seedFooterWidgets() {
+  console.log('🧩 Seeding footer widgets...');
+
+  await prisma.footerWidget.create({
+    data: {
+      title: 'Quick Links',
+      location: 'quick_links',
+      sortOrder: 1,
+      links: {
+        create: [
+          { label: 'Home', url: 'home', sortOrder: 1 },
+          { label: 'All Products', url: 'products', sortOrder: 2 },
+          { label: 'New Arrivals', url: 'products?newArrival=true', sortOrder: 3 },
+          { label: 'Best Sellers', url: 'products?bestSeller=true', sortOrder: 4 },
+          { label: 'Featured', url: 'products?featured=true', sortOrder: 5 },
+          { label: 'My Account', url: 'account', sortOrder: 6 },
+          { label: 'My Wishlist', url: 'wishlist', sortOrder: 7 },
+          { label: 'Blog', url: 'blog', sortOrder: 8 },
+          { label: 'Gift Cards', url: 'gift-cards', sortOrder: 9 },
+        ],
+      },
+    },
+  });
+
+  await prisma.footerWidget.create({
+    data: {
+      title: 'Customer Service',
+      location: 'customer_service',
+      sortOrder: 2,
+      links: {
+        create: [
+          { label: 'Contact Us', url: 'contact', sortOrder: 1 },
+          { label: 'FAQ', url: 'faq', sortOrder: 2 },
+          { label: 'About Us', url: 'about', sortOrder: 3 },
+          { label: 'Track Order', url: 'order-tracking', sortOrder: 4 },
+          { label: 'Return Request', url: 'return-request', sortOrder: 5 },
+        ],
+      },
+    },
+  });
+
+  console.log('✅ Created 2 footer widgets with 14 links');
+}
+
+// ============ Features ============
+async function seedFeatures() {
+  console.log('⭐ Seeding features...');
+
+  const features = [
+    { icon: 'Truck', title: 'Free Shipping', description: 'Free shipping on all orders over $50', sortOrder: 1 },
+    { icon: 'Shield', title: 'Secure Payment', description: '100% secure payment processing', sortOrder: 2 },
+    { icon: 'RotateCcw', title: 'Easy Returns', description: '30-day hassle-free return policy', sortOrder: 3 },
+  ];
+
+  for (const f of features) {
+    await prisma.featureItem.create({ data: { ...f, isActive: true } });
+  }
+
+  console.log(`✅ Created ${features.length} features`);
+}
+
 // ============ Main ============
 async function main() {
   console.log('🌱 Starting database seeding...\n');
@@ -1972,6 +2064,9 @@ async function main() {
   await seedBlogPosts(staffUsers);
   await seedSettings();
   await seedPages();
+  await seedNavigation();
+  await seedFooterWidgets();
+  await seedFeatures();
 
   const endTime = Date.now();
   const duration = ((endTime - startTime) / 1000).toFixed(2);
@@ -2023,6 +2118,16 @@ async function main() {
     notifications: await prisma.notification.count(),
     settings: await prisma.setting.count(),
     addresses: await prisma.address.count(),
+    navigationItems: await prisma.navigationItem.count(),
+    footerWidgets: await prisma.footerWidget.count(),
+    footerWidgetLinks: await prisma.footerWidgetLink.count(),
+    features: await prisma.featureItem.count(),
+    testimonials: await prisma.testimonial.count(),
+    faqCategories: await prisma.fAQCategory.count(),
+    faqs: await prisma.fAQ.count(),
+    aboutSections: await prisma.aboutSection.count(),
+    announcements: await prisma.announcement.count(),
+    paymentMethods: await prisma.paymentMethod.count(),
   };
 
   for (const [key, count] of Object.entries(counts)) {
