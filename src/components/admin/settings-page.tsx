@@ -9,16 +9,54 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
-import { Save } from 'lucide-react'
+import { Save, Plus, Pencil, Trash2, Truck } from 'lucide-react'
 import { MediaPickerButton } from '@/components/shared/media-picker-button'
 
 type Settings = Record<string, string>
+
+interface ShippingMethod {
+  id: string
+  name: string
+  cost: number
+  freeAbove: number | null
+  isActive: boolean
+  sortOrder: number
+}
 
 export function SettingsPage() {
   const [settings, setSettings] = useState<Settings>({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+
+  const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([])
+  const [shippingLoading, setShippingLoading] = useState(true)
+  const [shippingDialogOpen, setShippingDialogOpen] = useState(false)
+  const [shippingDeleteId, setShippingDeleteId] = useState<string | null>(null)
+  const [shippingEditing, setShippingEditing] = useState<ShippingMethod | null>(null)
+  const [formName, setFormName] = useState('')
+  const [formCost, setFormCost] = useState('')
+  const [formFreeAbove, setFormFreeAbove] = useState('')
+  const [formIsActive, setFormIsActive] = useState(true)
+  const [formSortOrder, setFormSortOrder] = useState('0')
+
+  const fetchShippingMethods = useCallback(async () => {
+    try {
+      setShippingLoading(true)
+      const res = await fetch('/api/admin/shipping-methods')
+      const data = await res.json()
+      if (data.success) {
+        setShippingMethods(data.data || [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch shipping methods:', error)
+    } finally {
+      setShippingLoading(false)
+    }
+  }, [])
 
   const fetchSettings = useCallback(async () => {
     try {
@@ -37,7 +75,81 @@ export function SettingsPage() {
 
   useEffect(() => {
     fetchSettings()
-  }, [fetchSettings])
+    fetchShippingMethods()
+  }, [fetchSettings, fetchShippingMethods])
+
+  const openCreateShippingDialog = useCallback(() => {
+    setShippingEditing(null)
+    setFormName('')
+    setFormCost('')
+    setFormFreeAbove('')
+    setFormIsActive(true)
+    setFormSortOrder('0')
+    setShippingDialogOpen(true)
+  }, [])
+
+  const openEditShippingDialog = useCallback((method: ShippingMethod) => {
+    setShippingEditing(method)
+    setFormName(method.name)
+    setFormCost(String(method.cost))
+    setFormFreeAbove(method.freeAbove === null ? '' : String(method.freeAbove))
+    setFormIsActive(method.isActive)
+    setFormSortOrder(String(method.sortOrder))
+    setShippingDialogOpen(true)
+  }, [])
+
+  const handleSaveShippingMethod = useCallback(async () => {
+    if (!formName.trim()) {
+      toast.error('Shipping method name is required')
+      return
+    }
+
+    try {
+      const payload = {
+        ...(shippingEditing ? { id: shippingEditing.id } : {}),
+        name: formName.trim(),
+        cost: parseFloat(formCost) || 0,
+        freeAbove: formFreeAbove === '' ? null : parseFloat(formFreeAbove) || 0,
+        isActive: formIsActive,
+        sortOrder: parseInt(formSortOrder) || 0,
+      }
+
+      const res = await fetch('/api/admin/shipping-methods', {
+        method: shippingEditing ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        toast.success(shippingEditing ? 'Shipping method updated' : 'Shipping method created')
+        setShippingDialogOpen(false)
+        fetchShippingMethods()
+      } else {
+        toast.error(data.error || 'Failed to save shipping method')
+      }
+    } catch {
+      toast.error('Failed to save shipping method')
+    }
+  }, [shippingEditing, formName, formCost, formFreeAbove, formIsActive, formSortOrder, fetchShippingMethods])
+
+  const handleDeleteShippingMethod = useCallback(async () => {
+    if (!shippingDeleteId) return
+    try {
+      const res = await fetch(`/api/admin/shipping-methods?id=${shippingDeleteId}`, { method: 'DELETE' })
+      const data = await res.json()
+      if (data.success) {
+        toast.success('Shipping method deleted')
+        fetchShippingMethods()
+      } else {
+        toast.error(data.error || 'Failed to delete shipping method')
+      }
+    } catch {
+      toast.error('Failed to delete shipping method')
+    } finally {
+      setShippingDeleteId(null)
+    }
+  }, [shippingDeleteId, fetchShippingMethods])
 
   const updateSetting = useCallback((key: string, value: string) => {
     setSettings((prev) => ({ ...prev, [key]: value }))
@@ -376,44 +488,165 @@ export function SettingsPage() {
         {/* Shipping */}
         <TabsContent value="shipping">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Shipping Configuration</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Default Shipping Cost</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={settings.shipping_cost || ''}
-                  onChange={(e) => updateSetting('shipping_cost', e.target.value)}
-                  placeholder="0.00"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Free Shipping Above</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={settings.free_shipping_above || ''}
-                  onChange={(e) => updateSetting('free_shipping_above', e.target.value)}
-                  placeholder="100.00"
-                />
-              </div>
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <p className="font-medium">Free Shipping</p>
-                  <p className="text-sm text-muted-foreground">Enable free shipping on all orders</p>
-                </div>
-                <Switch
-                  checked={settings.shipping_free === 'true'}
-                  onCheckedChange={(v) => updateSetting('shipping_free', v ? 'true' : 'false')}
-                />
-              </div>
-              <Button onClick={() => saveGroup('shipping')} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
-                <Save className="h-4 w-4 mr-2" />
-                {saving ? 'Saving...' : 'Save Shipping Settings'}
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <CardTitle className="text-base">Shipping Methods</CardTitle>
+              <Button onClick={openCreateShippingDialog} className="bg-emerald-600 hover:bg-emerald-700">
+                <Plus className="h-4 w-4 mr-2" /> Add Shipping Method
               </Button>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Create the shipping methods shown at checkout. Each method has a rate and an optional
+                free-shipping threshold.
+              </p>
+
+              {shippingLoading ? (
+                <div className="space-y-2">
+                  {[...Array(3)].map((_, i) => (
+                    <Skeleton key={i} className="h-14 w-full" />
+                  ))}
+                </div>
+              ) : shippingMethods.length === 0 ? (
+                <div className="p-6 border rounded-lg text-center text-muted-foreground text-sm">
+                  No shipping methods yet. Click &quot;Add Shipping Method&quot; to create one.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {shippingMethods.map((method) => (
+                    <div
+                      key={method.id}
+                      className="flex items-center justify-between p-3 border rounded-lg gap-3"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${method.isActive ? 'bg-emerald-100' : 'bg-muted'}`}>
+                          <Truck className={`h-4 w-4 ${method.isActive ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm truncate flex items-center gap-2">
+                            {method.name}
+                            {!method.isActive && <Badge variant="secondary" className="text-[10px]">Inactive</Badge>}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {method.freeAbove !== null ? (
+                              <>Cost {method.cost} · Free above {method.freeAbove}</>
+                            ) : (
+                              <>Cost {method.cost}</>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Switch
+                          checked={method.isActive}
+                          onCheckedChange={(v) => {
+                            fetch('/api/admin/shipping-methods', {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ id: method.id, isActive: v }),
+                            })
+                              .then((res) => res.json())
+                              .then((data) => {
+                                if (data.success) {
+                                  toast.success(v ? 'Shipping method enabled' : 'Shipping method disabled')
+                                  fetchShippingMethods()
+                                }
+                              })
+                              .catch(() => toast.error('Failed to update shipping method'))
+                          }}
+                        />
+                        <Button variant="ghost" size="icon" onClick={() => openEditShippingDialog(method)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" onClick={() => setShippingDeleteId(method.id)}>
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete shipping method</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete &quot;{method.name}&quot;? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleDeleteShippingMethod} className="bg-red-600 hover:bg-red-700">
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <Dialog open={shippingDialogOpen} onOpenChange={setShippingDialogOpen}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>{shippingEditing ? 'Edit Shipping Method' : 'Add Shipping Method'}</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Name *</Label>
+                      <Input
+                        value={formName}
+                        onChange={(e) => setFormName(e.target.value)}
+                        placeholder="e.g. Inside Dhaka"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Cost (৳) *</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={formCost}
+                          onChange={(e) => setFormCost(e.target.value)}
+                          placeholder="0.00"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Free Shipping Above</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={formFreeAbove}
+                          onChange={(e) => setFormFreeAbove(e.target.value)}
+                          placeholder="Leave empty for none"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Sort Order</Label>
+                        <Input
+                          type="number"
+                          value={formSortOrder}
+                          onChange={(e) => setFormSortOrder(e.target.value)}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div className="flex items-end">
+                        <div className="flex items-center justify-between w-full p-3 border rounded-lg">
+                          <div>
+                            <p className="text-sm font-medium">Active</p>
+                            <p className="text-xs text-muted-foreground">Show at checkout</p>
+                          </div>
+                          <Switch checked={formIsActive} onCheckedChange={setFormIsActive} />
+                        </div>
+                      </div>
+                    </div>
+                    <Button onClick={handleSaveShippingMethod} className="w-full bg-emerald-600 hover:bg-emerald-700">
+                      <Save className="h-4 w-4 mr-2" />
+                      {shippingEditing ? 'Update Shipping Method' : 'Create Shipping Method'}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </TabsContent>

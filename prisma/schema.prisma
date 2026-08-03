@@ -106,6 +106,63 @@ model Address {
   updatedAt   DateTime @updatedAt
 }
 
+// ============ Location System (Country / State / City) ============
+
+model Country {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique @db.VarChar(2)
+  name      String   @db.VarChar(100)
+  status    Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  states State[]
+}
+
+model State {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  countryId Int
+  country   Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  status    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  cities City[]
+}
+
+model City {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  stateId   Int
+  state     State    @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  cost      Float    @default(0)
+  status    Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  areas Area[]
+
+  @@index([stateId])
+}
+
+model Area {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  cityId    Int
+  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  cost      Float    @default(0)
+  status    Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@index([cityId])
+}
+
 // ============ Product System ============
 
 model Category {
@@ -617,6 +674,19 @@ model PaymentMethod {
   id        String   @id @default(cuid())
   name      String
   image     String   // Media URL
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ============ Shipping Methods ============
+
+model ShippingMethod {
+  id        String   @id @default(cuid())
+  name      String
+  cost      Float    @default(0)
+  freeAbove Float?   // Optional free-shipping threshold
   isActive  Boolean  @default(true)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())

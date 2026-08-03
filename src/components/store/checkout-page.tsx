@@ -4,13 +4,27 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useCartStore } from '@/stores/cart-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useNavStore } from '@/stores/nav-store'
-import { createOrder, fetchSettings, formatPrice, getCurrencySymbol, validateCoupon, type CouponData } from '@/lib/api'
+import {
+  createOrder,
+  fetchSettings,
+  fetchCountries,
+  fetchShippingMethods,
+  fetchPaymentMethods,
+  formatPrice,
+  validateCoupon,
+  type CouponData,
+  type CountryData,
+  type ShippingMethodData,
+  type PaymentMethod,
+} from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   Check,
@@ -18,60 +32,33 @@ import {
   CreditCard,
   ClipboardList,
   Package,
-  ArrowLeft,
   ArrowRight,
   MapPin,
-  Wallet,
-  Smartphone,
-  Lock,
   Banknote,
-  Calendar,
+  Smartphone,
+  Wallet,
+  Lock,
   Tag,
   ShieldCheck,
   Loader2,
-  CheckCircle,
-  Gift,
-  MessageSquare,
+  User,
+  Phone,
+  Mail,
+  MapPinned,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { BreadcrumbNav } from '@/components/shared/breadcrumb-nav'
 
-type CheckoutStep = 'shipping' | 'payment' | 'review'
-
 interface ShippingForm {
-  firstName: string
-  lastName: string
-  email: string
+  name: string
   phone: string
-  address1: string
-  address2: string
-  city: string
-  state: string
-  zipCode: string
+  email: string
+  address: string
   country: string
-}
-
-// Step transition animation variants
-const slideVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 300 : -300,
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-  },
-  exit: (direction: number) => ({
-    x: direction > 0 ? -300 : 300,
-    opacity: 0,
-  }),
-}
-
-const slideTransition = {
-  type: 'spring' as const,
-  stiffness: 300,
-  damping: 30,
+  state: string
+  city: string
+  area: string
 }
 
 // Success checkmark animation
@@ -170,6 +157,13 @@ function ConfettiRain() {
   )
 }
 
+function paymentIcon(name: string) {
+  const n = name.toLowerCase()
+  if (n.includes('cod') || n.includes('cash')) return <Banknote className="h-5 w-5 text-emerald-600" />
+  if (n.includes('bkash') || n.includes('nagad') || n.includes('rocket') || n.includes('mobile')) return <Smartphone className="h-5 w-5 text-pink-600" />
+  return <Wallet className="h-5 w-5 text-violet-600" />
+}
+
 export function CheckoutPage() {
   const items = useCartStore((s) => s.items)
   const getTotal = useCartStore((s) => s.getTotal)
@@ -177,10 +171,8 @@ export function CheckoutPage() {
   const navigateStore = useNavStore((s) => s.navigateStore)
   const user = useAuthStore((s) => s.user)
 
-  const [step, setStep] = useState<CheckoutStep>('shipping')
   const [placing, setPlacing] = useState(false)
   const [orderNumber, setOrderNumber] = useState('')
-  const [direction, setDirection] = useState(1)
 
   // Coupon state
   const [couponCode, setCouponCode] = useState('')
@@ -188,44 +180,82 @@ export function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<CouponData | null>(null)
 
   const [shipping, setShipping] = useState<ShippingForm>({
-    firstName: user?.name?.split(' ')[0] || '',
-    lastName: user?.name?.split(' ').slice(1).join(' ') || '',
-    email: user?.email || '',
+    name: user?.name || '',
     phone: user?.phone || '',
-    address1: '',
-    address2: '',
-    city: '',
+    email: user?.email || '',
+    address: '',
+    country: 'BD',
     state: '',
-    zipCode: '',
-    country: 'US',
+    city: '',
+    area: '',
   })
-  const [shippingMethod, setShippingMethod] = useState('standard')
-  const [paymentMethod, setPaymentMethod] = useState('cod')
 
-  // Gift wrap state
-  const [giftWrap, setGiftWrap] = useState(false)
-  const [giftMessage, setGiftMessage] = useState('')
   const [settings, setSettings] = useState<Record<string, string>>({})
-  const GIFT_WRAP_COST = 4.99
+  const [countries, setCountries] = useState<CountryData[]>([])
+  const [shippingMethods, setShippingMethods] = useState<ShippingMethodData[]>([])
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+  const [shippingMethod, setShippingMethod] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState('')
 
   useEffect(() => {
     fetchSettings().then((res) => {
       if (res.success) setSettings(res.data)
     })
+    fetchCountries().then((res) => {
+      if (res.success) setCountries(res.data)
+    })
+    fetchShippingMethods().then((res) => {
+      if (res.success && res.data.length > 0) {
+        setShippingMethods(res.data)
+        setShippingMethod((prev) => prev || res.data[0].id)
+      }
+    })
+    fetchPaymentMethods().then((res) => {
+      if (res.success && res.data.length > 0) {
+        setPaymentMethods(res.data)
+        setPaymentMethod((prev) => prev || res.data[0].id)
+      }
+    })
+  }, [])
+
+  const selectedCountry = countries.find((c) => c.code === shipping.country)
+  const statesForCountry = selectedCountry?.states || []
+  const selectedState = statesForCountry.find((s) => s.name === shipping.state)
+  const citiesForState = selectedState?.cities || []
+  const selectedCity = citiesForState.find((c) => c.name === shipping.city)
+  const areasForCity = selectedCity?.areas || []
+
+  const handleCountryChange = useCallback((code: string) => {
+    setShipping((prev) => ({ ...prev, country: code, state: '', city: '', area: '' }))
+  }, [])
+
+  const handleStateChange = useCallback((name: string) => {
+    setShipping((prev) => ({ ...prev, state: name, city: '', area: '' }))
+  }, [])
+
+  const handleCityChange = useCallback((name: string) => {
+    setShipping((prev) => ({ ...prev, city: name, area: '' }))
+  }, [])
+
+  const handleAreaChange = useCallback((name: string) => {
+    setShipping((prev) => ({ ...prev, area: name }))
   }, [])
 
   const subtotal = getTotal()
+
+  const selectedShippingMethod = shippingMethods.find((m) => m.id === shippingMethod)
+
   const shippingCost = useMemo(() => {
-    if (shippingMethod === 'express') return 19.99
-    if (shippingMethod === 'standard') return subtotal > 50 ? 0 : 9.99
-    return 0
-  }, [shippingMethod, subtotal])
+    if (!selectedShippingMethod) return 0
+    if (selectedShippingMethod.freeAbove !== null && subtotal >= selectedShippingMethod.freeAbove) return 0
+    return selectedShippingMethod.cost
+  }, [selectedShippingMethod, subtotal])
+
   const couponDiscount = useMemo(() => appliedCoupon?.discountAmount || 0, [appliedCoupon])
-  const giftWrapCost = giftWrap ? GIFT_WRAP_COST : 0
   const taxEnabled = settings.tax_enabled === 'false' ? false : true
   const taxRate = taxEnabled ? parseFloat(settings.tax_rate || '8') / 100 : 0
   const taxAmount = (subtotal - couponDiscount) * taxRate
-  const total = subtotal - couponDiscount + shippingCost + taxAmount + giftWrapCost
+  const total = subtotal - couponDiscount + shippingCost + taxAmount
 
   const updateShipping = useCallback((field: keyof ShippingForm, value: string) => {
     setShipping((prev) => ({ ...prev, [field]: value }))
@@ -233,14 +263,12 @@ export function CheckoutPage() {
 
   const shippingValid = useMemo(() => {
     return !!(
-      shipping.firstName &&
-      shipping.lastName &&
-      shipping.email &&
+      shipping.name &&
       shipping.phone &&
-      shipping.address1 &&
-      shipping.city &&
+      shipping.address &&
       shipping.state &&
-      shipping.zipCode
+      shipping.city &&
+      shipping.area
     )
   }, [shipping])
 
@@ -265,21 +293,25 @@ export function CheckoutPage() {
     toast.info('Coupon removed')
   }, [])
 
-  const goToStep = useCallback((newStep: CheckoutStep) => {
-    const steps: CheckoutStep[] = ['shipping', 'payment', 'review']
-    const currentIdx = steps.indexOf(step)
-    const newIdx = steps.indexOf(newStep)
-    setDirection(newIdx > currentIdx ? 1 : -1)
-    setStep(newStep)
-  }, [step])
-
   const handlePlaceOrder = useCallback(async () => {
     if (items.length === 0) return
+    if (!shippingValid) {
+      toast.error('Please fill in all required shipping fields')
+      return
+    }
+    if (!selectedShippingMethod) {
+      toast.error('Please select a shipping method')
+      return
+    }
+    if (!paymentMethod) {
+      toast.error('Please select a payment method')
+      return
+    }
     setPlacing(true)
     try {
       const orderData = {
         customerId: user ? undefined : undefined,
-        guestEmail: !user ? shipping.email : undefined,
+        guestEmail: user ? undefined : shipping.email || undefined,
         items: items.map((item) => ({
           productId: item.productId,
           variantId: item.variantId || null,
@@ -287,8 +319,8 @@ export function CheckoutPage() {
         })),
         shippingAddress: shipping,
         billingAddress: shipping,
-        shippingMethod,
-        paymentMethod,
+        shippingMethod: selectedShippingMethod.name,
+        paymentMethod: paymentMethods.find((m) => m.id === paymentMethod)?.name || paymentMethod,
         shippingCost,
         taxAmount,
         couponCode: appliedCoupon?.code,
@@ -303,18 +335,7 @@ export function CheckoutPage() {
     } finally {
       setPlacing(false)
     }
-  }, [items, shipping, shippingMethod, paymentMethod, shippingCost, taxAmount, user, clearCart, appliedCoupon, couponDiscount])
-
-  // Estimated delivery date
-  const estimatedDelivery = useMemo(() => {
-    const date = new Date()
-    if (shippingMethod === 'express') {
-      date.setDate(date.getDate() + 3)
-    } else {
-      date.setDate(date.getDate() + 7)
-    }
-    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-  }, [shippingMethod])
+  }, [items, shipping, shippingValid, selectedShippingMethod, paymentMethod, paymentMethods, shippingCost, taxAmount, user, clearCart, appliedCoupon, couponDiscount])
 
   // Success state
   if (orderNumber) {
@@ -354,10 +375,6 @@ export function CheckoutPage() {
           >
             <p className="text-sm text-muted-foreground mb-1">Order Number</p>
             <p className="text-2xl font-bold text-emerald-600">{orderNumber}</p>
-            <div className="flex items-center justify-center gap-2 mt-2 text-sm text-muted-foreground">
-              <Calendar className="h-4 w-4" />
-              <span>Estimated delivery: <strong className="text-foreground">{estimatedDelivery}</strong></span>
-            </div>
           </motion.div>
           <motion.p
             className="text-sm text-muted-foreground mb-8"
@@ -414,13 +431,8 @@ export function CheckoutPage() {
     )
   }
 
-  const steps: { key: CheckoutStep; label: string; icon: React.ReactNode }[] = [
-    { key: 'shipping', label: 'Shipping', icon: <Truck className="h-4 w-4" /> },
-    { key: 'payment', label: 'Payment', icon: <CreditCard className="h-4 w-4" /> },
-    { key: 'review', label: 'Review', icon: <CheckCircle className="h-4 w-4" /> },
-  ]
-
-  const currentStepIdx = steps.findIndex((s) => s.key === step)
+  const selectTriggerClass =
+    'h-11 w-full transition-all duration-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500'
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -441,7 +453,7 @@ export function CheckoutPage() {
       </motion.div>
 
       <motion.h1
-        className="text-2xl font-bold mb-6 text-center"
+        className="text-2xl font-bold mb-8 text-center"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
@@ -449,403 +461,228 @@ export function CheckoutPage() {
         Checkout
       </motion.h1>
 
-      {/* Step indicator with animated progress bar */}
-      <div className="mb-10">
-        <div className="flex items-center justify-center">
-          {steps.map((s, idx) => (
-            <div key={s.key} className="flex items-center">
-              <motion.div
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  idx < currentStepIdx
-                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                    : idx === currentStepIdx
-                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
-                    : 'bg-muted text-muted-foreground'
-                }`}
-                whileHover={{ scale: idx === currentStepIdx ? 1.02 : 1 }}
-              >
-                {idx < currentStepIdx ? (
-                  <motion.div
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                    className="relative"
-                  >
-                    <Check className="h-4 w-4" />
-                    <motion.div
-                      className="absolute inset-0 rounded-full bg-emerald-400/30"
-                      initial={{ scale: 1 }}
-                      animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                    />
-                  </motion.div>
-                ) : s.icon}
-                <span className="hidden sm:inline">{s.label}</span>
-              </motion.div>
-              {idx < steps.length - 1 && (
-                <div className="relative w-8 sm:w-16 mx-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                  <motion.div
-                    className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 origin-left"
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: idx < currentStepIdx ? 1 : idx === currentStepIdx ? 0.5 : 0 }}
-                    transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  />
-                  {idx < currentStepIdx && (
-                    <motion.div
-                      className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-400/40 to-teal-400/40 origin-left shimmer-subtle"
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: 0.3 }}
-                    />
-                  )}
-                </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left column */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Shipping Address */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <MapPin className="h-4 w-4 text-emerald-600" />
+              </div>
+              <h2 className="text-lg font-semibold">Shipping Address</h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5 text-muted-foreground" /> Name *
+                </Label>
+                <Input
+                  id="name"
+                  value={shipping.name}
+                  onChange={(e) => updateShipping('name', e.target.value)}
+                  placeholder="Your full name"
+                  className="h-11 transition-all duration-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-sm flex items-center gap-1.5">
+                  <Phone className="h-3.5 w-3.5 text-muted-foreground" /> Phone *
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={shipping.phone}
+                  onChange={(e) => updateShipping('phone', e.target.value)}
+                  placeholder="01XXXXXXXXX"
+                  className="h-11 transition-all duration-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="email" className="text-sm flex items-center gap-1.5">
+                  <Mail className="h-3.5 w-3.5 text-muted-foreground" /> Email <span className="text-muted-foreground">(optional)</span>
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={shipping.email}
+                  onChange={(e) => updateShipping('email', e.target.value)}
+                  placeholder="you@example.com"
+                  className="h-11 transition-all duration-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="address" className="text-sm flex items-center gap-1.5">
+                  <MapPinned className="h-3.5 w-3.5 text-muted-foreground" /> Address *
+                </Label>
+                <Textarea
+                  id="address"
+                  value={shipping.address}
+                  onChange={(e) => updateShipping('address', e.target.value)}
+                  placeholder="House, road, village / thana details"
+                  rows={3}
+                  className="resize-none transition-all duration-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                />
+              </div>
+
+              {countries.length === 0 ? (
+                <>
+                  <div className="space-y-2">
+                    <Skeleton className="h-11 w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Skeleton className="h-11 w-full" />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Skeleton className="h-11 w-full" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label className="text-sm">Division *</Label>
+                    <Select value={shipping.state} onValueChange={handleStateChange} disabled={statesForCountry.length === 0}>
+                      <SelectTrigger className={selectTriggerClass}>
+                        <SelectValue placeholder="Select division" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statesForCountry.map((s) => (
+                          <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {statesForCountry.length === 0 && (
+                      <p className="text-xs text-muted-foreground">No divisions available</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm">City *</Label>
+                    <Select value={shipping.city} onValueChange={handleCityChange} disabled={!shipping.state || citiesForState.length === 0}>
+                      <SelectTrigger className={selectTriggerClass}>
+                        <SelectValue placeholder={!shipping.state ? 'Select division first' : 'Select city'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {citiesForState.map((city) => (
+                          <SelectItem key={city.id} value={city.name}>{city.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label className="text-sm">Area *</Label>
+                    <Select value={shipping.area} onValueChange={handleAreaChange} disabled={!shipping.city || areasForCity.length === 0}>
+                      <SelectTrigger className={selectTriggerClass}>
+                        <SelectValue placeholder={!shipping.city ? 'Select city first' : 'Select area'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {areasForCity.map((area) => (
+                          <SelectItem key={area.id} value={area.name}>{area.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
               )}
             </div>
-          ))}
-        </div>
-      </div>
+          </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <AnimatePresence mode="wait" custom={direction}>
-            {/* Shipping Step */}
-            {step === 'shipping' && (
-              <motion.div
-                key="shipping"
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={slideTransition}
-                className="space-y-6"
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                    <MapPin className="h-4 w-4 text-emerald-600" />
-                  </div>
-                  <h2 className="text-lg font-semibold">Shipping Address</h2>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    { id: 'firstName', label: 'First Name *', col: '' },
-                    { id: 'lastName', label: 'Last Name *', col: '' },
-                    { id: 'email', label: 'Email *', type: 'email', col: '' },
-                    { id: 'phone', label: 'Phone *', col: '' },
-                    { id: 'address1', label: 'Address *', col: 'sm:col-span-2' },
-                    { id: 'address2', label: 'Apartment, suite, etc.', col: 'sm:col-span-2' },
-                    { id: 'city', label: 'City *', col: '' },
-                    { id: 'state', label: 'State *', col: '' },
-                    { id: 'zipCode', label: 'ZIP Code *', col: '' },
-                    { id: 'country', label: 'Country', col: '' },
-                  ].map((field) => (
-                    <div key={field.id} className={`space-y-2 ${field.col}`}>
-                      <Label htmlFor={field.id} className="text-sm">{field.label}</Label>
-                      <Input
-                        id={field.id}
-                        type={(field as { type?: string }).type || 'text'}
-                        value={shipping[field.id as keyof ShippingForm]}
-                        onChange={(e) => updateShipping(field.id as keyof ShippingForm, e.target.value)}
-                        className="transition-all duration-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-                      />
-                    </div>
-                  ))}
-                </div>
+          <Separator />
 
-                <Separator />
+          {/* Shipping Method */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <Truck className="h-4 w-4 text-emerald-600" />
+              </div>
+              <h2 className="text-lg font-semibold">Shipping Method</h2>
+            </div>
 
-                <div>
-                  <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                    <Truck className="h-4 w-4 text-emerald-600" />
-                    Shipping Method
-                  </h3>
-                  <RadioGroup value={shippingMethod} onValueChange={setShippingMethod}>
-                    <div className="space-y-3">
-                      <label className="flex items-center justify-between p-4 border rounded-xl cursor-pointer hover:border-emerald-300 has-[input:checked]:border-emerald-600 has-[input:checked]:bg-emerald-50/50 transition-all duration-200 group">
+            {shippingMethods.length === 0 ? (
+              <div className="space-y-2">
+                {[...Array(2)].map((_, i) => (
+                  <Skeleton key={i} className="h-20 w-full" />
+                ))}
+              </div>
+            ) : (
+              <RadioGroup value={shippingMethod} onValueChange={setShippingMethod}>
+                <div className="space-y-3">
+                  {shippingMethods.map((method) => {
+                    const isFree = method.freeAbove !== null && subtotal >= method.freeAbove
+                    return (
+                      <label
+                        key={method.id}
+                        className="flex items-center justify-between p-4 border rounded-xl cursor-pointer hover:border-emerald-300 has-[input:checked]:border-emerald-600 has-[input:checked]:bg-emerald-50/50 transition-all duration-200 group"
+                      >
                         <div className="flex items-center gap-3">
-                          <RadioGroupItem value="standard" />
+                          <RadioGroupItem value={method.id} />
                           <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center group-has-[input:checked]:bg-emerald-200 transition-colors">
                             <Truck className="h-5 w-5 text-emerald-600" />
                           </div>
                           <div>
-                            <p className="text-sm font-medium">Standard Shipping</p>
-                            <p className="text-xs text-muted-foreground">5-7 business days</p>
+                            <p className="text-sm font-medium">{method.name}</p>
+                            {method.freeAbove !== null && (
+                              <p className="text-xs text-muted-foreground">Free shipping over {formatPrice(method.freeAbove)}</p>
+                            )}
                           </div>
                         </div>
                         <span className="text-sm font-medium">
-                          {subtotal > 50 ? <Badge className="bg-emerald-100 text-emerald-700 border-0">Free</Badge> : `${getCurrencySymbol()}9.99`}
+                          {isFree ? (
+                            <Badge className="bg-emerald-100 text-emerald-700 border-0">Free</Badge>
+                          ) : (
+                            formatPrice(method.cost)
+                          )}
                         </span>
                       </label>
-                      <label className="flex items-center justify-between p-4 border rounded-xl cursor-pointer hover:border-emerald-300 has-[input:checked]:border-emerald-600 has-[input:checked]:bg-emerald-50/50 transition-all duration-200 group">
-                        <div className="flex items-center gap-3">
-                          <RadioGroupItem value="express" />
-                          <div className="h-10 w-10 rounded-lg bg-amber-100 flex items-center justify-center group-has-[input:checked]:bg-amber-200 transition-colors">
-                            <Truck className="h-5 w-5 text-amber-600" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium">Express Shipping</p>
-                            <p className="text-xs text-muted-foreground">2-3 business days</p>
-                          </div>
-                        </div>
-                        <span className="text-sm font-medium">{`${getCurrencySymbol()}19.99`}</span>
-                      </label>
-                    </div>
-                  </RadioGroup>
+                    )
+                  })}
                 </div>
-
-                {/* Estimated delivery */}
-                <div className="flex items-center gap-2 bg-emerald-50/60 border border-emerald-100 rounded-xl p-3">
-                  <Calendar className="h-4 w-4 text-emerald-600" />
-                  <span className="text-sm text-muted-foreground">
-                    Estimated delivery: <strong className="text-foreground">{estimatedDelivery}</strong>
-                  </span>
-                </div>
-
-                <div className="flex justify-end">
-                  <Button
-                    className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 transition-all duration-200"
-                    disabled={!shippingValid}
-                    onClick={() => goToStep('payment')}
-                  >
-                    Continue to Payment
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </motion.div>
+              </RadioGroup>
             )}
+          </section>
 
-            {/* Payment Step */}
-            {step === 'payment' && (
-              <motion.div
-                key="payment"
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={slideTransition}
-                className="space-y-6"
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                    <CreditCard className="h-4 w-4 text-emerald-600" />
-                  </div>
-                  <h2 className="text-lg font-semibold">Payment Method</h2>
-                </div>
+          <Separator />
 
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <div className="space-y-3">
-                    <label className="flex items-center gap-3 p-4 border rounded-xl cursor-pointer hover:border-emerald-300 has-[input:checked]:border-emerald-600 has-[input:checked]:bg-emerald-50/50 transition-all duration-200 group">
-                      <RadioGroupItem value="cod" />
-                      <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center group-has-[input:checked]:from-emerald-200 group-has-[input:checked]:to-teal-200 transition-colors">
-                        <Banknote className="h-6 w-6 text-emerald-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Cash on Delivery</p>
-                        <p className="text-xs text-muted-foreground">Pay when you receive your order</p>
-                      </div>
-                    </label>
-                    <label className="flex items-center gap-3 p-4 border rounded-xl cursor-pointer hover:border-emerald-300 has-[input:checked]:border-emerald-600 has-[input:checked]:bg-emerald-50/50 transition-all duration-200 group">
-                      <RadioGroupItem value="stripe" />
-                      <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center group-has-[input:checked]:from-violet-200 group-has-[input:checked]:to-purple-200 transition-colors">
-                        <CreditCard className="h-6 w-6 text-violet-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Credit/Debit Card (Stripe)</p>
-                        <p className="text-xs text-muted-foreground">Visa, Mastercard, Amex</p>
-                      </div>
-                    </label>
-                    <label className="flex items-center gap-3 p-4 border rounded-xl cursor-pointer hover:border-emerald-300 has-[input:checked]:border-emerald-600 has-[input:checked]:bg-emerald-50/50 transition-all duration-200 group">
-                      <RadioGroupItem value="bkash" />
-                      <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center group-has-[input:checked]:from-pink-200 group-has-[input:checked]:to-rose-200 transition-colors">
-                        <Smartphone className="h-6 w-6 text-pink-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">bKash</p>
-                        <p className="text-xs text-muted-foreground">Mobile payment via bKash</p>
-                      </div>
-                    </label>
-                    <label className="flex items-center gap-3 p-4 border rounded-xl cursor-pointer hover:border-emerald-300 has-[input:checked]:border-emerald-600 has-[input:checked]:bg-emerald-50/50 transition-all duration-200 group">
-                      <RadioGroupItem value="nagad" />
-                      <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center group-has-[input:checked]:from-orange-200 group-has-[input:checked]:to-amber-200 transition-colors">
-                        <Smartphone className="h-6 w-6 text-orange-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Nagad</p>
-                        <p className="text-xs text-muted-foreground">Mobile payment via Nagad</p>
-                      </div>
-                    </label>
-                  </div>
-                </RadioGroup>
+          {/* Payment Method */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <CreditCard className="h-4 w-4 text-emerald-600" />
+              </div>
+              <h2 className="text-lg font-semibold">Payment Method</h2>
+            </div>
 
-                <div className="flex justify-between">
-                  <Button variant="outline" onClick={() => goToStep('shipping')}>
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Shipping
-                  </Button>
-                  <Button
-                    className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20"
-                    onClick={() => goToStep('review')}
-                  >
-                    Review Order
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Review Step */}
-            {step === 'review' && (
-              <motion.div
-                key="review"
-                custom={direction}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={slideTransition}
-                className="space-y-6"
-              >
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                    <ClipboardList className="h-4 w-4 text-emerald-600" />
-                  </div>
-                  <h2 className="text-lg font-semibold">Review Your Order</h2>
-                </div>
-
-                {/* Shipping Address */}
-                <Card className="overflow-hidden border-emerald-100 hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-semibold flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-md bg-emerald-100 flex items-center justify-center">
-                          <MapPin className="h-3 w-3 text-emerald-600" />
-                        </div>
-                        Shipping Address
-                      </h3>
-                      <Button variant="ghost" size="sm" className="text-emerald-600 hover:text-emerald-700" onClick={() => goToStep('shipping')}>
-                        Edit
-                      </Button>
-                    </div>
-                    <p className="text-sm text-muted-foreground ml-8">
-                      {shipping.firstName} {shipping.lastName}<br />
-                      {shipping.address1}
-                      {shipping.address2 ? `, ${shipping.address2}` : ''}<br />
-                      {shipping.city}, {shipping.state} {shipping.zipCode}<br />
-                      {shipping.phone}
-                    </p>
-                  </CardContent>
-                </Card>
-
-                {/* Payment Method */}
-                <Card className="overflow-hidden border-emerald-100 hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-semibold flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-md bg-emerald-100 flex items-center justify-center">
-                          <CreditCard className="h-3 w-3 text-emerald-600" />
-                        </div>
-                        Payment Method
-                      </h3>
-                      <Button variant="ghost" size="sm" className="text-emerald-600 hover:text-emerald-700" onClick={() => goToStep('payment')}>
-                        Edit
-                      </Button>
-                    </div>
-                    <p className="text-sm text-muted-foreground ml-8 capitalize">
-                      {paymentMethod === 'cod' ? 'Cash on Delivery' : paymentMethod === 'stripe' ? 'Credit/Debit Card' : paymentMethod}
-                    </p>
-                  </CardContent>
-                </Card>
-
-                {/* Gift Wrap Preview */}
-                {giftWrap && (
-                  <Card className="overflow-hidden border-emerald-100 hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                        <div className="h-6 w-6 rounded-md bg-emerald-100 flex items-center justify-center">
-                          <Gift className="h-3 w-3 text-emerald-600" />
-                        </div>
-                        Gift Wrap
-                      </h3>
-                      <div className="ml-8 space-y-1">
-                        <p className="text-sm text-muted-foreground">
-                          Premium gift wrapping included <span className="text-emerald-600 font-medium">(+{formatPrice(GIFT_WRAP_COST)})</span>
-                        </p>
-                        {giftMessage && (
-                          <div className="mt-2 p-3 bg-emerald-50/60 dark:bg-emerald-950/20 rounded-lg border border-emerald-100 dark:border-emerald-800/30">
-                            <p className="text-xs text-muted-foreground mb-1 font-medium">Gift Message:</p>
-                            <p className="text-sm italic text-foreground">&ldquo;{giftMessage}&rdquo;</p>
-                          </div>
+            {paymentMethods.length === 0 ? (
+              <div className="space-y-2">
+                {[...Array(2)].map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            ) : (
+              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                <div className="space-y-3">
+                  {paymentMethods.map((method) => (
+                    <label
+                      key={method.id}
+                      className="flex items-center gap-3 p-4 border rounded-xl cursor-pointer hover:border-emerald-300 has-[input:checked]:border-emerald-600 has-[input:checked]:bg-emerald-50/50 transition-all duration-200 group"
+                    >
+                      <RadioGroupItem value={method.id} />
+                      <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center group-has-[input:checked]:from-emerald-100 group-has-[input:checked]:to-teal-100 transition-colors overflow-hidden">
+                        {method.image ? (
+                          <img src={method.image} alt={method.name} className="h-full w-full object-cover" />
+                        ) : (
+                          paymentIcon(method.name)
                         )}
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Order Items */}
-                <Card className="overflow-hidden border-emerald-100 hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                      <div className="h-6 w-6 rounded-md bg-emerald-100 flex items-center justify-center">
-                        <Package className="h-3 w-3 text-emerald-600" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{method.name}</p>
                       </div>
-                      Order Items ({items.length})
-                    </h3>
-                    <div className="space-y-3 ml-8">
-                      {items.map((item) => (
-                        <div
-                          key={`${item.productId}-${item.variantId || 'default'}`}
-                          className="flex items-center gap-3"
-                        >
-                          <img
-                            src={item.thumbnail || `https://picsum.photos/seed/${item.productSlug}/80/80`}
-                            alt={item.productName}
-                            className="w-12 h-12 rounded-lg object-cover"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium line-clamp-1">{item.productName}</p>
-                            {item.variantName && (
-                              <p className="text-xs text-muted-foreground">{item.variantName}</p>
-                            )}
-                          </div>
-                          <div className="text-right shrink-0">
-                            <p className="text-sm font-medium">
-                              {formatPrice((item.discountPrice || item.price) * item.quantity)}
-                            </p>
-                            <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <div className="flex justify-between">
-                  <Button variant="outline" onClick={() => goToStep('payment')}>
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Payment
-                  </Button>
-                  <Button
-                    className="bg-emerald-600 hover:bg-emerald-700 h-12 px-8 shadow-lg shadow-emerald-600/20 transition-all duration-200"
-                    onClick={handlePlaceOrder}
-                    disabled={placing}
-                  >
-                    {placing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Placing Order...
-                      </>
-                    ) : (
-                      <>
-                        Place Order
-                        <Check className="ml-2 h-4 w-4" />
-                      </>
-                    )}
-                  </Button>
+                    </label>
+                  ))}
                 </div>
-              </motion.div>
+              </RadioGroup>
             )}
-          </AnimatePresence>
+          </section>
         </div>
 
         {/* Order Summary Sidebar */}
@@ -924,77 +761,6 @@ export function CheckoutPage() {
 
             <Separator />
 
-            {/* Gift Wrap Option */}
-            <div className="space-y-3">
-              <button
-                type="button"
-                onClick={() => setGiftWrap(!giftWrap)}
-                className={`flex items-center gap-3 w-full p-3 rounded-xl border transition-all duration-200 text-left ${
-                  giftWrap
-                    ? 'border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/20 dark:border-emerald-700'
-                    : 'border-border hover:border-emerald-300'
-                }`
-                }
-              >
-                <motion.div
-                  className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
-                    giftWrap
-                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                      : 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600'
-                  }`
-                }
-                  animate={giftWrap ? { scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] } : {}}
-                  transition={{ duration: 0.4 }}
-                >
-                  <Gift className="h-5 w-5" />
-                </motion.div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">Add Gift Wrap</p>
-                    <span className="text-sm font-semibold text-emerald-600">+{formatPrice(GIFT_WRAP_COST)}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">Premium wrapping with a personal touch</p>
-                </div>
-                <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                  giftWrap
-                    ? 'bg-emerald-600 border-emerald-600'
-                    : 'border-muted-foreground/30'
-                }`}>
-                  {giftWrap && <Check className="h-3 w-3 text-white" />}
-                </div>
-              </button>
-
-              <AnimatePresence>
-                {giftWrap && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="pt-1 space-y-2">
-                      <Label className="text-xs flex items-center gap-1.5">
-                        <MessageSquare className="h-3 w-3 text-emerald-600" />
-                        Gift Message (optional)
-                      </Label>
-                      <textarea
-                        value={giftMessage}
-                        onChange={(e) => setGiftMessage(e.target.value)}
-                        placeholder="Write a personal message..."
-                        maxLength={200}
-                        rows={2}
-                        className="w-full rounded-lg border border-emerald-200 dark:border-emerald-800/40 bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                      />
-                      <p className="text-[11px] text-muted-foreground text-right">{giftMessage.length}/200</p>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <Separator />
-
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal ({items.length} items)</span>
@@ -1016,15 +782,6 @@ export function CheckoutPage() {
                   )}
                 </span>
               </div>
-              {giftWrap && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground flex items-center gap-1.5">
-                    <Gift className="h-3 w-3" />
-                    Gift Wrap
-                  </span>
-                  <span>{formatPrice(giftWrapCost)}</span>
-                </div>
-              )}
               {taxEnabled && taxAmount > 0 && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tax ({parseFloat(settings.tax_rate || '8')}%)</span>
@@ -1037,6 +794,30 @@ export function CheckoutPage() {
               <span>Total</span>
               <span className="text-emerald-600">{formatPrice(total)}</span>
             </div>
+
+            {/* Place order */}
+            <Button
+              className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 transition-all duration-200"
+              onClick={handlePlaceOrder}
+              disabled={placing}
+            >
+              {placing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Placing Order...
+                </>
+              ) : (
+                <>
+                  Place Order
+                  <Check className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+            {!shippingValid && (
+              <p className="text-xs text-muted-foreground text-center">
+                Fill in your shipping details to place the order.
+              </p>
+            )}
 
             {/* Trust badges */}
             <div className="flex items-center justify-center gap-4 pt-2 text-muted-foreground">

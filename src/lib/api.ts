@@ -286,9 +286,40 @@ export interface FAQCategory {
   faqs: { id: string; question: string; answer: string }[]
 }
 
+export interface AreaData {
+  id: number
+  name: string
+  cost: number
+}
+
+export interface CityData {
+  id: number
+  name: string
+  cost: number
+  areas: AreaData[]
+}
+
+export interface StateData {
+  id: number
+  name: string
+  cities: CityData[]
+}
+
+export interface CountryData {
+  id: number
+  code: string
+  name: string
+  states: StateData[]
+}
+
 export interface AboutSection {
-  id: string; type: string; title?: string | null; description?: string | null
-  items: unknown | null; sortOrder: number; isActive: boolean
+  id: string
+  type: string
+  title?: string | null
+  description?: string | null
+  items: unknown | null
+  sortOrder: number
+  isActive: boolean
 }
 
 export interface FlashSale {
@@ -322,8 +353,20 @@ export async function fetchPaymentMethods(): Promise<{ success: boolean; data: P
   return fetchApi('/payment-methods')
 }
 
+export interface ShippingMethodData {
+  id: string; name: string; cost: number; freeAbove: number | null; isActive: boolean; sortOrder: number
+}
+
+export async function fetchShippingMethods(): Promise<{ success: boolean; data: ShippingMethodData[] }> {
+  return fetchApi('/shipping-methods')
+}
+
 export async function fetchFAQ(): Promise<{ success: boolean; data: FAQCategory[] }> {
   return fetchApi('/faq')
+}
+
+export async function fetchCountries(): Promise<{ success: boolean; data: CountryData[] }> {
+  return fetchApi('/countries')
 }
 
 export async function fetchAboutSections(): Promise<{ success: boolean; data: AboutSection[] }> {
