@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useCartStore } from '@/stores/cart-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useNavStore } from '@/stores/nav-store'
-import { createOrder, formatPrice, getCurrencySymbol, validateCoupon, type CouponData } from '@/lib/api'
+import { createOrder, fetchSettings, formatPrice, getCurrencySymbol, validateCoupon, type CouponData } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -205,7 +205,14 @@ export function CheckoutPage() {
   // Gift wrap state
   const [giftWrap, setGiftWrap] = useState(false)
   const [giftMessage, setGiftMessage] = useState('')
+  const [settings, setSettings] = useState<Record<string, string>>({})
   const GIFT_WRAP_COST = 4.99
+
+  useEffect(() => {
+    fetchSettings().then((res) => {
+      if (res.success) setSettings(res.data)
+    })
+  }, [])
 
   const subtotal = getTotal()
   const shippingCost = useMemo(() => {
@@ -215,7 +222,9 @@ export function CheckoutPage() {
   }, [shippingMethod, subtotal])
   const couponDiscount = useMemo(() => appliedCoupon?.discountAmount || 0, [appliedCoupon])
   const giftWrapCost = giftWrap ? GIFT_WRAP_COST : 0
-  const taxAmount = (subtotal - couponDiscount) * 0.08
+  const taxEnabled = settings.tax_enabled === 'false' ? false : true
+  const taxRate = taxEnabled ? parseFloat(settings.tax_rate || '8') / 100 : 0
+  const taxAmount = (subtotal - couponDiscount) * taxRate
   const total = subtotal - couponDiscount + shippingCost + taxAmount + giftWrapCost
 
   const updateShipping = useCallback((field: keyof ShippingForm, value: string) => {
@@ -1016,10 +1025,12 @@ export function CheckoutPage() {
                   <span>{formatPrice(giftWrapCost)}</span>
                 </div>
               )}
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Tax (8%)</span>
-                <span>{formatPrice(taxAmount)}</span>
-              </div>
+              {taxEnabled && taxAmount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tax ({parseFloat(settings.tax_rate || '8')}%)</span>
+                  <span>{formatPrice(taxAmount)}</span>
+                </div>
+              )}
             </div>
             <Separator />
             <div className="flex justify-between font-semibold text-lg">

@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useCartStore } from '@/stores/cart-store'
 import { useWishlistStore } from '@/stores/wishlist-store'
 import { useAuthStore } from '@/stores/auth-store'
 import { useNavStore } from '@/stores/nav-store'
-import { validateCoupon, formatPrice, type CouponData } from '@/lib/api'
+import { validateCoupon, fetchSettings, formatPrice, type CouponData } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -48,12 +48,20 @@ export function CartPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<CouponData | null>(null)
   const [removingItems, setRemovingItems] = useState<Set<string>>(new Set())
   const [bouncingKey, setBouncingKey] = useState<string | null>(null)
+  const [settings, setSettings] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    fetchSettings().then((res) => {
+      if (res.success) setSettings(res.data)
+    })
+  }, [])
 
   const subtotal = getSubtotal()
   const cartDiscount = getDiscount()
   const couponDiscount = appliedCoupon?.discountAmount || 0
   const shippingCost = subtotal > FREE_SHIPPING_THRESHOLD ? 0 : 9.99
-  const taxRate = 0.08
+  const taxEnabled = settings.tax_enabled === 'false' ? false : true
+  const taxRate = taxEnabled ? parseFloat(settings.tax_rate || '8') / 100 : 0
   const taxAmount = (getTotal() - couponDiscount) * taxRate
   const total = getTotal() - couponDiscount + shippingCost + taxAmount
 
@@ -449,10 +457,12 @@ export function CartPage() {
                   )}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Tax (8%)</span>
-                <span>{formatPrice(taxAmount)}</span>
-              </div>
+              {taxEnabled && taxAmount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tax ({parseFloat(settings.tax_rate || '8')}%)</span>
+                  <span>{formatPrice(taxAmount)}</span>
+                </div>
+              )}
             </div>
 
             <Separator />

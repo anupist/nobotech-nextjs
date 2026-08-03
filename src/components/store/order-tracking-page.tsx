@@ -491,10 +491,12 @@ export function OrderTrackingPage() {
                     <span className="text-muted-foreground">Shipping</span>
                     <span>{order.shippingCost === 0 ? 'Free' : formatPrice(order.shippingCost)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Tax</span>
-                    <span>{formatPrice(order.taxAmount)}</span>
-                  </div>
+                  {order.taxAmount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Tax</span>
+                      <span>{formatPrice(order.taxAmount)}</span>
+                    </div>
+                  )}
                   <Separator />
                   <div className="flex justify-between font-semibold text-base">
                     <span>Total</span>

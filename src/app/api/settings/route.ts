@@ -46,6 +46,7 @@ export async function PUT(request: NextRequest) {
       social: ['social_facebook', 'social_instagram', 'social_youtube', 'social_twitter', 'social_linkedin'],
       payment: ['payment_cod', 'payment_stripe', 'stripe_public_key'],
       shipping: ['shipping_cost', 'free_shipping_above', 'shipping_free', 'shipping_standard_cost', 'shipping_express_cost'],
+      tax: ['tax_enabled', 'tax_rate'],
       smtp: ['smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from_email', 'smtp_from_name'],
       seo: ['seo_meta_title', 'seo_meta_description', 'seo_meta_keywords',
         'meta_products_title', 'meta_products_description',

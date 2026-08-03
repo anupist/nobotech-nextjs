@@ -1900,6 +1900,9 @@ async function seedSettings() {
     { key: 'shipping_express_cost', value: '19.99', group: 'shipping' },
     { key: 'shipping_delivery_days', value: '3-5', group: 'shipping' },
     { key: 'shipping_express_days', value: '1-2', group: 'shipping' },
+    // Tax
+    { key: 'tax_enabled', value: 'true', group: 'tax' },
+    { key: 'tax_rate', value: '8', group: 'tax' },
   ];
 
   for (const sd of settingsData) {

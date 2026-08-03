@@ -87,6 +87,7 @@ export function SettingsPage() {
           <TabsTrigger value="social">Social Media</TabsTrigger>
           <TabsTrigger value="payment">Payment</TabsTrigger>
           <TabsTrigger value="shipping">Shipping</TabsTrigger>
+          <TabsTrigger value="tax">Tax</TabsTrigger>
           <TabsTrigger value="email">Email</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
         </TabsList>
@@ -412,6 +413,41 @@ export function SettingsPage() {
               <Button onClick={() => saveGroup('shipping')} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
                 <Save className="h-4 w-4 mr-2" />
                 {saving ? 'Saving...' : 'Save Shipping Settings'}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tax */}
+        <TabsContent value="tax">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Tax Configuration</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <p className="font-medium">Enable Tax</p>
+                  <p className="text-sm text-muted-foreground">Apply tax to orders when enabled</p>
+                </div>
+                <Switch
+                  checked={settings.tax_enabled === 'true'}
+                  onCheckedChange={(v) => updateSetting('tax_enabled', v ? 'true' : 'false')}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Tax Rate (%)</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={settings.tax_rate || ''}
+                  onChange={(e) => updateSetting('tax_rate', e.target.value)}
+                  placeholder="8"
+                />
+              </div>
+              <Button onClick={() => saveGroup('tax')} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
+                <Save className="h-4 w-4 mr-2" />
+                {saving ? 'Saving...' : 'Save Tax Settings'}
               </Button>
             </CardContent>
           </Card>
