@@ -203,7 +203,7 @@ export function AdminHeader({ onMobileMenuToggle }: AdminHeaderProps) {
   }
   const roleLabel = roleLabels[user?.role || ''] || 'Staff'
   const roleBadgeColor = user?.role === 'super-admin'
-    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+    ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300'
     : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
 
   const unreadCount = notifications.filter((n) => !n.read).length

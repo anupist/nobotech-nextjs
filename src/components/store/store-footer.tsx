@@ -54,7 +54,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   AlertCircle, Download, Apple, Smartphone,
 }
 
-const NEWSLETTER_STORAGE_KEY = 'shophub-newsletter-subscribed'
+const NEWSLETTER_STORAGE_KEY = 'kinleymart-newsletter-subscribed'
 
 function getSubscribedEmails(): string[] {
   try {
@@ -179,7 +179,7 @@ export function StoreFooter() {
   ]
 
   return (
-    <footer className="mt-auto footer-gradient-border bg-gradient-to-b from-muted/30 to-muted/60">
+    <footer className="mt-auto footer-gradient-border bg-[#0D1B3D] dark:bg-[#0A1128]">
       {/* Features bar */}
       {features.length > 0 && (
         <div className="border-b">
@@ -198,8 +198,8 @@ export function StoreFooter() {
                       <FeatureIcon className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold">{feature.title}</p>
-                      <p className="text-xs text-muted-foreground">{feature.description}</p>
+                      <p className="text-sm font-semibold text-white">{feature.title}</p>
+                      <p className="text-xs text-white/70">{feature.description}</p>
                     </div>
                   </motion.div>
                 )
@@ -245,34 +245,34 @@ export function StoreFooter() {
                 />
               ) : (
                 <>
-                  <Package className="h-6 w-6 text-emerald-600" />
-                  <span className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
-                    {settings.site_name || 'ShopHub'}
+                  <Package className="h-6 w-6 text-[#FF6600]" />
+                  <span className="text-lg font-bold text-white">
+                    {settings.site_name || 'KinleyMart'}
                   </span>
                 </>
               )}
             </div>
             {settings.site_description && (
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-sm text-white/70 leading-relaxed">
                 {settings.site_description}
               </p>
             )}
             <div className="space-y-2.5">
               {settings.contact_address && (
-                <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4 text-emerald-500 shrink-0" />
+                <div className="flex items-center gap-2.5 text-sm text-white/70">
+                  <MapPin className="h-4 w-4 text-[#FF8A33] shrink-0" />
                   {settings.contact_address}
                 </div>
               )}
               {settings.contact_phone && (
-                <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                  <Phone className="h-4 w-4 text-emerald-500 shrink-0" />
+                <div className="flex items-center gap-2.5 text-sm text-white/70">
+                  <Phone className="h-4 w-4 text-[#FF8A33] shrink-0" />
                   {settings.contact_phone}
                 </div>
               )}
               {settings.contact_email && (
-                <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                  <Mail className="h-4 w-4 text-emerald-500 shrink-0" />
+                <div className="flex items-center gap-2.5 text-sm text-white/70">
+                  <Mail className="h-4 w-4 text-[#FF8A33] shrink-0" />
                   {settings.contact_email}
                 </div>
               )}
@@ -289,7 +289,7 @@ export function StoreFooter() {
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`social-icon-hover h-9 w-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground ${hoverClass} hover:text-white`}
+                    className={`social-icon-hover h-9 w-9 rounded-full bg-white/10 flex items-center justify-center text-white/80 ${hoverClass} hover:text-white`}
                     aria-label={key.replace('social_', '')}
                   >
                     <Icon className="h-4 w-4" />
@@ -302,8 +302,8 @@ export function StoreFooter() {
           {/* Dynamic Footer Widgets */}
           {widgets.map((widget) => (
             <div key={widget.id} className="space-y-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2">
-                <Link className="h-4 w-4 text-emerald-500" />
+              <h3 className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2 text-white">
+                <Link className="h-4 w-4 text-[#FF8A33]" />
                 {widget.title}
               </h3>
               <ul className="space-y-2">
@@ -311,9 +311,9 @@ export function StoreFooter() {
                   <li key={link.id}>
                     <a
                       href={link.url}
-                      className="underline-slide flex items-center gap-2 text-sm text-muted-foreground hover:text-emerald-600 transition-colors group"
+                      className="underline-slide flex items-center gap-2 text-sm text-white/70 hover:text-[#FF8A33] transition-colors group"
                     >
-                      <Link className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity text-emerald-500" />
+                      <Link className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity text-[#FF8A33]" />
                       {link.label}
                     </a>
                   </li>
@@ -343,12 +343,12 @@ export function StoreFooter() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-emerald-600">Thanks for subscribing!</p>
-                      <p className="text-xs text-muted-foreground mt-1">You&apos;ll receive our latest deals and updates.</p>
+                      <p className="text-xs text-white/70 mt-1">You&apos;ll receive our latest deals and updates.</p>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-xs text-muted-foreground hover:text-foreground"
+                      className="text-xs text-white/70 hover:text-white"
                       onClick={() => setSubscribed(false)}
                     >
                       Subscribe another email
@@ -361,7 +361,7 @@ export function StoreFooter() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                   >
-                    <p className="text-sm text-muted-foreground mb-3">
+                    <p className="text-sm text-white/70 mb-3">
                       Subscribe to get special offers, free giveaways, and exclusive deals.
                     </p>
                     <form onSubmit={handleSubscribe} className="space-y-2">
@@ -430,7 +430,7 @@ export function StoreFooter() {
                   <Download className="h-4 w-4 text-emerald-500" />
                   Download Our App
                 </h3>
-                <p className="text-xs text-muted-foreground">Shop faster and get exclusive app-only deals</p>
+                <p className="text-xs text-white/70">Shop faster and get exclusive app-only deals</p>
                 <div className="flex items-center gap-2">
                   {settings.download_app_ios_url && (
                     <a href={settings.download_app_ios_url} target="_blank" rel="noopener noreferrer" className="app-badge">
@@ -463,16 +463,16 @@ export function StoreFooter() {
       {/* Bottom bar with payment methods and back to top */}
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} {settings.site_name || 'ShopHub'}. All rights reserved.
+          <p className="text-xs text-white/70">
+            &copy; {new Date().getFullYear()} {settings.site_name || 'KinleyMart'}. All rights reserved.
           </p>
 
           {/* Payment Method Icons Row */}
           {paymentMethods.length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground mr-1 hidden sm:inline">We accept:</span>
+              <span className="text-xs text-white/70 mr-1 hidden sm:inline">We accept:</span>
               {paymentMethods.map((method) => (
-                <div key={method.id} className="h-7 px-2 rounded bg-gradient-to-b from-muted-foreground/40 to-muted-foreground/30 flex items-center justify-center shadow-sm">
+                <div key={method.id} className="h-7 px-2 rounded bg-white/10 flex items-center justify-center shadow-sm">
                   <Image
                     src={method.image}
                     alt={method.name}
@@ -488,14 +488,14 @@ export function StoreFooter() {
           {/* Animated Back to top link */}
           <motion.button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-emerald-600 transition-all duration-300 group"
+            className="flex items-center gap-1.5 text-xs text-white/70 hover:text-[#FF8A33] transition-all duration-300 group"
             aria-label="Back to top"
             whileHover={{ y: -2 }}
             transition={{ duration: 0.2 }}
           >
             <span className="hidden sm:inline">Back to top</span>
             <motion.div
-              className="h-7 w-7 rounded-full bg-muted flex items-center justify-center group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-all duration-300"
+              className="h-7 w-7 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-[#FF8A33] group-hover:text-white transition-all duration-300"
               whileHover={{ scale: 1.1 }}
             >
               <ArrowUp className="h-3.5 w-3.5" />

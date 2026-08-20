@@ -12,7 +12,7 @@ import { Search, X, TrendingUp, Clock, ArrowRight, Sparkles } from 'lucide-react
 import { motion, AnimatePresence } from 'framer-motion'
 import { BreadcrumbNav } from '@/components/shared/breadcrumb-nav'
 
-const SEARCH_HISTORY_KEY = 'shophub-search-history'
+const SEARCH_HISTORY_KEY = 'kinleymart-search-history'
 const MAX_HISTORY = 5
 
 function getSearchHistory(): string[] {

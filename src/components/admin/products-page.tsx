@@ -90,7 +90,7 @@ interface Category {
 
 const statusColors: Record<string, string> = {
   draft: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-300',
-  active: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+  active: 'bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-300',
   inactive: 'bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300',
 }
 
@@ -298,7 +298,7 @@ export function ProductsPage() {
     const url = URL.createObjectURL(blob)
 
     const today = new Date().toISOString().split('T')[0]
-    const filename = `shophub-products-${today}.csv`
+    const filename = `kinleymart-products-${today}.csv`
 
     const link = document.createElement('a')
     link.href = url
@@ -793,7 +793,7 @@ export function ProductsPage() {
                           ) : product.inventory && product.inventory.quantity <= product.inventory.lowStockAlert ? (
                             <Badge className="bg-yellow-500 text-white border-0 text-[10px]">Low Stock</Badge>
                           ) : (
-                            <Badge className="bg-emerald-500 text-white border-0 text-[10px]">In Stock</Badge>
+                            <Badge className="bg-green-500 text-white border-0 text-[10px]">In Stock</Badge>
                           )}
                         </div>
                         {/* Status Badge */}

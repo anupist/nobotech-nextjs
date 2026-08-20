@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { X, Flame } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const PROMO_DISMISSED_KEY = 'shophub-promo-dismissed'
-const PROMO_END_KEY = 'shophub-promo-end'
+const PROMO_DISMISSED_KEY = 'kinleymart-promo-dismissed'
+const PROMO_END_KEY = 'kinleymart-promo-end'
 
 function getPromoEndTime(): number {
   if (typeof window === 'undefined') return 0

@@ -1,11 +1,11 @@
 {
-  "name": "ShopHub",
-  "short_name": "ShopHub",
-  "description": "Your Premium E-Commerce Destination",
+  "name": "KinleyMart - Quality Products, Best Value, Fast Delivery",
+  "short_name": "KinleyMart",
+  "description": "Quality Products • Best Value • Fast Delivery",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#059669",
+  "theme_color": "#0D1B3D",
   "icons": [
     {
       "src": "/icon-192.svg",

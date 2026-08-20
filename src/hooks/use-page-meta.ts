@@ -99,7 +99,7 @@ export async function fetchSettingsOnce(): Promise<Record<string, string>> {
       if (data.success) {
         cachedSettings = data.data
         initCurrency(data.data)
-        setSiteName(data.data.site_name || 'ShopHub')
+        setSiteName(data.data.site_name || 'KinleyMart')
       }
     } catch {
       // ignore
@@ -149,7 +149,7 @@ export function usePageMeta() {
 
   const updateMeta = useCallback(() => {
     const s = settingsRef.current
-    const siteName = s.site_name || 'ShopHub'
+    const siteName = s.site_name || 'KinleyMart'
     const slogan = s.site_slogan || s.site_tagline || ''
 
     if (viewMode === 'admin') {

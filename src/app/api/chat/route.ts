@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import ZAI from 'z-ai-web-dev-sdk';
 
 const SYSTEM_PROMPT =
-  'You are ShopBot, a friendly AI assistant for ShopHub e-commerce store. Help customers with product questions, recommendations, order status, and general inquiries. Be concise and helpful. If asked about specific products, suggest browsing the store catalog.';
+  'You are ShopBot, a friendly AI assistant for KinleyMart e-commerce store. Help customers with product questions, recommendations, order status, and general inquiries. Be concise and helpful. If asked about specific products, suggest browsing the store catalog.';
 
 interface Message {
   role: 'assistant' | 'user';

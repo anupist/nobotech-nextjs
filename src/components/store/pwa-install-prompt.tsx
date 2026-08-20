@@ -10,7 +10,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
-const DISMISSAL_KEY = 'shophub-pwa-dismissed'
+const DISMISSAL_KEY = 'kinleymart-pwa-dismissed'
 const DISMISSAL_DURATION = 7 * 24 * 60 * 60 * 1000 // 7 days
 
 function getIsInstalled(): boolean {
@@ -105,13 +105,13 @@ export function PWAInstallPrompt() {
                   <Smartphone className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm">Install ShopHub</h3>
+                  <h3 className="font-semibold text-sm">Install KinleyMart</h3>
                   <p className="text-[11px] text-white/80">Quick access from your home screen</p>
                 </div>
               </div>
 
               <p className="text-xs text-white/90 mb-3 leading-relaxed">
-                Add ShopHub to your home screen for a faster, app-like shopping experience with offline browsing.
+                Add KinleyMart to your home screen for a faster, app-like shopping experience with offline browsing.
               </p>
 
               <div className="flex gap-2">

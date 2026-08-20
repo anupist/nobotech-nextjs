@@ -396,7 +396,7 @@ export function FlashSalesPage() {
                       ) : isUpcoming(sale.startsAt) ? (
                         <Badge variant="secondary" className="bg-blue-100 text-blue-700">Upcoming</Badge>
                       ) : sale.isActive ? (
-                        <Badge variant="secondary" className="bg-emerald-100 text-emerald-800">Active</Badge>
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">Active</Badge>
                       ) : (
                         <Badge variant="secondary" className="bg-gray-100 text-gray-600">Inactive</Badge>
                       )}

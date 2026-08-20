@@ -187,7 +187,7 @@ export function FeaturesPage() {
                       <p className="text-xs text-muted-foreground">Sort: {feature.sortOrder}</p>
                     </div>
                   </div>
-                  <Badge variant="secondary" className={`${feature.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'} text-xs`}>
+                  <Badge variant="secondary" className={`${feature.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'} text-xs`}>
                     {feature.isActive ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>

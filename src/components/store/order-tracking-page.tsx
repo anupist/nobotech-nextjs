@@ -354,7 +354,7 @@ export function OrderTrackingPage() {
                             {idx < statusSteps.length - 1 && (
                               <div
                                 className={`absolute left-[19px] top-10 w-0.5 h-[calc(100%-16px)] ${
-                                  isCompleted ? 'bg-emerald-300' : 'bg-muted'
+                                  isCompleted ? 'bg-green-300' : 'bg-muted'
                                 }`}
                               />
                             )}

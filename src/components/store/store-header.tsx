@@ -69,7 +69,7 @@ function getCategoryIcon(slug: string): LucideIcon {
   return Package
 }
 
-const SEARCH_HISTORY_KEY = 'shophub-search-history'
+const SEARCH_HISTORY_KEY = 'kinleymart-search-history'
 const MAX_HISTORY = 5
 
 function getSearchHistory(): string[] {
@@ -109,7 +109,7 @@ export function StoreHeader() {
   const [searchHistory, setSearchHistory] = useState<string[]>([])
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [logo, setLogo] = useState('')
-  const [siteName, setSiteName] = useState('ShopHub')
+  const [siteName, setSiteName] = useState('KinleyMart')
   const [navItems, setNavItems] = useState<NavigationItem[]>([])
   const searchRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -297,13 +297,13 @@ export function StoreHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full header-border-gradient ${scrolled ? 'scrolled' : ''} bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 transition-all duration-300 ${
-        scrolled ? 'shadow-lg shadow-black/5 backdrop-blur-lg' : ''
+      className={`sticky top-0 z-50 w-full header-border-gradient ${scrolled ? 'scrolled' : ''} bg-white dark:bg-[#0A1128] transition-all duration-300 ${
+        scrolled ? 'shadow-lg shadow-black/5' : ''
       }`}
     >
-      {/* Enhanced Announcement Bar */}
+      {/* Announcement Bar */}
       {announcements.length > 0 && (
-        <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 text-white text-xs py-1.5">
+        <div className="relative overflow-hidden bg-[#0D1B3D] text-white text-xs py-1.5">
           <div
             className="flex whitespace-nowrap"
             onMouseEnter={() => setAnnouncementPaused(true)}
@@ -321,12 +321,12 @@ export function StoreHeader() {
                       {idx > 0 && <span className="mx-2 opacity-40">|</span>}
                       {a.url ? (
                         <a href={a.url} className="flex items-center gap-2 hover:underline">
-                          <Sparkles className="h-3 w-3 shrink-0" />
+                          <Sparkles className="h-3 w-3 shrink-0 text-[#FF8A33]" />
                           <span>{a.content || a.title}</span>
                         </a>
                       ) : (
                         <span className="flex items-center gap-2">
-                          <Sparkles className="h-3 w-3 shrink-0" />
+                          <Sparkles className="h-3 w-3 shrink-0 text-[#FF8A33]" />
                           <span>{a.content || a.title}</span>
                         </span>
                       )}
@@ -352,14 +352,14 @@ export function StoreHeader() {
             <SheetContent side="left" className="w-80 p-0">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <div className="flex flex-col h-full">
-                <div className="p-4 border-b bg-gradient-to-r from-emerald-50 to-teal-50">
+<div className="p-4 border-b bg-gradient-to-r from-[#FF8A33]/10 to-[#0D1B3D]/5">
                   <button
                     onClick={() => { navigateStore('home'); setMobileMenuOpen(false) }}
                     className="flex items-center gap-2"
                   >
-                    <Package className="h-7 w-7 text-emerald-600" />
-                    <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
-                      ShopHub
+                    <Package className="h-7 w-7 text-[#FF6600]" />
+                    <span className="text-xl font-bold text-[#0D1B3D]">
+                      {siteName}
                     </span>
                   </button>
                 </div>
@@ -419,8 +419,8 @@ export function StoreHeader() {
               <Image src={logo} alt={siteName} width={28} height={28} className="object-contain" />
             ) : (
               <>
-                <Package className="h-7 w-7 text-emerald-600 group-hover:scale-110 transition-transform duration-200" />
-                <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
+                <Package className="h-7 w-7 text-[#FF6600] group-hover:scale-110 transition-transform duration-200" />
+                <span className="text-xl font-bold tracking-tight text-[#0D1B3D]">
                   {siteName}
                 </span>
               </>
@@ -437,7 +437,7 @@ export function StoreHeader() {
                     const page = (item.url.startsWith('/') ? item.url.slice(1) : item.url) || 'home'
                     navigateStore(page as any)
                   }}
-                  className="px-3 py-2 text-sm font-medium rounded-md hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
+                  className="px-3 py-2 text-sm font-medium rounded-md text-[#0D1B3D] dark:text-white hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
                 >
                   {item.label}
                 </button>
@@ -452,7 +452,7 @@ export function StoreHeader() {
               onMouseLeave={handleMegaMenuLeave}
             >
               <button
-                className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md text-[#0D1B3D] dark:text-white transition-colors ${
                   megaMenuOpen ? 'bg-emerald-50 text-emerald-600' : 'hover:bg-emerald-50 hover:text-emerald-600'
                 }`}
               >

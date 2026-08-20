@@ -1,4 +1,4 @@
-let _cachedSiteName = 'ShopHub'
+let _cachedSiteName = 'KinleyMart'
 
 export function setSiteName(name: string) {
   _cachedSiteName = name

@@ -112,7 +112,7 @@ const statusColors: Record<string, string> = {
   processing: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
   packed: 'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-400',
   shipped: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  delivered: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
+  delivered: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   cancelled: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
   returned: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
   refunded: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400',
@@ -124,7 +124,7 @@ const statusDotColors: Record<string, string> = {
   processing: 'bg-amber-500',
   packed: 'bg-violet-500',
   shipped: 'bg-purple-500',
-  delivered: 'bg-emerald-500',
+  delivered: 'bg-green-500',
   cancelled: 'bg-red-500',
   returned: 'bg-orange-500',
   refunded: 'bg-pink-500',
@@ -261,10 +261,10 @@ export function OrderDetailPage() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Package className="h-8 w-8 text-emerald-600" />
-                <span className="text-2xl font-bold text-emerald-700">ShopHub</span>
+                <span className="text-2xl font-bold text-emerald-700">KinleyMart</span>
               </div>
               <p className="text-xs text-gray-500">123 Commerce Street, Business City, BC 12345</p>
-              <p className="text-xs text-gray-500">support@shophub.com | +1 (555) 123-4567</p>
+              <p className="text-xs text-gray-500">support@kinleymart.com | +1 (555) 123-4567</p>
             </div>
             <div className="text-right">
               <h1 className="text-3xl font-bold text-gray-800">INVOICE</h1>
@@ -369,7 +369,7 @@ export function OrderDetailPage() {
           {/* Thank you */}
           <div className="text-center border-t pt-6">
             <p className="text-lg font-semibold text-emerald-700">Thank you for your business!</p>
-            <p className="text-xs text-gray-500 mt-1">If you have questions about this invoice, please contact support@shophub.com</p>
+            <p className="text-xs text-gray-500 mt-1">If you have questions about this invoice, please contact support@kinleymart.com</p>
           </div>
         </div>
       </div>
@@ -450,7 +450,7 @@ export function OrderDetailPage() {
                         </div>
                         <span
                           className={`text-[10px] mt-1.5 font-medium capitalize whitespace-nowrap ${
-                            isCurrent ? 'text-emerald-600' : isCompleted ? 'text-emerald-500' : 'text-gray-400'
+                            isCurrent ? 'text-green-600' : isCompleted ? 'text-green-500' : 'text-gray-400'
                           }`}
                         >
                           {status}

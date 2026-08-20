@@ -34,7 +34,7 @@ export const useCompareStore = create<CompareState>()(
       },
     }),
     {
-      name: 'shophub-compare',
+      name: 'kinleymart-compare',
     }
   )
 )

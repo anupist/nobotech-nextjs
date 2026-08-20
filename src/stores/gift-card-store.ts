@@ -123,7 +123,7 @@ export const useGiftCardStore = create<GiftCardState>()(
       },
     }),
     {
-      name: 'shophub-gift-card',
+      name: 'kinleymart-gift-card',
     }
   )
 )

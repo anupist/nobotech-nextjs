@@ -257,7 +257,7 @@ export function CouponsPage() {
                       </TableCell>
                       <TableCell>
                         <button onClick={() => toggleActive(coupon)}>
-                          <Badge variant="secondary" className={`cursor-pointer ${coupon.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'}`}>
+                          <Badge variant="secondary" className={`cursor-pointer ${coupon.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
                             {coupon.isActive ? 'Active' : 'Inactive'}
                           </Badge>
                         </button>

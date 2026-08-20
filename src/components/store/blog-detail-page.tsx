@@ -240,7 +240,7 @@ export function BlogDetailPage() {
                     </span>
                   </div>
                   <span className="font-medium text-foreground">
-                    {post.authorId ? `Author` : 'ShopHub Team'}
+                    {post.authorId ? `Author` : 'KinleyMart Team'}
                   </span>
                 </div>
                 <span className="flex items-center gap-1">
@@ -300,7 +300,7 @@ export function BlogDetailPage() {
                   </span>
                 </div>
                 <div>
-                  <p className="font-semibold">{post.authorId ? 'Author' : 'ShopHub Team'}</p>
+                  <p className="font-semibold">{post.authorId ? 'Author' : 'KinleyMart Team'}</p>
                   <p className="text-xs text-muted-foreground">Content Writer</p>
                 </div>
               </div>

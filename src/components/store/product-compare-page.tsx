@@ -329,7 +329,7 @@ export function ProductComparePage() {
                           {row.key === 'rating' && <Star className="h-4 w-4 text-emerald-500" />}
                           {row.key === 'category' && <BarChart3 className="h-4 w-4 text-emerald-500" />}
                           {row.key === 'brand' && <Tag className="h-4 w-4 text-emerald-500" />}
-                          {row.key === 'stock' && <Truck className="h-4 w-4 text-emerald-500" />}
+                          {row.key === 'stock' && <Truck className="h-4 w-4 text-green-500" />}
                           {row.label}
                         </div>
                       </td>

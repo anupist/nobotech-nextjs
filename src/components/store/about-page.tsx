@@ -147,7 +147,7 @@ const defaultSections: AboutSection[] = [
     id: 'default-team',
     type: 'team',
     title: 'Meet Our Team',
-    description: 'The people behind ShopHub',
+    description: 'The people behind KinleyMart',
     items: [
       { name: 'Sarah Kim', role: 'CEO & Co-Founder', bio: 'Former Amazon PM with 10+ years in e-commerce. Passionate about building customer-first platforms.' },
       { name: 'Marcus Rivera', role: 'CTO', bio: 'Full-stack engineer and AI enthusiast. Previously led engineering at two Y Combinator startups.' },
@@ -162,7 +162,7 @@ const defaultSections: AboutSection[] = [
     title: 'Our Journey',
     description: 'Key milestones along the way',
     items: [
-      { year: '2020', title: 'Founded', description: 'ShopHub was born from a simple idea: make online shopping delightful, not frustrating.', icon: 'Rocket' },
+      { year: '2020', title: 'Founded', description: 'KinleyMart was born from a simple idea: make online shopping delightful, not frustrating.', icon: 'Rocket' },
       { year: '2021', title: '10K Customers', description: 'Hit our first major milestone — 10,000 happy customers and growing fast.', icon: 'Users' },
       { year: '2022', title: 'Expanded Globally', description: 'Launched international shipping to 50+ countries across 6 continents.', icon: 'Globe2' },
       { year: '2023', title: 'AI Integration', description: 'Introduced AI-powered recommendations and our smart ShopBot assistant.', icon: 'Sparkles' },
@@ -174,7 +174,7 @@ const defaultSections: AboutSection[] = [
     id: 'default-cta',
     type: 'cta',
     title: 'Join Our Journey',
-    description: 'Subscribe to our newsletter and be part of the ShopHub community. Get exclusive deals and behind-the-scenes updates.',
+    description: 'Subscribe to our newsletter and be part of the KinleyMart community. Get exclusive deals and behind-the-scenes updates.',
     items: null, sortOrder: 5, isActive: true,
   },
 ]
@@ -310,7 +310,7 @@ function TeamSection({ section }: { section: AboutSection }) {
     <motion.section variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
       <motion.div variants={itemVariants} className="text-center mb-8">
         <h2 className="text-2xl sm:text-3xl font-bold mb-2">{section.title || 'Meet Our Team'}</h2>
-        <p className="text-muted-foreground">{section.description || 'The people behind ShopHub'}</p>
+        <p className="text-muted-foreground">{section.description || 'The people behind KinleyMart'}</p>
       </motion.div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {items.map((m, i) => (
@@ -419,7 +419,7 @@ function CtaSection({ section }: { section: AboutSection }) {
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">{section.title || 'Join Our Journey'}</h2>
             <p className="text-emerald-100/80 mb-6 max-w-md mx-auto">
-              {section.description || 'Subscribe to our newsletter and be part of the ShopHub community. Get exclusive deals and behind-the-scenes updates.'}
+              {section.description || 'Subscribe to our newsletter and be part of the KinleyMart community. Get exclusive deals and behind-the-scenes updates.'}
             </p>
             <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <Input

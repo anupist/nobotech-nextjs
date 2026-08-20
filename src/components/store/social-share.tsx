@@ -67,7 +67,7 @@ export function SocialShare({ productName, productUrl }: SocialShareProps) {
   const [copied, setCopied] = useState(false)
 
   const shareUrl = productUrl || (typeof window !== 'undefined' ? window.location.href : '')
-  const shareText = `Check out ${productName} on ShopHub!`
+  const shareText = `Check out ${productName} on KinleyMart!`
 
   const handleShare = useCallback((option: typeof shareOptions[number]) => {
     const url = option.getUrl(shareUrl, shareText)

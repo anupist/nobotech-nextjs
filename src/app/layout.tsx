@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -14,24 +15,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ShopHub - Your Premium E-Commerce Destination",
-  description: "Discover amazing products at great prices. Shop the latest trends with fast shipping and easy returns at ShopHub.",
-  keywords: ["ShopHub", "e-commerce", "online shopping", "fashion", "electronics", "home", "Next.js"],
-  authors: [{ name: "ShopHub Team" }],
+  title: "KinleyMart - Quality Products, Best Value, Fast Delivery",
+  description: "Discover quality products at the best value with fast delivery. Shop the latest trends at KinleyMart.",
+  keywords: ["KinleyMart", "e-commerce", "online shopping", "fashion", "electronics", "home", "Next.js"],
+  authors: [{ name: "KinleyMart Team" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/icon-192.svg",
   },
   openGraph: {
-    title: "ShopHub - Premium E-Commerce",
-    description: "Discover amazing products at great prices",
-    url: "https://chat.z.ai",
-    siteName: "ShopHub",
+    title: "KinleyMart - Quality Products, Best Value, Fast Delivery",
+    description: "Discover quality products at the best value with fast delivery.",
+    url: "https://kinleymart.com",
+    siteName: "KinleyMart",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ShopHub - Premium E-Commerce",
-    description: "Discover amazing products at great prices",
+    title: "KinleyMart - Quality Products, Best Value, Fast Delivery",
+    description: "Discover quality products at the best value with fast delivery.",
   },
 };
 
@@ -44,13 +45,13 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#059669" />
+        <meta name="theme-color" content="#0D1B3D" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link rel="apple-touch-icon" href="/icon-192.svg" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${poppins.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
         <Script
           id="theme-init"

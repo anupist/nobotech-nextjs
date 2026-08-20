@@ -53,17 +53,17 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A1128] via-[#0D1B3D] to-[#0A1128]">
       <div className="w-full max-w-md px-4">
         <div className="text-center mb-8">
-          <div className="mx-auto h-14 w-14 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/20">
-            <span className="text-white text-xl font-bold">A</span>
+          <div className="mx-auto h-14 w-14 rounded-xl bg-gradient-to-br from-[#FF6600] to-[#FF8A33] flex items-center justify-center mb-4 shadow-lg shadow-[#FF6600]/30">
+            <span className="text-white text-xl font-bold">K</span>
           </div>
           <h1 className="text-2xl font-bold text-white">Admin Login</h1>
           <p className="text-slate-400 text-sm mt-1">Sign in to access the admin panel</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 space-y-4 backdrop-blur-sm">
+        <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-4 backdrop-blur-sm">
           {error && (
             <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3">
               {error}
@@ -79,7 +79,7 @@ export default function AdminLoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/15 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#FF8A33] focus:border-transparent text-sm"
               placeholder="admin@shop.com"
               required
               autoFocus
@@ -95,7 +95,7 @@ export default function AdminLoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2.5 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm"
+              className="w-full px-3 py-2.5 bg-white/5 border border-white/15 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#FF8A33] focus:border-transparent text-sm"
               placeholder="Enter your password"
               required
             />
@@ -104,7 +104,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg font-medium text-sm hover:from-emerald-600 hover:to-teal-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="w-full py-2.5 bg-[#FF6600] hover:bg-[#E65C00] text-white rounded-lg font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#FF8A33] focus:ring-offset-2 focus:ring-offset-[#0D1B3D] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>

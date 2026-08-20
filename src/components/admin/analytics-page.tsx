@@ -53,8 +53,8 @@ const revenueData = [
 
 // Demo data for Customer Analytics
 const customerTypeData = [
-  { name: 'New Customers', value: 1240, fill: '#10b981' },
-  { name: 'Returning', value: 890, fill: '#14b8a6' },
+  { name: 'New Customers', value: 1240, fill: '#FF6600' },
+  { name: 'Returning', value: 890, fill: '#FF8A33' },
 ]
 
 const clvDistribution = [
@@ -115,11 +115,11 @@ const pageViewsData = [
 ]
 
 const trafficSources = [
-  { source: 'Organic Search', visits: 12450, pct: 38, fill: '#10b981' },
-  { source: 'Direct', visits: 8920, pct: 27, fill: '#14b8a6' },
-  { source: 'Social Media', visits: 6340, pct: 19, fill: '#0d9488' },
-  { source: 'Email', visits: 3210, pct: 10, fill: '#0f766e' },
-  { source: 'Referral', visits: 1780, pct: 6, fill: '#115e59' },
+  { source: 'Organic Search', visits: 12450, pct: 38, fill: '#FF6600' },
+  { source: 'Direct', visits: 8920, pct: 27, fill: '#FF8A33' },
+  { source: 'Social Media', visits: 6340, pct: 19, fill: '#0D1B3D' },
+  { source: 'Email', visits: 3210, pct: 10, fill: '#3B5585' },
+  { source: 'Referral', visits: 1780, pct: 6, fill: '#0A1128' },
 ]
 
 const bounceRateData = [
@@ -140,7 +140,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
 }
 
-const CHART_COLORS = ['#10b981', '#14b8a6', '#0d9488', '#0f766e', '#115e59']
+const CHART_COLORS = ['#FF6600', '#FF8A33', '#0D1B3D', '#3B5585', '#0A1128']
 
 export function AnalyticsPage() {
   const [revenuePeriod, setRevenuePeriod] = useState<'7d' | '30d' | '90d' | '1y'>('30d')
@@ -275,8 +275,8 @@ export function AnalyticsPage() {
                 <AreaChart data={revenueData}>
                   <defs>
                     <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#FF6600" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#FF6600" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="prevRevGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.1} />
@@ -311,7 +311,7 @@ export function AnalyticsPage() {
                   <Area
                     type="monotone"
                     dataKey="revenue"
-                    stroke="#10b981"
+                    stroke="#FF6600"
                     fill="url(#revGrad)"
                     strokeWidth={2.5}
                     name="Current Period"
@@ -392,7 +392,7 @@ export function AnalyticsPage() {
                         }}
                         formatter={(value: number) => [value, 'Customers']}
                       />
-                      <Bar dataKey="count" fill="#14b8a6" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="count" fill="#FF8A33" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -417,7 +417,7 @@ export function AnalyticsPage() {
                           animate={{ width: `${item.pct}%` }}
                           transition={{ duration: 0.8, delay: index * 0.1, ease: 'easeOut' }}
                           className="h-full rounded-full"
-                          style={{ backgroundColor: CHART_COLORS[index] || '#10b981' }}
+                          style={{ backgroundColor: CHART_COLORS[index] || '#FF6600' }}
                         />
                       </div>
                     </div>
@@ -455,7 +455,7 @@ export function AnalyticsPage() {
                       }}
                       formatter={(value: number) => [formatPrice(value), 'Revenue']}
                     />
-                    <Bar dataKey="revenue" fill="#10b981" radius={[0, 4, 4, 0]}>
+                    <Bar dataKey="revenue" fill="#FF6600" radius={[0, 4, 4, 0]}>
                       {topProductsByRevenue.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                       ))}
@@ -496,7 +496,7 @@ export function AnalyticsPage() {
                         animate={{ width: `${(cat.revenue / categoryPerformance[0].revenue) * 100}%` }}
                         transition={{ duration: 0.8, delay: index * 0.1, ease: 'easeOut' }}
                         className="h-full rounded-full"
-                        style={{ backgroundColor: CHART_COLORS[index] || '#10b981' }}
+                        style={{ backgroundColor: CHART_COLORS[index] || '#FF6600' }}
                       />
                     </div>
                   </div>
@@ -570,18 +570,18 @@ export function AnalyticsPage() {
                     <Line
                       type="monotone"
                       dataKey="views"
-                      stroke="#10b981"
+                      stroke="#FF6600"
                       strokeWidth={2}
-                      dot={{ fill: '#10b981', r: 3 }}
+                      dot={{ fill: '#FF6600', r: 3 }}
                       name="Page Views"
                     />
                     <Line
                       type="monotone"
                       dataKey="visitors"
-                      stroke="#14b8a6"
+                      stroke="#FF8A33"
                       strokeWidth={1.5}
                       strokeDasharray="5 5"
-                      dot={{ fill: '#14b8a6', r: 3 }}
+                      dot={{ fill: '#FF8A33', r: 3 }}
                       name="Unique Visitors"
                     />
                   </LineChart>

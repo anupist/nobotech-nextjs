@@ -884,7 +884,7 @@ function ProductListItem({ product }: { product: Product }) {
               stock <= 5 ? (
                 <span className="text-[10px] text-amber-600 font-medium">Only {stock} left</span>
               ) : (
-                <span className="text-[10px] text-emerald-600 font-medium">In Stock</span>
+                <span className="text-[10px] text-green-600 font-medium">In Stock</span>
               )
             ) : (
               <span className="text-[10px] text-red-500 font-medium">Out of Stock</span>

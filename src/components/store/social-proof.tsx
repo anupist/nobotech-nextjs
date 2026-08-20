@@ -27,7 +27,7 @@ const DEMO_MESSAGES: SocialProofMessage[] = [
   { id: '10', name: '5 people', location: '', product: 'USB-C Hub', action: 'are viewing', timeAgo: 'right now', avatar: '5' },
 ]
 
-const STORAGE_KEY = 'shophub-social-proof-dismissed'
+const STORAGE_KEY = 'kinleymart-social-proof-dismissed'
 
 function isDismissed(): boolean {
   try {

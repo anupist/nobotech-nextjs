@@ -41,7 +41,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const effectivePrice = product.discountPrice || product.sellingPrice
   const stock = product.inventory?.quantity ?? 0
 
-  const stockColor = stock === 0 ? 'bg-red-500' : stock <= 5 ? 'bg-amber-400' : 'bg-emerald-500'
+  const stockColor = stock === 0 ? 'bg-red-500' : stock <= 5 ? 'bg-amber-400' : 'bg-green-500'
 
   const handleAddToCart = useCallback(
     (e: React.MouseEvent) => {
@@ -106,22 +106,21 @@ export function ProductCard({ product }: ProductCardProps) {
 
   // Determine product label badge with icon
   const productLabel = product.isNewArrival
-    ? { text: 'New', className: 'bg-emerald-600 text-white', Icon: Sparkles }
+    ? { text: 'New', className: 'bg-[#0D1B3D] text-white', Icon: Sparkles }
     : product.isBestSeller
-    ? { text: 'Best Seller', className: 'bg-amber-500 text-white', Icon: Award }
+    ? { text: 'Best Seller', className: 'bg-[#FF8A33] text-white', Icon: Award }
     : discount > 0
-    ? { text: 'Sale', className: 'bg-red-500 text-white', Icon: Zap }
+    ? { text: 'Sale', className: 'bg-[#FF6600] text-white', Icon: Zap }
     : null
 
   return (
     <>
       <div className="transition-transform duration-300 hover:-translate-y-1">
-        <div className="gradient-border rounded-xl">
-          <Card
-            className="group cursor-pointer border-0 shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden relative bg-card"
-            onClick={handleView}
-            style={{ touchAction: 'manipulation' }}
-          >
+        <Card
+          className="group cursor-pointer border-border bg-card rounded-xl shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden relative"
+          onClick={handleView}
+          style={{ touchAction: 'manipulation' }}
+        >
             <CardContent className="p-0">
                 {/* Image container */}
                 <div className="relative aspect-square overflow-hidden bg-muted/30">
@@ -137,7 +136,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
                   {/* Gradient overlay that rises from bottom on hover */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                    <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-emerald-900/40 via-emerald-800/20 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
+                    <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-[#0D1B3D]/40 via-[#0D1B3D]/20 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
                   </div>
 
                   {/* Static bottom gradient for text readability */}
@@ -190,7 +189,7 @@ export function ProductCard({ product }: ProductCardProps) {
                           className={heartAnimating ? 'heart-bounce' : ''}
                         >
                           <Heart
-                            className={`h-4 w-4 transition-colors ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+                            className={`h-4 w-4 transition-colors ${isWishlisted ? 'fill-[#FF6600] text-[#FF6600]' : 'text-gray-600'}`}
                           />
                         </motion.div>
                       </AnimatePresence>
@@ -244,7 +243,7 @@ export function ProductCard({ product }: ProductCardProps) {
                       {product.category.name}
                     </p>
                   )}
-                  <h3 className="text-sm font-medium leading-tight line-clamp-2 group-hover:text-emerald-600 transition-colors duration-200">
+                  <h3 className="text-sm font-semibold leading-tight line-clamp-2 text-[#0D1B3D] dark:text-white group-hover:text-[#FF6600] transition-colors duration-200">
                     {product.name}
                   </h3>
 
@@ -271,11 +270,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
                   {/* Price */}
                   <div className="flex items-center gap-2">
-                    <span className={`text-sm font-bold ${discount > 0 ? 'price-shimmer' : 'text-emerald-600'}`}>
+                    <span className="text-sm font-bold text-[#FF6600]">
                       {formatPrice(effectivePrice)}
                     </span>
                     {product.discountPrice && (
-                      <span className="text-xs text-muted-foreground line-through">
+                      <span className="text-xs text-[#999999] line-through">
                         {formatPrice(product.sellingPrice)}
                       </span>
                     )}
@@ -300,7 +299,6 @@ export function ProductCard({ product }: ProductCardProps) {
                 </div>
               </CardContent>
           </Card>
-        </div>
       </div>
 
       {/* Quick View Modal */}

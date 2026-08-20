@@ -15,7 +15,7 @@ interface ChatMessage {
 }
 
 const QUICK_ACTIONS = [
-  { label: 'Find products', message: 'Help me find products on ShopHub' },
+  { label: 'Find products', message: 'Help me find products on KinleyMart' },
   { label: 'Track order', message: 'How can I track my order?' },
   { label: 'Shipping info', message: 'What are your shipping options and delivery times?' },
   { label: 'Returns policy', message: 'What is your returns and refund policy?' },
@@ -218,7 +218,7 @@ export function ChatWidget() {
                   <h3 className="font-semibold text-sm leading-tight">ShopBot AI</h3>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse" />
-                    <span className="text-[11px] text-emerald-100">Online</span>
+                    <span className="text-[11px] text-green-300">Online</span>
                   </div>
                 </div>
               </div>

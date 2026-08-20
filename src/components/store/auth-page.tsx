@@ -161,7 +161,7 @@ export function AuthPage() {
                 </span>
               </button>
 
-              <h2 className="text-3xl font-bold mb-2">Welcome to ShopHub</h2>
+              <h2 className="text-3xl font-bold mb-2">Welcome to KinleyMart</h2>
               <p className="text-white/80 text-sm mb-8">
                 Your one-stop destination for everything you need. Join thousands of happy customers today.
               </p>
@@ -192,7 +192,7 @@ export function AuthPage() {
             <div className="relative z-10 mt-10">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/10">
                 <p className="text-sm text-white/90 italic mb-3">
-                  &ldquo;ShopHub has completely changed the way I shop online. Great products and amazing service!&rdquo;
+                  &ldquo;KinleyMart has completely changed the way I shop online. Great products and amazing service!&rdquo;
                 </p>
                 <div className="flex items-center gap-2">
                   <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">

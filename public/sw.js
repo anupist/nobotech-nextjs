@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'shophub-v1';
+const CACHE_VERSION = 'kinleymart-v1';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const DYNAMIC_CACHE = `${CACHE_VERSION}-dynamic`;
 const API_CACHE = `${CACHE_VERSION}-api`;
@@ -26,7 +26,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys
-          .filter((key) => key.startsWith('shophub-') && key !== STATIC_CACHE && key !== DYNAMIC_CACHE && key !== API_CACHE)
+          .filter((key) => key.startsWith('kinleymart-') && key !== STATIC_CACHE && key !== DYNAMIC_CACHE && key !== API_CACHE)
           .map((key) => caches.delete(key))
       );
     })

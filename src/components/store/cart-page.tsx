@@ -330,7 +330,7 @@ export function CartPage() {
                           </Button>
                           <motion.span
                             key={`${itemKey}-${item.quantity}`}
-                            initial={isBouncing ? { scale: 1.3, color: '#10b981' } : { scale: 1 }}
+                            initial={isBouncing ? { scale: 1.3, color: '#FF6600' } : { scale: 1 }}
                             animate={{ scale: 1, color: 'inherit' }}
                             transition={{ type: 'spring', stiffness: 400, damping: 15 }}
                             className="w-10 text-center text-sm font-semibold"

@@ -564,7 +564,7 @@ export function ProductDetailPage() {
     if (l.includes('weight')) return <Weight className="h-4 w-4 text-emerald-500" />
     if (l.includes('dimension') || l.includes('size') || l.includes('length') || l.includes('width') || l.includes('height')) return <Ruler className="h-4 w-4 text-emerald-500" />
     if (l.includes('material') || l.includes('color')) return <Tag className="h-4 w-4 text-emerald-500" />
-    if (l.includes('warranty') || l.includes('delivery') || l.includes('shipping')) return <Clock className="h-4 w-4 text-emerald-500" />
+    if (l.includes('warranty') || l.includes('delivery') || l.includes('shipping')) return <Clock className="h-4 w-4 text-green-500" />
     return <PackageIcon className="h-4 w-4 text-emerald-500" />
   }
 
@@ -1048,7 +1048,7 @@ export function ProductDetailPage() {
                 <div className="bg-emerald-50 dark:bg-emerald-950/20 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800">
                   <div className="flex items-center gap-2 mb-3">
                     <Bell className="h-4 w-4 text-emerald-600" />
-                    <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Get notified when back in stock</p>
+                    <p className="text-sm font-medium text-green-700 dark:text-green-300">Get notified when back in stock</p>
                   </div>
                   <div className="flex gap-2">
                     <Input
@@ -1068,7 +1068,7 @@ export function ProductDetailPage() {
                         }
                         // Store in localStorage
                         try {
-                          const key = 'shophub-stock-notifications'
+                          const key = 'kinleymart-stock-notifications'
                           const stored = localStorage.getItem(key)
                           const notifications = stored ? JSON.parse(stored) as Array<{ productId: string; email: string }> : []
                           notifications.push({ productId: product.id, email: notifyEmail.trim() })
@@ -1098,7 +1098,7 @@ export function ProductDetailPage() {
                 className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200 dark:border-emerald-800"
               >
                 <Check className="h-4 w-4 text-emerald-600" />
-                <span className="text-sm text-emerald-700 dark:text-emerald-300">You&apos;ll be notified when this item is back in stock!</span>
+                <span className="text-sm text-green-700 dark:text-green-300">You&apos;ll be notified when this item is back in stock!</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -1581,7 +1581,7 @@ export function ProductDetailPage() {
                         <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg p-3 flex-1">
                           <p className="text-sm text-foreground">{qa.answer}</p>
                           <p className="text-xs text-muted-foreground mt-1.5">
-                            Answered by {qa.askedBy === 'John D.' ? 'ShopHub Team' : qa.askedBy === 'Sarah M.' ? 'Customer Support' : 'ShopHub Support'}
+                            Answered by {qa.askedBy === 'John D.' ? 'KinleyMart Team' : qa.askedBy === 'Sarah M.' ? 'Customer Support' : 'KinleyMart Support'}
                           </p>
                         </div>
                       </div>

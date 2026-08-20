@@ -111,7 +111,7 @@ const statusColors: Record<string, { bg: string; dot: string; text: string }> = 
   confirmed: { bg: 'bg-sky-50 dark:bg-sky-950/40', dot: 'bg-sky-500', text: 'text-sky-700 dark:text-sky-300' },
   processing: { bg: 'bg-violet-50 dark:bg-violet-950/40', dot: 'bg-violet-500', text: 'text-violet-700 dark:text-violet-300' },
   shipped: { bg: 'bg-teal-50 dark:bg-teal-950/40', dot: 'bg-teal-500', text: 'text-teal-700 dark:text-teal-300' },
-  delivered: { bg: 'bg-emerald-50 dark:bg-emerald-950/40', dot: 'bg-emerald-500', text: 'text-emerald-700 dark:text-emerald-300' },
+  delivered: { bg: 'bg-green-50 dark:bg-green-950/40', dot: 'bg-green-500', text: 'text-green-700 dark:text-green-300' },
   cancelled: { bg: 'bg-red-50 dark:bg-red-950/40', dot: 'bg-red-500', text: 'text-red-700 dark:text-red-300' },
 }
 
@@ -240,8 +240,8 @@ const orderStatusData = [
   { status: 'Pending', count: 0, fill: '#f59e0b' },
   { status: 'Confirmed', count: 0, fill: '#0ea5e9' },
   { status: 'Processing', count: 0, fill: '#8b5cf6' },
-  { status: 'Shipped', count: 0, fill: '#14b8a6' },
-  { status: 'Delivered', count: 0, fill: '#10b981' },
+  { status: 'Shipped', count: 0, fill: '#FF8A33' },
+  { status: 'Delivered', count: 0, fill: '#FF6600' },
   { status: 'Cancelled', count: 0, fill: '#ef4444' },
 ]
 
@@ -254,13 +254,13 @@ const funnelData = [
 ]
 
 // Top Products by Revenue data
-const topProductRevenueColors = ['#10b981', '#14b8a6', '#0d9488', '#0f766e', '#115e59']
+const topProductRevenueColors = ['#FF6600', '#FF8A33', '#0D1B3D', '#3B5585', '#0A1128']
 
 // Performance metrics
 const performanceMetrics = [
-  { label: 'Avg Order Value', value: 89.50, target: 100, color: '#10b981', icon: DollarSign },
-  { label: 'Conversion Rate', value: 3.2, suffix: '%', target: 5, color: '#14b8a6', icon: Target },
-  { label: 'Customer Retention', value: 68, suffix: '%', target: 100, color: '#0d9488', icon: Repeat },
+  { label: 'Avg Order Value', value: 89.50, target: 100, color: '#FF6600', icon: DollarSign },
+  { label: 'Conversion Rate', value: 3.2, suffix: '%', target: 5, color: '#FF8A33', icon: Target },
+  { label: 'Customer Retention', value: 68, suffix: '%', target: 100, color: '#0D1B3D', icon: Repeat },
   { label: 'Cart Abandonment', value: 24, suffix: '%', target: 100, color: '#f59e0b', icon: ShoppingCartIcon },
 ]
 
@@ -561,7 +561,7 @@ export function DashboardPage() {
     return stats.topProducts.map((product, index) => ({
       name: product.name.length > 18 ? product.name.slice(0, 18) + '...' : product.name,
       revenue: Math.round(product.sellingPrice * product.totalSold),
-      fill: topProductRevenueColors[index] || '#10b981',
+      fill: topProductRevenueColors[index] || '#FF6600',
     }))
   }, [stats])
 
@@ -589,7 +589,7 @@ export function DashboardPage() {
         iconBg: 'bg-emerald-100 dark:bg-emerald-900/60',
         iconColor: 'text-emerald-600 dark:text-emerald-400',
         sparkData: sparklineData.revenue,
-        sparkColor: '#10b981',
+        sparkColor: '#FF6600',
         pulse: animatedRevenue.pulse,
       },
       {
@@ -603,7 +603,7 @@ export function DashboardPage() {
         iconBg: 'bg-teal-100 dark:bg-teal-900/60',
         iconColor: 'text-teal-600 dark:text-teal-400',
         sparkData: sparklineData.orders,
-        sparkColor: '#14b8a6',
+        sparkColor: '#FF8A33',
         pulse: animatedOrders.pulse,
       },
       {
@@ -930,8 +930,8 @@ export function DashboardPage() {
           <CardContent>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { label: 'Revenue Trend', value: '+12.5%', sparkData: sparklineData.revenue, sparkColor: '#10b981', trend: 'up' },
-                { label: 'Order Growth', value: '+8.2%', sparkData: sparklineData.orders, sparkColor: '#14b8a6', trend: 'up' },
+                { label: 'Revenue Trend', value: '+12.5%', sparkData: sparklineData.revenue, sparkColor: '#FF6600', trend: 'up' },
+                { label: 'Order Growth', value: '+8.2%', sparkData: sparklineData.orders, sparkColor: '#FF8A33', trend: 'up' },
                 { label: 'Customer Growth', value: '+5.1%', sparkData: sparklineData.customers, sparkColor: '#f59e0b', trend: 'up' },
                 { label: 'Stock Level', value: '-2.3%', sparkData: sparklineData.products, sparkColor: '#f43f5e', trend: 'down' },
               ].map((insight) => (
@@ -1018,7 +1018,7 @@ export function DashboardPage() {
                   const ActivityIcon = activity.icon
                   const isNew = !activity.read
                   const dotColors: Record<ActivityType, string> = {
-                    order: 'bg-emerald-500',
+                    order: 'bg-green-500',
                     review: 'bg-amber-500',
                     customer: 'bg-sky-500',
                     inventory: 'bg-rose-500',
@@ -1121,9 +1121,9 @@ export function DashboardPage() {
                   <AreaChart data={revenuePeriods[revenuePeriod]}>
                     <defs>
                       <linearGradient id="revenueGradientEnhanced" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                        <stop offset="50%" stopColor="#14b8a6" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#FF6600" stopOpacity={0.4} />
+                        <stop offset="50%" stopColor="#FF8A33" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="#FF6600" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="prevRevenueGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.1} />
@@ -1160,7 +1160,7 @@ export function DashboardPage() {
                       yAxisId="revenue"
                       type="monotone"
                       dataKey="revenue"
-                      stroke="#10b981"
+                      stroke="#FF6600"
                       fill="url(#revenueGradientEnhanced)"
                       strokeWidth={2.5}
                       name="Current Period"
@@ -1178,7 +1178,7 @@ export function DashboardPage() {
                     <Tooltip content={<RevenueTooltip />} />
                     <Legend />
                     <Bar dataKey="prevRevenue" fill="#94a3b8" radius={[4, 4, 0, 0]} name="Previous Period" />
-                    <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} name="Current Period" />
+                    <Bar dataKey="revenue" fill="#FF6600" radius={[4, 4, 0, 0]} name="Current Period" />
                   </BarChart>
                 )}
               </ResponsiveContainer>
@@ -1260,7 +1260,7 @@ export function DashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               {activityItems.slice(0, 5).map((activity, index) => {
                 const dotColors: Record<ActivityType, string> = {
-                  order: 'bg-emerald-500',
+                  order: 'bg-green-500',
                   review: 'bg-amber-500',
                   customer: 'bg-sky-500',
                   inventory: 'bg-rose-500',
@@ -1358,12 +1358,12 @@ export function DashboardPage() {
                   <LineChart data={revenueChartData}>
                     <defs>
                       <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#10b981" />
-                        <stop offset="100%" stopColor="#14b8a6" />
+                        <stop offset="0%" stopColor="#FF6600" />
+                        <stop offset="100%" stopColor="#FF8A33" />
                       </linearGradient>
                       <linearGradient id="revenueFillGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.02} />
+                        <stop offset="5%" stopColor="#FF6600" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#FF6600" stopOpacity={0.02} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
@@ -1384,16 +1384,16 @@ export function DashboardPage() {
                       stroke="url(#lineGradient)"
                       fill="url(#revenueFillGradient)"
                       strokeWidth={2.5}
-                      dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }}
+                      dot={{ fill: '#FF6600', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: '#FF6600', strokeWidth: 2, stroke: '#fff' }}
                     />
                     <Line
                       type="monotone"
                       dataKey="revenue"
                       stroke="url(#lineGradient)"
                       strokeWidth={2.5}
-                      dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }}
+                      dot={{ fill: '#FF6600', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: '#FF6600', strokeWidth: 2, stroke: '#fff' }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -1563,7 +1563,7 @@ export function DashboardPage() {
                       </div>
                       {/* Mini sparkline for 7-day trend */}
                       <div className="shrink-0 hidden sm:block">
-                        <MiniSparkline data={trendData} color={trendUp ? '#10b981' : '#ef4444'} width={60} height={24} />
+                        <MiniSparkline data={trendData} color={trendUp ? '#FF6600' : '#ef4444'} width={60} height={24} />
                       </div>
                       {/* Percentage change indicator */}
                       <div className={`flex items-center gap-0.5 shrink-0 ${trendUp ? 'text-emerald-600' : 'text-red-500'}`}>

@@ -206,7 +206,7 @@ export function PagesPage() {
                       <TableCell className="font-medium text-sm">{page.title}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">/{page.slug}</TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className={page.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'}>
+                        <Badge variant="secondary" className={page.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}>
                           {page.isActive ? 'Active' : 'Inactive'}
                         </Badge>
                       </TableCell>

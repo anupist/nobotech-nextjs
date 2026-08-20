@@ -51,12 +51,12 @@ function EmptyCartIllustration() {
         className="mb-6"
       >
         <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="60" cy="60" r="56" fill="#ecfdf5" stroke="#d1fae5" strokeWidth="2" />
-          <path d="M42 44H78L74 88H46L42 44Z" fill="#d1fae5" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M50 44V38C50 32.4772 54.4772 28 60 28C65.5228 28 70 32.4772 70 38V44" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="52" cy="58" r="3" fill="#059669" />
-          <circle cx="68" cy="58" r="3" fill="#059669" />
-          <path d="M50 68C50 68 54 74 60 74C66 74 70 68 70 68" stroke="#059669" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="60" cy="60" r="56" fill="#EEF1F7" stroke="#D9E0EC" strokeWidth="2" />
+          <path d="M42 44H78L74 88H46L42 44Z" fill="#D9E0EC" stroke="#0D1B3D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M50 44V38C50 32.4772 54.4772 28 60 28C65.5228 28 70 32.4772 70 38V44" stroke="#FF6600" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="52" cy="58" r="3" fill="#FF6600" />
+          <circle cx="68" cy="58" r="3" fill="#FF6600" />
+          <path d="M50 68C50 68 54 74 60 74C66 74 70 68 70 68" stroke="#0D1B3D" strokeWidth="2" strokeLinecap="round" />
         </svg>
       </motion.div>
       <motion.h3

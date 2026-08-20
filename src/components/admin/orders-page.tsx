@@ -83,7 +83,7 @@ const statusColors: Record<string, string> = {
   confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300',
   processing: 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-300',
   packed: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300',
-  shipped: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300',
+  shipped: 'bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-300',
   delivered: 'bg-green-100 text-green-800 dark:bg-green-950/40 dark:text-green-300',
   cancelled: 'bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-300',
   returned: 'bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-300',
@@ -95,7 +95,7 @@ const statusDotColors: Record<string, string> = {
   confirmed: 'bg-blue-500',
   processing: 'bg-purple-500',
   packed: 'bg-indigo-500',
-  shipped: 'bg-emerald-500',
+  shipped: 'bg-green-500',
   delivered: 'bg-green-500',
   cancelled: 'bg-red-500',
   returned: 'bg-orange-500',
@@ -110,7 +110,7 @@ const allStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered
 
 const paymentColors: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
-  paid: 'bg-emerald-100 text-emerald-800',
+  paid: 'bg-green-100 text-green-800',
   failed: 'bg-red-100 text-red-800',
   refunded: 'bg-gray-100 text-gray-800',
 }
@@ -191,12 +191,12 @@ function MiniOrderSparkline() {
     <svg width={width} height={height} className="opacity-70">
       <defs>
         <linearGradient id="orderSparkGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
-          <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+          <stop offset="0%" stopColor="#FF6600" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#FF6600" stopOpacity="0" />
         </linearGradient>
       </defs>
       <polygon points={areaPoints} fill="url(#orderSparkGrad)" />
-      <polyline points={points} fill="none" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points={points} fill="none" stroke="#FF6600" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
@@ -337,10 +337,10 @@ export function OrdersPage() {
     const today = new Date().toISOString().split('T')[0]
     const a = document.createElement('a')
     a.href = url
-    a.download = `shophub-orders-${today}.csv`
+    a.download = `kinleymart-orders-${today}.csv`
     a.click()
     URL.revokeObjectURL(url)
-    toast.success(`Exported ${orders.length} orders`, { description: `File saved as shophub-orders-${today}.csv` })
+    toast.success(`Exported ${orders.length} orders`, { description: `File saved as kinleymart-orders-${today}.csv` })
   }, [orders])
 
   // Get timeline status index
@@ -723,7 +723,7 @@ export function OrdersPage() {
                       </motion.div>
                       {index < timelineSteps.length - 1 && (
                         <div className={`w-0.5 h-8 ${
-                          isCompleted ? 'bg-emerald-500' : 'bg-muted-foreground/20'
+                          isCompleted ? 'bg-green-500' : 'bg-muted-foreground/20'
                         }`} />
                       )}
                     </div>

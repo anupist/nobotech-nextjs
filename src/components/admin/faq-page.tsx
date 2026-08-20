@@ -357,8 +357,8 @@ export function FAQPage() {
                       </TableCell>
                       <TableCell className="text-center">{faq.sortOrder}</TableCell>
                       <TableCell className="text-center">
-                        <span className={`inline-flex items-center gap-1 text-xs font-medium ${faq.isActive ? 'text-emerald-600' : 'text-gray-400'}`}>
-                          <span className={`h-2 w-2 rounded-full ${faq.isActive ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                        <span className={`inline-flex items-center gap-1 text-xs font-medium ${faq.isActive ? 'text-green-600' : 'text-gray-400'}`}>
+                          <span className={`h-2 w-2 rounded-full ${faq.isActive ? 'bg-green-500' : 'bg-gray-300'}`} />
                           {faq.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </TableCell>

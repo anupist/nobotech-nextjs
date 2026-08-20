@@ -750,7 +750,7 @@ export function ProductFormPage() {
                         ) : parseInt(stockQuantity) === 0 ? (
                           <Badge className="bg-gray-100 text-gray-700 border-0">Out of Stock</Badge>
                         ) : (
-                          <Badge className="bg-emerald-100 text-emerald-700 border-0">In Stock</Badge>
+                          <Badge className="bg-green-100 text-green-700 border-0">In Stock</Badge>
                         )}
                       </div>
                     </div>

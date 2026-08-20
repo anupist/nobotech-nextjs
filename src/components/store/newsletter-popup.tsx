@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { subscribeNewsletter, fetchSettings } from '@/lib/api'
 import { toast } from 'sonner'
 
-const STORAGE_KEY = 'shophub-newsletter-popup-dismissed'
+const STORAGE_KEY = 'kinleymart-newsletter-popup-dismissed'
 const SHOW_DELAY = 30000
 const REMEMBER_DAYS = 7
 

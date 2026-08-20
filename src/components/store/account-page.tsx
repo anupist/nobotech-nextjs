@@ -333,7 +333,7 @@ function OverviewOrders({ userId, navigateStore }: { userId: string; navigateSto
     confirmed: 'bg-sky-100 text-sky-700',
     processing: 'bg-violet-100 text-violet-700',
     shipped: 'bg-teal-100 text-teal-700',
-    delivered: 'bg-emerald-100 text-emerald-700',
+    delivered: 'bg-green-100 text-green-700',
     cancelled: 'bg-red-100 text-red-700',
   }
 
@@ -412,7 +412,7 @@ function OrdersTab({ navigateStore }: { navigateStore: (page: string, params?: R
     const url = URL.createObjectURL(blob)
 
     const today = new Date().toISOString().split('T')[0]
-    const filename = `shophub-orders-${today}.csv`
+    const filename = `kinleymart-orders-${today}.csv`
 
     const link = document.createElement('a')
     link.href = url
@@ -430,7 +430,7 @@ function OrdersTab({ navigateStore }: { navigateStore: (page: string, params?: R
     confirmed: 'bg-sky-100 text-sky-700',
     processing: 'bg-purple-100 text-purple-700',
     shipped: 'bg-cyan-100 text-cyan-700',
-    delivered: 'bg-emerald-100 text-emerald-700',
+    delivered: 'bg-green-100 text-green-700',
     cancelled: 'bg-red-100 text-red-700',
   }
 
@@ -509,7 +509,7 @@ function OrdersTab({ navigateStore }: { navigateStore: (page: string, params?: R
                       {/* Background line */}
                       <div className="absolute left-0 right-0 top-4 h-0.5 bg-muted">
                         <motion.div
-                          className="h-full bg-emerald-500"
+                          className="h-full bg-green-500"
                           initial={{ width: '0%' }}
                           animate={{ width: `${(currentStepIdx / (ORDER_STEPS.length - 1)) * 100}%` }}
                           transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -524,13 +524,13 @@ function OrdersTab({ navigateStore }: { navigateStore: (page: string, params?: R
                             <div
                               className={`h-8 w-8 rounded-full flex items-center justify-center border-2 transition-colors ${
                                 isCompleted
-                                  ? 'bg-emerald-500 border-emerald-500 text-white'
+                                  ? 'bg-green-500 border-green-500 text-white'
                                   : 'bg-background border-muted-foreground/30 text-muted-foreground'
                               } ${isCurrent ? 'ring-4 ring-emerald-100 dark:ring-emerald-950/50' : ''}`}
                             >
                               <StepIcon className="h-3.5 w-3.5" />
                             </div>
-                            <span className={`text-[10px] mt-1 font-medium ${isCompleted ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                            <span className={`text-[10px] mt-1 font-medium ${isCompleted ? 'text-green-600' : 'text-muted-foreground'}`}>
                               {step.label}
                             </span>
                           </div>

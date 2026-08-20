@@ -247,7 +247,7 @@ export function InventoryPage() {
                           ) : isLow ? (
                             <Badge variant="secondary" className="bg-amber-100 text-amber-800">Low Stock</Badge>
                           ) : (
-                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-800">In Stock</Badge>
+                            <Badge variant="secondary" className="bg-green-100 text-green-800">In Stock</Badge>
                           )}
                         </TableCell>
                         <TableCell>

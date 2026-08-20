@@ -205,7 +205,7 @@ export function BrandsPage() {
                       <TableCell className="text-sm text-muted-foreground">{brand.slug}</TableCell>
                       <TableCell className="text-sm">{brand._count?.products || 0}</TableCell>
                       <TableCell>
-                        <span className={`text-xs px-2 py-1 rounded-full ${brand.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'}`}>
+                        <span className={`text-xs px-2 py-1 rounded-full ${brand.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
                           {brand.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </TableCell>

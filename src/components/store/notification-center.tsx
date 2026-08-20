@@ -63,7 +63,7 @@ const DEMO_NOTIFICATIONS: Notification[] = [
     icon: Gift,
     iconBg: 'bg-purple-100 dark:bg-purple-950/40',
     iconColor: 'text-purple-600',
-    title: 'Welcome to ShopHub! Get 10% off with WELCOME10',
+    title: 'Welcome to KinleyMart! Get 10% off with WELCOME10',
     description: 'Use code WELCOME10 at checkout for 10% off your first order.',
     timestamp: '1 day ago',
     read: true,

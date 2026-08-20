@@ -518,8 +518,8 @@ export function SettingsPage() {
                       className="flex items-center justify-between p-3 border rounded-lg gap-3"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${method.isActive ? 'bg-emerald-100' : 'bg-muted'}`}>
-                          <Truck className={`h-4 w-4 ${method.isActive ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+                        <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${method.isActive ? 'bg-green-100' : 'bg-muted'}`}>
+                          <Truck className={`h-4 w-4 ${method.isActive ? 'text-green-600' : 'text-muted-foreground'}`} />
                         </div>
                         <div className="min-w-0">
                           <p className="font-medium text-sm truncate flex items-center gap-2">
@@ -766,7 +766,7 @@ export function SettingsPage() {
                     <Input
                       value={settings.seo_meta_title || ''}
                       onChange={(e) => updateSetting('seo_meta_title', e.target.value)}
-                      placeholder="ShopHub - Your One-Stop Online Shop"
+                      placeholder="KinleyMart - Your One-Stop Online Shop"
                     />
                   </div>
                   <div className="space-y-2">

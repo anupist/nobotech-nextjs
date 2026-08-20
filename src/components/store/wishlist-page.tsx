@@ -45,7 +45,7 @@ export function WishlistPage() {
   const [copied, setCopied] = useState(false)
 
   const wishlistShareUrl = typeof window !== 'undefined' ? `${window.location.origin}/?wishlist=true` : ''
-  const wishlistShareText = `Check out my wishlist on ShopHub! ${products.length} amazing items waiting to be discovered.`
+  const wishlistShareText = `Check out my wishlist on KinleyMart! ${products.length} amazing items waiting to be discovered.`
 
   const handleCopyWishlistLink = useCallback(async () => {
     try {

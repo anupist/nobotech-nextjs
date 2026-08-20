@@ -127,7 +127,7 @@ export const useRewardStore = create<RewardState>()(
       getPoints: () => get().points,
     }),
     {
-      name: 'shophub-rewards',
+      name: 'kinleymart-rewards',
     }
   )
 )

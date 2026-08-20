@@ -169,7 +169,7 @@ export function PaymentMethodsPage() {
                 <div className="text-center">
                   <p className="text-sm font-medium truncate max-w-full">{method.name}</p>
                   <div className="flex items-center justify-center gap-1.5 mt-1">
-                    <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${method.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-500'}`}>
+                    <Badge variant="secondary" className={`text-[10px] px-1.5 py-0 ${method.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
                       {method.isActive ? 'Active' : 'Inactive'}
                     </Badge>
                     <span className="text-[10px] text-muted-foreground">#{method.sortOrder}</span>

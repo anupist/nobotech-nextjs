@@ -93,7 +93,7 @@ export function GiftCardPage() {
           <div className="text-center md:text-left">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Gift Cards</h1>
             <p className="text-emerald-100 text-lg max-w-xl">
-              Give the perfect gift! ShopHub gift cards let your loved ones choose exactly what they want.
+              Give the perfect gift! KinleyMart gift cards let your loved ones choose exactly what they want.
             </p>
           </div>
         </div>

@@ -194,7 +194,7 @@ export function AnnouncementsPage() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className={`${announcement.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'} text-xs`}>
+                      <Badge variant="secondary" className={`${announcement.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'} text-xs`}>
                         {announcement.isActive ? 'Active' : 'Inactive'}
                       </Badge>
                     </TableCell>

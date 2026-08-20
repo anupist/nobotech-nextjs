@@ -210,7 +210,7 @@ export function AboutSectionsPage() {
                   </TableCell>
                   <TableCell>{section.sortOrder}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className={`${section.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'} text-xs`}>
+                    <Badge variant="secondary" className={`${section.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'} text-xs`}>
                       {section.isActive ? 'Yes' : 'No'}
                     </Badge>
                   </TableCell>

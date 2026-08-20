@@ -200,7 +200,7 @@ export function TestimonialsPage() {
                       </div>
                     </div>
                   </div>
-                  <Badge variant="secondary" className={`${testimonial.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'} text-xs`}>
+                  <Badge variant="secondary" className={`${testimonial.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'} text-xs`}>
                     {testimonial.isActive ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>

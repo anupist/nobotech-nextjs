@@ -173,7 +173,7 @@ export function NewsletterPage() {
                         {new Date(sub.createdAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="secondary" className={sub.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'}>
+                        <Badge variant="secondary" className={sub.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}>
                           {sub.isActive ? 'Active' : 'Inactive'}
                         </Badge>
                       </TableCell>

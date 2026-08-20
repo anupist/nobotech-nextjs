@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useNavStore } from '@/stores/nav-store'
 import { fetchSettings } from '@/lib/api'
 
-const CONSENT_KEY = 'shophub-cookie-consent'
+const CONSENT_KEY = 'kinleymart-cookie-consent'
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false)
@@ -113,7 +113,7 @@ export function CookieConsent() {
                                 <Shield className="h-4 w-4 text-emerald-400" />
                                 <span className="text-sm font-medium">Essential Cookies</span>
                               </div>
-                              <span className="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">Always Active</span>
+                              <span className="text-xs text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full">Always Active</span>
                             </div>
                             <p className="text-xs text-gray-400 ml-6">Required for the website to function properly.</p>
 

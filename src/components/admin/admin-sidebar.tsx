@@ -193,7 +193,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
     <TooltipProvider delayDuration={0}>
       <aside
         className={cn(
-          'relative flex flex-col h-full bg-slate-900 dark:bg-slate-950 text-white transition-all duration-300 ease-in-out',
+          'relative flex flex-col h-full bg-[#0D1B3D] dark:bg-[#080E21] text-white transition-all duration-300 ease-in-out',
           collapsed ? 'w-16' : 'w-64'
         )}
       >
@@ -207,7 +207,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
         )}>
           <div className="relative shrink-0">
             <Avatar className={cn(
-              'ring-2 ring-emerald-500/30 transition-all',
+              'ring-2 ring-green-500/30 transition-all',
               collapsed ? 'h-8 w-8' : 'h-9 w-9'
             )}>
               <AvatarImage src={user?.avatar} alt={user?.name} />
@@ -216,9 +216,9 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
               </AvatarFallback>
             </Avatar>
             {/* Green online indicator dot */}
-            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-slate-900 dark:border-slate-950">
+            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-slate-900 dark:border-slate-950">
               <motion.div
-                className="absolute inset-0 rounded-full bg-emerald-400"
+                className="absolute inset-0 rounded-full bg-green-400"
                 animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
                 transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
               />
