@@ -353,15 +353,19 @@ export function StoreHeader() {
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <div className="flex flex-col h-full">
 <div className="p-4 border-b bg-gradient-to-r from-[#FF8A33]/10 to-[#0D1B3D]/5">
-                  <button
-                    onClick={() => { navigateStore('home'); setMobileMenuOpen(false) }}
-                    className="flex items-center gap-2"
-                  >
-                    <Package className="h-7 w-7 text-[#FF6600]" />
-                    <span className="text-xl font-bold text-[#0D1B3D]">
-                      {siteName}
-                    </span>
-                  </button>
+<button
+                      onClick={() => { navigateStore('home'); setMobileMenuOpen(false) }}
+                      className="flex items-center gap-2"
+                    >
+                      {logo ? (
+                        <Image src={logo} alt={siteName} width={36} height={36} className="h-9 w-auto object-contain" />
+                      ) : (
+                        <Package className="h-7 w-7 text-[#FF6600]" />
+                      )}
+                      <span className="text-xl font-bold text-[#0D1B3D]">
+                        {siteName}
+                      </span>
+                    </button>
                 </div>
                 <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
                   <button
@@ -416,11 +420,11 @@ export function StoreHeader() {
             className="flex items-center gap-2 shrink-0 group logo-glow transition-filter duration-300"
           >
             {logo ? (
-              <Image src={logo} alt={siteName} width={28} height={28} className="object-contain" />
+              <Image src={logo} alt={siteName} width={40} height={40} className="h-10 w-auto object-contain" />
             ) : (
               <>
-                <Package className="h-7 w-7 text-[#FF6600] group-hover:scale-110 transition-transform duration-200" />
-                <span className="text-xl font-bold tracking-tight text-[#0D1B3D]">
+                <Package className="h-8 w-8 text-[#FF6600] group-hover:scale-110 transition-transform duration-200" />
+                <span className="text-xl font-bold tracking-tight text-[#0D1B3D] dark:text-white">
                   {siteName}
                 </span>
               </>

@@ -55,6 +55,7 @@ import {
   CollapsibleContent,
 } from '@/components/ui/collapsible'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 
 interface NavItem {
   label: string
@@ -145,6 +146,21 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   )
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const [lowStockCount, setLowStockCount] = useState(0)
+  const [adminLogo, setAdminLogo] = useState('')
+  const [siteName, setSiteName] = useState('KinleyMart')
+
+  // Fetch admin logo + site name for branding
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data) {
+          setAdminLogo(res.data.admin_logo || res.data.site_logo || '')
+          setSiteName(res.data.site_name || 'KinleyMart')
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   // Fetch low stock count for badge
   useEffect(() => {
@@ -199,6 +215,35 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       >
         {/* Gradient border on right side */}
         <div className="absolute right-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-emerald-400 via-teal-500 to-emerald-600 opacity-50" />
+
+        {/* Brand Logo Header */}
+        <div className={cn(
+          'flex items-center border-b border-slate-700/50 transition-all duration-300',
+          collapsed ? 'justify-center py-3' : 'gap-3 px-4 py-3'
+        )}>
+          {adminLogo ? (
+            <Image
+              src={adminLogo}
+              alt={siteName}
+              width={36}
+              height={36}
+              className={cn(
+                'object-contain shrink-0',
+                collapsed ? 'h-8 w-8' : 'h-9 w-auto'
+              )}
+            />
+          ) : (
+            <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-[#FF6600] to-[#FF8A33] flex items-center justify-center shrink-0">
+              <span className="text-white text-sm font-bold">K</span>
+            </div>
+          )}
+          {!collapsed && (
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold truncate text-white">{siteName}</p>
+              <p className="text-[11px] text-slate-400 truncate">Admin Panel</p>
+            </div>
+          )}
+        </div>
 
         {/* User Profile Header with online indicator */}
         <div className={cn(

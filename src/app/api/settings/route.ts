@@ -38,7 +38,7 @@ export async function PUT(request: NextRequest) {
 
     // Determine which keys belong to the group
     const groupPrefixMap: Record<string, string[]> = {
-      general: ['site_name', 'site_tagline', 'site_slogan', 'site_description', 'site_logo', 'site_favicon', 'currency', 'currency_symbol',
+      general: ['site_name', 'site_tagline', 'site_slogan', 'site_description', 'site_logo', 'admin_logo', 'site_favicon', 'currency', 'currency_symbol',
         'newsletter_popup_active', 'newsletter_popup_discount_code', 'newsletter_popup_discount_text', 'newsletter_popup_delay_ms',
         'cookie_consent_active',
         'download_app_ios_url', 'download_app_android_url'],

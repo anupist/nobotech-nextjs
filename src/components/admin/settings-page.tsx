@@ -229,6 +229,15 @@ export function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
+                <Label>Admin Logo</Label>
+                <MediaPickerButton
+                  value={settings.admin_logo || ''}
+                  onChange={(url) => updateSetting('admin_logo', url)}
+                  folder="general"
+                  label="Choose Admin Logo"
+                />
+              </div>
+              <div className="space-y-2">
                 <Label>Favicon</Label>
                 <MediaPickerButton
                   value={settings.site_favicon || ''}

@@ -54,6 +54,7 @@ import {
 } from 'lucide-react'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { motion, AnimatePresence } from 'framer-motion'
+import NextImage from 'next/image'
 
 const pageLabels: Record<AdminPage, string> = {
   dashboard: 'Dashboard',
@@ -158,6 +159,18 @@ export function AdminHeader({ onMobileMenuToggle }: AdminHeaderProps) {
   const { adminPage, navigateAdmin } = useNavStore()
   const { user, logout } = useAuthStore()
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
+  const [adminLogo, setAdminLogo] = useState('')
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data) {
+          setAdminLogo(res.data.admin_logo || res.data.site_logo || '')
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     fetch('/api/admin/notifications')
@@ -233,6 +246,18 @@ export function AdminHeader({ onMobileMenuToggle }: AdminHeaderProps) {
         </Button>
 
         <nav className="flex items-center gap-1.5 text-sm min-w-0 overflow-hidden">
+          {adminLogo && (
+            <>
+              <NextImage
+                src={adminLogo}
+                alt="Admin"
+                width={32}
+                height={32}
+                className="h-8 w-auto object-contain shrink-0"
+              />
+              <span className="h-4 w-px bg-border/60 shrink-0" />
+            </>
+          )}
           <button
             onClick={() => navigateAdmin('dashboard')}
             className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
