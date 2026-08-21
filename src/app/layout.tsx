@@ -25,31 +25,22 @@ async function getSiteFavicon(): Promise<{ url: string; custom: boolean }> {
   return { url: '/favicon.svg', custom: false };
 }
 
+function faviconType(url: string): string {
+  const lower = url.toLowerCase()
+  if (lower.endsWith('.svg')) return 'image/svg+xml'
+  if (lower.endsWith('.png')) return 'image/png'
+  if (lower.endsWith('.ico')) return 'image/x-icon'
+  if (lower.endsWith('.webp')) return 'image/webp'
+  if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg'
+  return 'image/x-icon'
+}
+
 export async function generateMetadata(): Promise<Metadata> {
-  const { url: favicon, custom } = await getSiteFavicon();
-  const lower = favicon.toLowerCase();
-
-  const icon: Array<{ url: string; sizes?: string; type?: string }> = [];
-  if (lower.endsWith('.svg')) icon.push({ url: favicon, type: 'image/svg+xml' });
-  else if (lower.endsWith('.png')) icon.push({ url: favicon, type: 'image/png' });
-  else if (lower.endsWith('.ico')) icon.push({ url: favicon });
-  else icon.push({ url: favicon });
-
-  if (!custom) {
-    icon.push({ url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' });
-    icon.push({ url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' });
-  }
-
   return {
     title: "KinleyMart - Quality Products, Best Value, Fast Delivery",
     description: "Discover quality products at the best value with fast delivery. Shop the latest trends at KinleyMart.",
     keywords: ["KinleyMart", "e-commerce", "online shopping", "fashion", "electronics", "home", "Next.js"],
     authors: [{ name: "KinleyMart Team" }],
-    icons: {
-      icon,
-      shortcut: lower.endsWith('.ico') ? favicon : '/favicon.ico',
-      apple: '/apple-touch-icon.png',
-    },
     openGraph: {
       title: "KinleyMart - Quality Products, Best Value, Fast Delivery",
       description: "Discover quality products at the best value with fast delivery.",
@@ -65,15 +56,27 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { url: favicon, custom } = await getSiteFavicon();
+  const type = faviconType(favicon);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href={favicon} type={type} />
+        {!custom && (
+          <>
+            <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
+            <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
+            <link rel="shortcut icon" href="/favicon.ico" />
+          </>
+        )}
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#0D1B3D" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
