@@ -49,7 +49,6 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { useWishlistStore } from '@/stores/wishlist-store'
-import Image from 'next/image'
 
 
 const categoryIconMap: Record<string, LucideIcon> = {
@@ -358,7 +357,7 @@ export function StoreHeader() {
                       className="flex items-center gap-2"
                     >
                       {logo ? (
-                        <Image src={logo} alt={siteName} width={36} height={36} className="h-9 w-auto object-contain" />
+                        <img src={logo} alt={siteName} className="h-9 w-auto object-contain" />
                       ) : (
                         <Package className="h-7 w-7 text-[#FF6600]" />
                       )}
@@ -420,7 +419,7 @@ export function StoreHeader() {
             className="flex items-center gap-2 shrink-0 group logo-glow transition-filter duration-300"
           >
             {logo ? (
-              <Image src={logo} alt={siteName} width={40} height={40} className="h-10 w-auto object-contain" />
+              <img src={logo} alt={siteName} className="h-10 w-auto object-contain" />
             ) : (
               <>
                 <Package className="h-8 w-8 text-[#FF6600] group-hover:scale-110 transition-transform duration-200" />

@@ -236,11 +236,9 @@ export function StoreFooter() {
           <div className="space-y-4 lg:col-span-1">
             <div className="flex items-center gap-2">
               {settings.site_logo ? (
-                <Image
+                <img
                   src={settings.site_logo}
                   alt={settings.site_name || 'Shop'}
-                  width={120}
-                  height={32}
                   className="h-8 w-auto object-contain"
                 />
               ) : (

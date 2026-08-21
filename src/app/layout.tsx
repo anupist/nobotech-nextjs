@@ -20,7 +20,13 @@ export const metadata: Metadata = {
   keywords: ["KinleyMart", "e-commerce", "online shopping", "fashion", "electronics", "home", "Next.js"],
   authors: [{ name: "KinleyMart Team" }],
   icons: {
-    icon: "/icon-192.svg",
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
   openGraph: {
     title: "KinleyMart - Quality Products, Best Value, Fast Delivery",
@@ -45,6 +51,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="theme-color" content="#0D1B3D" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />

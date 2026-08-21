@@ -2,13 +2,10 @@
 
 import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useNavStore, type AdminPage } from '@/stores/nav-store'
-import { useAuthStore } from '@/stores/auth-store'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import {
   Tooltip,
   TooltipContent,
@@ -54,8 +51,7 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from '@/components/ui/collapsible'
-import { motion, AnimatePresence } from 'framer-motion'
-import Image from 'next/image'
+import { motion } from 'framer-motion'
 
 interface NavItem {
   label: string
@@ -140,7 +136,6 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   const { adminPage, navigateAdmin } = useNavStore()
-  const { user } = useAuthStore()
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
     Object.fromEntries(navGroupsBase.map((g) => [g.title, true]))
   )
@@ -197,14 +192,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
     }))
   }, [lowStockCount])
 
-  const initials = user?.name
-    ? user.name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-    : 'AD'
-
   return (
     <TooltipProvider delayDuration={0}>
       <aside
@@ -219,63 +206,20 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
         {/* Brand Logo Header */}
         <div className={cn(
           'flex items-center border-b border-slate-700/50 transition-all duration-300',
-          collapsed ? 'justify-center py-3' : 'gap-3 px-4 py-3'
+          collapsed ? 'justify-center py-3' : 'justify-center px-4 py-4'
         )}>
           {adminLogo ? (
-            <Image
+            <img
               src={adminLogo}
               alt={siteName}
-              width={36}
-              height={36}
               className={cn(
-                'object-contain shrink-0',
-                collapsed ? 'h-8 w-8' : 'h-9 w-auto'
+                'object-contain',
+                collapsed ? 'h-8 w-8' : 'h-10 w-auto'
               )}
             />
           ) : (
-            <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-[#FF6600] to-[#FF8A33] flex items-center justify-center shrink-0">
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-[#FF6600] to-[#FF8A33] flex items-center justify-center shrink-0">
               <span className="text-white text-sm font-bold">K</span>
-            </div>
-          )}
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate text-white">{siteName}</p>
-              <p className="text-[11px] text-slate-400 truncate">Admin Panel</p>
-            </div>
-          )}
-        </div>
-
-        {/* User Profile Header with online indicator */}
-        <div className={cn(
-          'flex items-center border-b border-slate-700/50 transition-all duration-300',
-          collapsed ? 'justify-center py-3' : 'gap-3 px-4 py-3'
-        )}>
-          <div className="relative shrink-0">
-            <Avatar className={cn(
-              'ring-2 ring-green-500/30 transition-all',
-              collapsed ? 'h-8 w-8' : 'h-9 w-9'
-            )}>
-              <AvatarImage src={user?.avatar} alt={user?.name} />
-              <AvatarFallback className="text-xs bg-emerald-600 text-white">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            {/* Green online indicator dot */}
-            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-slate-900 dark:border-slate-950">
-              <motion.div
-                className="absolute inset-0 rounded-full bg-green-400"
-                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              />
-            </div>
-          </div>
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold truncate">{user?.name || 'Admin'}</p>
-                <Badge className="h-4 px-1.5 text-[8px] bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 hover:from-emerald-600 hover:to-teal-600 shrink-0">PRO</Badge>
-              </div>
-              <p className="text-[11px] text-slate-400 truncate">{user?.role === 'super-admin' ? 'Super Admin' : user?.role === 'admin' ? 'Admin' : user?.role === 'customer' ? 'Customer' : user?.role || 'Administrator'}</p>
             </div>
           )}
         </div>

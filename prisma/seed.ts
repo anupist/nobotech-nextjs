@@ -1877,7 +1877,7 @@ async function seedSettings() {
     { key: 'site_tagline', value: 'Quality Products • Best Value • Fast Delivery', group: 'general' },
     { key: 'site_description', value: 'Quality products at the best value with fast delivery. Shop electronics, fashion, home & more at KinleyMart.', group: 'general' },
     { key: 'site_logo', value: '/logo.svg', group: 'general' },
-    { key: 'site_favicon', value: '/favicon.ico', group: 'general' },
+    { key: 'site_favicon', value: '/favicon.svg', group: 'general' },
     { key: 'currency', value: 'USD', group: 'general' },
     { key: 'currency_symbol', value: '$', group: 'general' },
     // Contact
