@@ -15,17 +15,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-async function getSiteFavicon(): Promise<string> {
+async function getSiteFavicon(): Promise<{ url: string; custom: boolean }> {
   try {
     const setting = await db.setting.findUnique({ where: { key: 'site_favicon' } });
-    return setting?.value || '/favicon.svg';
+    if (setting?.value) return { url: setting.value, custom: true };
   } catch {
-    return '/favicon.svg';
+    // ignore
   }
+  return { url: '/favicon.svg', custom: false };
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const favicon = await getSiteFavicon();
+  const { url: favicon, custom } = await getSiteFavicon();
   const lower = favicon.toLowerCase();
 
   const icon: Array<{ url: string; sizes?: string; type?: string }> = [];
@@ -33,8 +34,11 @@ export async function generateMetadata(): Promise<Metadata> {
   else if (lower.endsWith('.png')) icon.push({ url: favicon, type: 'image/png' });
   else if (lower.endsWith('.ico')) icon.push({ url: favicon });
   else icon.push({ url: favicon });
-  icon.push({ url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' });
-  icon.push({ url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' });
+
+  if (!custom) {
+    icon.push({ url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' });
+    icon.push({ url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' });
+  }
 
   return {
     title: "KinleyMart - Quality Products, Best Value, Fast Delivery",
