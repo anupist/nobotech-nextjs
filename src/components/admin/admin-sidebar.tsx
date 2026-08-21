@@ -197,7 +197,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       <aside
         className={cn(
           'relative flex flex-col h-full bg-[#0D1B3D] dark:bg-[#080E21] text-white transition-all duration-300 ease-in-out',
-          collapsed ? 'w-16' : 'w-64'
+          collapsed ? 'w-16' : 'w-[300px]'
         )}
       >
         {/* Gradient border on right side */}
@@ -214,7 +214,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
               alt={siteName}
               className={cn(
                 'object-contain',
-                collapsed ? 'h-8 w-8' : 'h-10 w-auto'
+                collapsed ? 'h-8 w-8' : 'w-[250px] h-[80px]'
               )}
             />
           ) : (

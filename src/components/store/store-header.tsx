@@ -340,7 +340,7 @@ export function StoreHeader() {
       )}
 
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 gap-4">
+        <div className="flex items-center justify-between h-20 gap-4">
           {/* Mobile menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild className="lg:hidden">
@@ -419,7 +419,7 @@ export function StoreHeader() {
             className="flex items-center gap-2 shrink-0 group logo-glow transition-filter duration-300"
           >
             {logo ? (
-              <img src={logo} alt={siteName} className="h-10 w-auto object-contain" />
+              <img src={logo} alt={siteName} className="w-[250px] h-[80px] max-w-[55vw] object-contain" />
             ) : (
               <>
                 <Package className="h-8 w-8 text-[#FF6600] group-hover:scale-110 transition-transform duration-200" />
