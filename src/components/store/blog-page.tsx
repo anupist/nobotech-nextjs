@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { subscribeNewsletter } from '@/lib/api'
+import { stripHtml } from '@/lib/utils'
 import { toast } from 'sonner'
 import { BreadcrumbNav } from '@/components/shared/breadcrumb-nav'
 
@@ -243,7 +244,7 @@ export function BlogPage() {
                   </h2>
                   {featuredPost.excerpt && (
                     <p className="text-emerald-100/80 text-sm mb-4 line-clamp-3">
-                      {featuredPost.excerpt}
+                      {stripHtml(featuredPost.excerpt)}
                     </p>
                   )}
                   <div className="flex items-center gap-4 text-emerald-200/70 text-xs">
@@ -305,7 +306,7 @@ export function BlogPage() {
                     </h3>
                     {post.excerpt && (
                       <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                        {post.excerpt}
+                        {stripHtml(post.excerpt)}
                       </p>
                     )}
                     <div className="flex items-center justify-between">

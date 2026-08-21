@@ -5,7 +5,7 @@ import { useNavStore } from '@/stores/nav-store'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
@@ -644,7 +644,7 @@ export function ProductFormPage() {
                       <Label htmlFor="description">Description</Label>
                       <span className="text-xs text-muted-foreground">{description.length} chars</span>
                     </div>
-                    <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Product description..." rows={5} />
+                    <RichTextEditor value={description} onChange={setDescription} placeholder="Product description..." minHeight={170} />
                   </div>
                 </CardContent>
               </CollapsibleContent>
@@ -946,7 +946,7 @@ export function ProductFormPage() {
                       <Label htmlFor="metaDesc">Meta Description</Label>
                       <span className={`text-xs ${metaDescription.length > 160 ? 'text-red-500' : 'text-muted-foreground'}`}>{metaDescription.length}/160</span>
                     </div>
-                    <Textarea id="metaDesc" value={metaDescription} onChange={(e) => setMetaDescription(e.target.value)} rows={3} placeholder="Meta description" />
+                    <RichTextEditor value={metaDescription} onChange={setMetaDescription} placeholder="Meta description" minHeight={80} />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">

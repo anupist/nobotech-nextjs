@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -311,7 +311,7 @@ export function CategoriesPage() {
             </div>
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea value={formDescription} onChange={(e) => setFormDescription(e.target.value)} rows={3} />
+              <RichTextEditor value={formDescription} onChange={setFormDescription} placeholder="Category description" minHeight={90} />
             </div>
             <div className="space-y-2">
               <Label>Image</Label>

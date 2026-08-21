@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Plus, Pencil, Trash2, HelpCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -436,7 +436,7 @@ export function FAQPage() {
             </div>
             <div className="space-y-2">
               <Label>Answer *</Label>
-              <Textarea value={faqFormAnswer} onChange={(e) => setFaqFormAnswer(e.target.value)} rows={4} placeholder="You can track your order by..." />
+              <RichTextEditor value={faqFormAnswer} onChange={setFaqFormAnswer} placeholder="You can track your order by..." minHeight={110} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

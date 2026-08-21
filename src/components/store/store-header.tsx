@@ -49,6 +49,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { useWishlistStore } from '@/stores/wishlist-store'
+import { stripHtml } from '@/lib/utils'
 
 
 const categoryIconMap: Record<string, LucideIcon> = {
@@ -321,12 +322,12 @@ export function StoreHeader() {
                       {a.url ? (
                         <a href={a.url} className="flex items-center gap-2 hover:underline">
                           <Sparkles className="h-3 w-3 shrink-0 text-[#FF8A33]" />
-                          <span>{a.content || a.title}</span>
+                          <span>{stripHtml(a.content) || a.title}</span>
                         </a>
                       ) : (
                         <span className="flex items-center gap-2">
                           <Sparkles className="h-3 w-3 shrink-0 text-[#FF8A33]" />
-                          <span>{a.content || a.title}</span>
+                          <span>{stripHtml(a.content) || a.title}</span>
                         </span>
                       )}
                     </Fragment>

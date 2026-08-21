@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
@@ -282,11 +282,11 @@ export function BlogPage() {
             </div>
             <div className="space-y-2">
               <Label>Content</Label>
-              <Textarea value={formContent} onChange={(e) => setFormContent(e.target.value)} rows={10} placeholder="Write your blog content..." />
+              <RichTextEditor value={formContent} onChange={setFormContent} placeholder="Write your blog content..." minHeight={220} />
             </div>
             <div className="space-y-2">
               <Label>Excerpt</Label>
-              <Textarea value={formExcerpt} onChange={(e) => setFormExcerpt(e.target.value)} rows={2} placeholder="Brief description..." />
+              <RichTextEditor value={formExcerpt} onChange={setFormExcerpt} placeholder="Brief description..." minHeight={80} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

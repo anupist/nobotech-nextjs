@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { Plus, Star, Pencil, Trash2, Quote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -271,7 +271,7 @@ export function TestimonialsPage() {
             </div>
             <div className="space-y-2">
               <Label>Comment *</Label>
-              <Textarea value={formComment} onChange={(e) => setFormComment(e.target.value)} placeholder="Customer testimonial..." rows={4} />
+              <RichTextEditor value={formComment} onChange={setFormComment} placeholder="Customer testimonial..." minHeight={110} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

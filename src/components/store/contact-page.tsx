@@ -31,6 +31,7 @@ import { toast } from 'sonner'
 import { motion } from 'framer-motion'
 import { BreadcrumbNav } from '@/components/shared/breadcrumb-nav'
 import { fetchSettings, submitContactForm } from '@/lib/api'
+import { stripHtml } from '@/lib/utils'
 
 interface FormErrors {
   name?: string
@@ -410,7 +411,7 @@ export function ContactPage() {
                         </div>
                         <div className="min-w-0">
                           <h3 className="font-semibold text-sm mb-1">{faq.question}</h3>
-                          <p className="text-xs text-muted-foreground mb-2">{faq.answer}</p>
+                          <p className="text-xs text-muted-foreground mb-2">{stripHtml(faq.answer)}</p>
                           <button
                             onClick={() => navigateStore(faq.page)}
                             className="text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center gap-1 group/link"

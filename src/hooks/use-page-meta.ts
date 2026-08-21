@@ -115,7 +115,8 @@ export function getCachedSettings(): Record<string, string> {
 
 function setMetaTags(title: string, description?: string, keywords?: string) {
   if (typeof document === 'undefined') return
-  document.title = title
+  const clean = (v: string) => v.replace(/<[^>]*>/g, '').trim()
+  document.title = clean(title)
   const setOrCreate = (selector: string, attr: string, value: string) => {
     let el = document.head.querySelector(selector)
     if (!el) {
@@ -126,11 +127,11 @@ function setMetaTags(title: string, description?: string, keywords?: string) {
     }
     el.setAttribute('content', value)
   }
-  setOrCreate('meta[name="description"]', 'name=description', description || '')
-  setOrCreate('meta[property="og:title"]', 'property=og:title', title)
-  setOrCreate('meta[property="og:description"]', 'property=og:description', description || '')
+  setOrCreate('meta[name="description"]', 'name=description', clean(description || ''))
+  setOrCreate('meta[property="og:title"]', 'property=og:title', clean(title))
+  setOrCreate('meta[property="og:description"]', 'property=og:description', clean(description || ''))
   if (keywords) {
-    setOrCreate('meta[name="keywords"]', 'name=keywords', keywords)
+    setOrCreate('meta[name="keywords"]', 'name=keywords', clean(keywords))
   }
 }
 

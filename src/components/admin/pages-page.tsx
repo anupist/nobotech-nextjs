@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
@@ -253,7 +253,7 @@ export function PagesPage() {
             </div>
             <div className="space-y-2">
               <Label>Content</Label>
-              <Textarea value={formContent} onChange={(e) => setFormContent(e.target.value)} rows={12} placeholder="Page content..." />
+              <RichTextEditor value={formContent} onChange={setFormContent} placeholder="Page content..." minHeight={260} />
             </div>
             <details className="border rounded-lg p-3">
               <summary className="text-sm font-medium cursor-pointer">SEO Meta</summary>

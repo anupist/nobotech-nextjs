@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -264,7 +264,7 @@ export function BrandsPage() {
             </div>
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea value={formDescription} onChange={(e) => setFormDescription(e.target.value)} rows={3} />
+              <RichTextEditor value={formDescription} onChange={setFormDescription} placeholder="Brand description" minHeight={90} />
             </div>
             <div className="flex items-center justify-between">
               <Label>Active</Label>

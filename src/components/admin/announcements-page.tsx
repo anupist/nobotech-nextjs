@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Plus, Pencil, Trash2, Megaphone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -229,7 +229,7 @@ export function AnnouncementsPage() {
             </div>
             <div className="space-y-2">
               <Label>Content</Label>
-              <Textarea value={formContent} onChange={(e) => setFormContent(e.target.value)} placeholder="Additional details (optional)" rows={3} />
+              <RichTextEditor value={formContent} onChange={setFormContent} placeholder="Additional details (optional)" minHeight={90} />
             </div>
             <div className="space-y-2">
               <Label>URL</Label>

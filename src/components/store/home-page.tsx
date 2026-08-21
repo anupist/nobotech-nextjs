@@ -18,6 +18,7 @@ import {
   formatPrice,
   subscribeNewsletter,
 } from '@/lib/api'
+import { stripHtml } from '@/lib/utils'
 import { ProductCard } from './product-card'
 import { RecentlyViewed } from './recently-viewed'
 import { Button } from '@/components/ui/button'
@@ -550,7 +551,7 @@ export function HomePage() {
                   <div className="bg-card rounded-xl p-6 shadow-sm h-full">
                     <Quote className="h-8 w-8 text-emerald-200 mb-3" />
                     <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-                      &ldquo;{t.comment}&rdquo;
+                      &ldquo;{stripHtml(t.comment)}&rdquo;
                     </p>
                     <div className="flex items-center gap-3">
                       <div className="relative">

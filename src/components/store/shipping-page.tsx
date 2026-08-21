@@ -462,9 +462,10 @@ export function ShippingPage() {
                           </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-5 pb-4">
-                          <div className="pl-7 text-sm text-muted-foreground leading-relaxed">
-                            {policy.content}
-                          </div>
+                          <div
+                            className="pl-7 text-sm text-muted-foreground leading-relaxed prose-answer"
+                            dangerouslySetInnerHTML={{ __html: policy.content || '' }}
+                          />
                         </AccordionContent>
                       </AccordionItem>
                     )
@@ -498,9 +499,10 @@ export function ShippingPage() {
                         <span className="font-medium text-sm">{item.question}</span>
                       </AccordionTrigger>
                       <AccordionContent className="px-5 pb-4">
-                        <div className="text-sm text-muted-foreground leading-relaxed">
-                          {item.answer}
-                        </div>
+                        <div
+                          className="text-sm text-muted-foreground leading-relaxed prose-answer"
+                          dangerouslySetInnerHTML={{ __html: item.answer || '' }}
+                        />
                       </AccordionContent>
                     </AccordionItem>
                   ))}

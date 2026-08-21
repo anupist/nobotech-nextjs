@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Textarea } from '@/components/ui/textarea'
+import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
   Table,
@@ -512,11 +512,11 @@ export function ReviewsPage() {
               {/* Admin Response Area */}
               <div className="space-y-2">
                 <p className="text-sm font-medium">Admin Response</p>
-                <Textarea
-                  placeholder="Write a response to this review..."
+                <RichTextEditor
                   value={adminResponse}
-                  onChange={(e) => setAdminResponse(e.target.value)}
-                  className="min-h-[80px] resize-none"
+                  onChange={setAdminResponse}
+                  placeholder="Write a response to this review..."
+                  minHeight={90}
                 />
                 <Button
                   size="sm"

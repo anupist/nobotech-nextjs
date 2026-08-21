@@ -4,6 +4,7 @@ import { Plus, Pencil, Trash2, Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -259,7 +260,7 @@ export function AboutSectionsPage() {
             </div>
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea value={formDescription} onChange={(e) => setFormDescription(e.target.value)} placeholder="Section description" rows={3} />
+              <RichTextEditor value={formDescription} onChange={setFormDescription} placeholder="Section description" minHeight={90} />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
